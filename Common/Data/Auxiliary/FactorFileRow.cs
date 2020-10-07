@@ -99,7 +99,7 @@ namespace QuantConnect.Data.Auxiliary
         {
             factorFileMinimumDate = null;
 
-            var path = Path.Combine(Globals.CacheDataFolder, "equity", market, "factor_files", permtick.ToLowerInvariant() + ".csv");
+            var path = Path.Combine(Globals.DataFolder, "equity", market, "factor_files.test", permtick.ToLowerInvariant() + ".csv");
             var lines = File.ReadAllLines(path).Where(l => !string.IsNullOrWhiteSpace(l));
 
             return Parse(lines, out factorFileMinimumDate);
