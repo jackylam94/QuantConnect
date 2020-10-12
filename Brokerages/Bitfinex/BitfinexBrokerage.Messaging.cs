@@ -387,7 +387,16 @@ namespace QuantConnect.Brokerages.Bitfinex
                 var orderFee = new OrderFee(new CashAmount(Math.Abs(update.Fee), update.FeeCurrency));
 
                 var status = OrderStatus.Filled;
-                if (fillQuantity != order.Quantity)
+
+                if (_algorithm.BrokerageModel.AccountType == AccountType.Cash &&
+                    order.Direction == OrderDirection.Buy)
+                {
+                    // fees are debited in the base currency, so we have to subtract them from the filled quantity
+                    fillQuantity -= orderFee.Value.Amount;
+
+                    orderFee = new ModifiedFillQuantityOrderFee(orderFee.Value);
+                }
+                else if (fillQuantity != order.Quantity)
                 {
                     decimal totalFillQuantity;
                     _fills.TryGetValue(order.Id, out totalFillQuantity);
