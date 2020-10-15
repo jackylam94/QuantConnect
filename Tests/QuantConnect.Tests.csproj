@@ -411,6 +411,8 @@
     <Compile Include="Common\ExpiryTests.cs" />
     <Compile Include="Common\Orders\Serialization\SerializedOrderJsonConverterTests.cs" />
     <Compile Include="Common\Packets\ControlsTests.cs" />
+    <Compile Include="Common\Securities\FutureOptionMarginBuyingPowerModelTests.cs" />
+    <Compile Include="Common\Securities\Options\OptionSecurityTests.cs" />
     <Compile Include="Common\Securities\TestDefaultMarginCallModel.cs" />
     <Compile Include="Common\Statistics\AnnualPerformanceTests.cs" />
     <Compile Include="Common\ProtobufSerializationTests.cs" />

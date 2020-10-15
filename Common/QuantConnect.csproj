@@ -413,6 +413,7 @@
     <Compile Include="Securities\ContractSecurityFilterUniverse.cs" />
     <Compile Include="Securities\Future\FutureSymbol.cs" />
     <Compile Include="Securities\GetMaximumOrderQuantityForDeltaBuyingPowerParameters.cs" />
+    <Compile Include="Securities\Option\FutureOptionMarginModel.cs" />
     <Compile Include="Securities\RegisteredSecurityDataTypesProvider.cs" />
     <Compile Include="Securities\ErrorCurrencyConverter.cs" />
     <Compile Include="Securities\GetMaximumOrderQuantityForTargetBuyingPowerParameters.cs" />
