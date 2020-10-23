@@ -1821,7 +1821,7 @@ namespace QuantConnect.Brokerages.InteractiveBrokers
             var contract = new Contract
             {
                 Symbol = ibSymbol,
-                Exchange = exchange ?? "Smart",
+                Exchange = exchange ?? GetSymbolExchange(symbol),
                 SecType = securityType,
                 Currency = Currencies.USD
             };
