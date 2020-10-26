@@ -2369,7 +2369,7 @@ namespace QuantConnect
                     default(OptionStyle),
                     default(OptionRight),
                     0m,
-                    underlying.ID.Date,
+                    SecurityIdentifier.DefaultDate,//underlying.ID.Date,
                     alias
                 );
             }
