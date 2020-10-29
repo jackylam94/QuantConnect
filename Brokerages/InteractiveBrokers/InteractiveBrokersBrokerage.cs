@@ -2780,7 +2780,11 @@ namespace QuantConnect.Brokerages.InteractiveBrokers
 
             var lookupName = symbol.Value;
 
-            if (symbol.SecurityType == SecurityType.Option)
+            if (symbol.SecurityType == SecurityType.Future)
+            {
+                lookupName = symbol.ID.Symbol;
+            }
+            else if (symbol.SecurityType == SecurityType.Option)
             {
                 if (symbol.Underlying.SecurityType == SecurityType.Equity)
                 {

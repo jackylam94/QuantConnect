@@ -415,6 +415,7 @@
     <Compile Include="Securities\Future\API\CMEOptionChainQuotes.cs" />
     <Compile Include="Securities\Future\API\CMEOptionsCategoryList.cs" />
     <Compile Include="Securities\Future\API\CMEProductSlateV2.cs" />
+    <Compile Include="Securities\Future\FuturesOptionsGlobexSymbol.cs" />
     <Compile Include="Securities\GetMaximumOrderQuantityForDeltaBuyingPowerParameters.cs" />
     <Compile Include="Securities\Option\FutureOptionMarginModel.cs" />
     <Compile Include="Securities\RegisteredSecurityDataTypesProvider.cs" />
