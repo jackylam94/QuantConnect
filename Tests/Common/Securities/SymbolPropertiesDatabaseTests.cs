@@ -1,11 +1,11 @@
 ﻿/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -99,6 +99,28 @@ namespace QuantConnect.Tests.Common.Securities
 
             Assert.AreEqual(1, spList.Count);
             Assert.IsTrue(spList[0].Key.Symbol.Contains("*"));
+        }
+
+        [TestCase("ES", Market.CME, 50, 0.25)]
+        [TestCase("ZB", Market.CBOT, 1000, 0.015625)]
+        [TestCase("ZW", Market.CBOT, 5000, 0.00125)]
+        [TestCase("SI", Market.COMEX, 5000, 0.001)]
+        public void ReadsFuturesOptionsEntries(string ticker, string market, int expectedMultiplier, double expectedMinimumPriceFluctuation)
+        {
+            var future = Symbol.CreateFuture(ticker, market, SecurityIdentifier.DefaultDate);
+            var option = Symbol.CreateOption(
+                future,
+                market,
+                default(OptionStyle),
+                default(OptionRight),
+                default(decimal),
+                SecurityIdentifier.DefaultDate);
+
+            var db = SymbolPropertiesDatabase.FromDataFolder();
+            var results = db.GetSymbolProperties(market, option, SecurityType.Option, "USD");
+
+            Assert.AreEqual((decimal)expectedMultiplier, results.ContractMultiplier);
+            Assert.AreEqual((decimal)expectedMinimumPriceFluctuation, results.MinimumPriceVariation);
         }
     }
 }
