@@ -251,14 +251,17 @@ namespace QuantConnect.Lean.Engine.DataFeeds
                             // if factor file has minimum date, update start period if before minimum date
                             if (!_isLiveMode && _factorFile != null && _factorFile.FactorFileMinimumDate.HasValue)
                             {
+                                
+                                
                                 if (_periodStart < _factorFile.FactorFileMinimumDate.Value)
                                 {
+                                    Log.Error($"SubscriptionDataReader.Initialize() ::{_config.Symbol.ID} factor file first row {_factorFile.FactorFileMinimumDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)} | _periodStart {_periodStart:yyy-MM-dd} on |" );
                                     _periodStart = _factorFile.FactorFileMinimumDate.Value;
 
                                     OnNumericalPrecisionLimited(
                                         new NumericalPrecisionLimitedEventArgs(_config.Symbol,
-                                            $"Data for symbol {_config.Symbol.Value} has been limited due to numerical precision issues in the factor file. " +
-                                            $"The starting date has been set to {_factorFile.FactorFileMinimumDate.Value.ToShortDateString()}."));
+                                            $"Data for symbol {_config.Symbol.Value} has been limited due to numerical precision issues in the factor file." +
+                                            $"The starting date has been set to {_factorFile.FactorFileMinimumDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}."));
                                 }
                             }
                         }
