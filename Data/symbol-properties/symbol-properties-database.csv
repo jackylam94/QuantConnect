@@ -608,7 +608,7 @@ bitfinex,LEOUSD,crypto,Unus Sed LEO-US Dollar,USD,1,0.00001,0.00000001,tLEOUSD
 bitfinex,LEOUSDT,crypto,Unus Sed LEO-Tether USDt,USDT,1,0.00001,0.00000001,tLEOUST
 bitfinex,LINKUSD,crypto,ChainLink-US Dollar,USD,1,0.00001,0.00000001,tLINK:USD
 bitfinex,LINKUSDT,crypto,ChainLink-Tether USDt,USDT,1,0.00001,0.00000001,tLINK:UST
-bitfinex,LOOUSD,crypto,Loom-US Dollar,USD,1,0.00001,0.00000001,tLOOUSD
+bitfinex,LOOMUSD,crypto,Loom-US Dollar,USD,1,0.00001,0.00000001,tLOOUSD
 bitfinex,LRCBTC,crypto,Loopring-Bitcoin,BTC,1,0.00001,0.00000001,tLRCBTC
 bitfinex,LRCUSD,crypto,Loopring-US Dollar,USD,1,0.00001,0.00000001,tLRCUSD
 bitfinex,LTCBTC,crypto,Litecoin-Bitcoin,BTC,1,0.00001,0.00000001,tLTCBTC
