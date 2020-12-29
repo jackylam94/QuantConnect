@@ -1,4 +1,4 @@
-﻿/*
+/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
  *
@@ -23,6 +23,7 @@ using QuantConnect.Interfaces;
 using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Python;
+using QuantConnect.Securities.Positions;
 using static QuantConnect.StringExtensions;
 
 namespace QuantConnect.Securities
@@ -61,6 +62,16 @@ namespace QuantConnect.Securities
         public CashBook UnsettledCashBook { get; }
 
         /// <summary>
+        /// Gets the manager of the algorithm's position groups.
+        /// </summary>
+        /// <remarks>
+        /// NOTE: This is left as internal for now to avoid making API related changes.
+        /// We'll likely want to put this on IAlgorithm when we're ready to expose the
+        /// position groups feature to algorithms.
+        /// </remarks>
+        internal PositionGroupManager PositionGroupManager { get; }
+
+        /// <summary>
         /// The list of pending funds waiting for settlement time
         /// </summary>
         private readonly List<UnsettledCashAmount> _unsettledCashAmounts;
@@ -73,6 +84,7 @@ namespace QuantConnect.Securities
             Securities = securityManager;
             Transactions = transactions;
             MarginCallModel = new DefaultMarginCallModel(this, defaultOrderProperties);
+            PositionGroupManager = new PositionGroupManager(securityManager);
 
             CashBook = new CashBook();
             UnsettledCashBook = new CashBook();
@@ -474,13 +486,13 @@ namespace QuantConnect.Securities
             get
             {
                 decimal sum = 0;
-                foreach (var kvp in Securities.Where((pair, i) => pair.Value.Holdings.Quantity != 0))
+                foreach (var group in PositionGroupManager.Groups.Where(group => !group.IsEmpty()))
                 {
-                    var security = kvp.Value;
-                    var context = new ReservedBuyingPowerForPositionParameters(security);
-                    var reservedBuyingPower = security.BuyingPowerModel.GetReservedBuyingPowerForPosition(context);
+                    var context = new ReservedBuyingPowerForPositionGroupParameters(Securities, group);
+                    var reservedBuyingPower = group.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(context);
                     sum += reservedBuyingPower.AbsoluteUsedBuyingPower;
                 }
+
                 return sum;
             }
         }

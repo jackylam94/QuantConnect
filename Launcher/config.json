@@ -9,7 +9,7 @@
   "environment": "backtesting", // "live-paper", "backtesting", "live-interactive", "live-interactive-iqfeed"
 
   // algorithm class selector
-  "algorithm-type-name": "BasicTemplateFrameworkAlgorithm",
+  "algorithm-type-name": "SetHoldingsFutureRegressionAlgorithm",
 
   // Algorithm language selector - options CSharp, Python
   "algorithm-language": "CSharp",
@@ -112,7 +112,7 @@
   "bitfinex-api-secret": "",
   "bitfinex-api-key": "",
 
-    // binance configuration
+  // binance configuration
   "binance-api-secret": "",
   "binance-api-key": "",
 
@@ -156,7 +156,7 @@
   },
 
   // specify supported languages when running regression tests
-  "regression-test-languages": ["CSharp", "Python"],
+  "regression-test-languages": [ "CSharp", "Python" ],
 
   "environments": {
 

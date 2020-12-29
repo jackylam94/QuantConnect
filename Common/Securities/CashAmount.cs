@@ -1,4 +1,4 @@
-﻿/*
+/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
  *
@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+
+using System;
 
 namespace QuantConnect.Securities
 {
@@ -39,6 +41,32 @@ namespace QuantConnect.Securities
         {
             Amount = amount;
             Currency = currency;
+        }
+
+        /// <summary>
+        /// Add operator
+        /// </summary>
+        public static CashAmount operator +(CashAmount left, CashAmount right)
+        {
+            if (!left.Currency.Equals(right.Currency))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return new CashAmount(left.Amount + right.Amount, left.Currency);
+        }
+
+        /// <summary>
+        /// Subtract operator
+        /// </summary>
+        public static CashAmount operator -(CashAmount left, CashAmount right)
+        {
+            if (!left.Currency.Equals(right.Currency))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return new CashAmount(left.Amount - right.Amount, left.Currency);
         }
 
         /// <summary>
