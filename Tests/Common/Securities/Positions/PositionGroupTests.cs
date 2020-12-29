@@ -25,18 +25,6 @@ using Option = QuantConnect.Tests.Common.Securities.Options.StrategyMatcher.Opti
 
 namespace QuantConnect.Tests.Common.Securities.Positions
 {
-    [TestFixture]
-    public class PositionGroupKeyTests
-    {
-        private PositionGroups _groups;
-
-        [SetUp]
-        public void Setup()
-        {
-            _groups = new PositionGroups();
-        }
-    }
-
     public class PositionGroups
     {
         public readonly Security SPY;

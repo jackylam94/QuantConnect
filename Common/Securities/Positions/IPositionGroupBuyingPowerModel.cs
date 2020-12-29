@@ -50,7 +50,7 @@ namespace QuantConnect.Securities.Positions
         /// signed buying power percentage</param>
         /// <returns>Returns the maximum allowed market order quantity and if zero, also the reason</returns>
         GetMaximumPositionGroupOrderQuantityResult GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
-            GetMaximumOrderQuantityForPositionGroupTargetBuyingPowerParameters parameters
+            GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters parameters
             );
 
         /// <summary>

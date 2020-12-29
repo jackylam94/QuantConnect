@@ -91,7 +91,7 @@ namespace QuantConnect.Securities.Positions
             return new ReservedBuyingPowerForPositionGroupParameters(parameters.Securities, parameters.PositionGroup);
         }
 
-        public static implicit operator GetMaximumOrderQuantityForPositionGroupTargetBuyingPowerParameters(
+        public static implicit operator GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
             GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters parameters
             )
         {
@@ -106,15 +106,13 @@ namespace QuantConnect.Securities.Positions
             var signedUsedBuyingPower = Math.Sign(currentPositionGroup.Quantity) * usedBuyingPower;
             var targetBuyingPower = signedUsedBuyingPower + parameters.DeltaBuyingPower;
 
-            return new GetMaximumOrderQuantityForPositionGroupTargetBuyingPowerParameters(
+            return new GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
                 parameters.Securities,
                 parameters.Portfolio,
                 parameters.PositionGroupManager,
-                parameters.PositionGroup,
-                parameters.Portfolio.TotalPortfolioValue != 0
+                parameters.PositionGroup, parameters.Portfolio.TotalPortfolioValue != 0
                     ? targetBuyingPower / parameters.Portfolio.TotalPortfolioValue
-                    : 0
-            );
+                    : 0);
         }
     }
 }

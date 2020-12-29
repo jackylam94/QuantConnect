@@ -24,6 +24,8 @@ namespace QuantConnect.Securities.Positions
     /// </summary>
     public class SecurityPositionGroupBuyingPowerModel : PositionGroupBuyingPowerModel
     {
+        public decimal InitialMarginRequirement { get; set; } = 1m;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityPositionGroupBuyingPowerModel"/> class
         /// </summary>
@@ -33,11 +35,36 @@ namespace QuantConnect.Securities.Positions
         {
         }
 
-        protected override decimal GetInitialMarginRequirement(SecurityManager securities, IPositionGroup @group)
+        /// <summary>
+        /// Gets the initial margin required for an order resulting in a position change equal to the provided <paramref name="group"/>.
+        /// </summary>
+        /// <remarks>
+        /// Each unique classification of position groups (option strategies/future strategies) and even each brokerage
+        /// defines their own methodology for computing initial and maintenance margin requirements.
+        /// </remarks>
+        protected override decimal GetInitialMarginRequirement(SecurityManager securities, IPositionGroup group)
         {
-            throw new NotImplementedException();
+            var initialMarginRequirement = 0m;
+            foreach (var position in group)
+            {
+                var security = securities[position.Symbol];
+                initialMarginRequirement += security.QuoteCurrency.ConversionRate
+                    * security.SymbolProperties.ContractMultiplier
+                    * security.Price
+                    * position.Quantity
+                    * InitialMarginRequirement;
+            }
+
+            return initialMarginRequirement;
         }
 
+        /// <summary>
+        /// Gets the maintenance margin required for for holding the provided <paramref name="group"/>
+        /// </summary>
+        /// <remarks>
+        /// Each unique classification of position groups (option strategies/future strategies) and even each brokerage
+        /// defines their own methodology for computing initial and maintenance margin requirements.
+        /// </remarks>
         protected override decimal GetMaintenanceMarginRequirement(SecurityManager securities, IPositionGroup group)
         {
             // SecurityPositionGroupBuyingPowerModel models buying power the same as non-grouped, so we can simply sum up
@@ -55,20 +82,6 @@ namespace QuantConnect.Securities.Positions
             }
 
             return new ReservedBuyingPowerForPositionGroup(buyingPower);
-        }
-
-        private SecurityPositionGroup GetSecurityPositionGroup(IPositionGroup positionGroup)
-        {
-            var group = positionGroup as SecurityPositionGroup;
-            if (group == null)
-            {
-                throw new ArgumentException(
-                    $"{GetType().Name}.{nameof(GetMaximumPositionGroupOrderQuantityForTargetBuyingPower)} " +
-                    $"only supports position groups of type {nameof(SecurityPositionGroup)}"
-                );
-            }
-
-            return group;
         }
     }
 }

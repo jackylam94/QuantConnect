@@ -138,6 +138,22 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
+        /// Gets the default <see cref="SecurityPositionGroup"/> for the specified <paramref name="symbol"/>
+        /// </summary>
+        /// <param name="symbol">The symbol whose default group we seek</param>
+        /// <returns>The default position group for the specified symbol</returns>
+        public SecurityPositionGroup GetDefaultPositionGroup(Symbol symbol)
+        {
+            SecurityPositionGroup group;
+            if (!Groups.TryGetSecurityGroup(symbol, out group))
+            {
+                throw new KeyNotFoundException($"Default position group for {symbol} was not found.");
+            }
+
+            return group;
+        }
+
+        /// <summary>
         /// Gets the algorithm's current holdings in the position group identified by the specified <paramref name="key"/>
         /// </summary>
         /// <param name="key">The key defining the position group we seek</param>

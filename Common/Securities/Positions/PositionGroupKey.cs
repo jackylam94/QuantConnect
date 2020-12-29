@@ -50,6 +50,35 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
+        /// Gets the <see cref="IPosition.UnitQuantity"/> for the specified <paramref name="symbol"/>
+        /// </summary>
+        public decimal GetUnitQuantity(Symbol symbol)
+        {
+            for (int i = 0; i < UnitQuantities.Length; i++)
+            {
+                var uq = UnitQuantities[i];
+                if (uq.Symbol.Equals(symbol))
+                {
+                    return uq.Quantity;
+                }
+            }
+
+            throw new KeyNotFoundException($"{symbol} was not found in the group.");
+        }
+
+        /// <summary>
+        /// Creates a new position with a quantity equal to <code>units*UnitQuantity</code>
+        /// </summary>
+        /// <param name="symbol">The symbol for the new position</param>
+        /// <param name="units">The number of units in the position. This value is the same as the position group's quantity</param>
+        /// <returns>A new position with a quantity computed as the specified number of units</returns>
+        public IPosition CreatePosition(Symbol symbol, decimal units)
+        {
+            var unitQuantity = GetUnitQuantity(symbol);
+            return new Position(symbol, units * unitQuantity, unitQuantity);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupKey"/> struct. This constructor is suitable to be
         /// called from within a position group's constructor, provided the group's descriptor and positions have been
         /// assigned first.
@@ -57,9 +86,7 @@ namespace QuantConnect.Securities.Positions
         /// <param name="positionGroup">The position group to create a key for</param>
         public static PositionGroupKey Create(IPositionGroup positionGroup)
         {
-            return new PositionGroupKey(positionGroup.Descriptor,
-                positionGroup.ToImmutableArray(position => new UnitQuantity(position))
-            );
+            return Create(positionGroup.Descriptor, positionGroup);
         }
 
         /// <summary>

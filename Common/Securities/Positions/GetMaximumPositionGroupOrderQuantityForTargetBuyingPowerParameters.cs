@@ -18,7 +18,7 @@ namespace QuantConnect.Securities.Positions
     /// <summary>
     /// Defines the parameters for <see cref="IBuyingPowerModel.GetMaximumOrderQuantityForTargetBuyingPower"/>
     /// </summary>
-    public class GetMaximumOrderQuantityForPositionGroupTargetBuyingPowerParameters
+    public class GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters
     {
         /// <summary>
         /// Gets the target signed percentage buying power
@@ -61,7 +61,7 @@ namespace QuantConnect.Securities.Positions
         /// <param name="targetBuyingPower">The target percentage buying power</param>
         /// <param name="silenceNonErrorReasons">True will not return <see cref="GetMaximumPositionGroupOrderQuantityResult.Reason"/>
         /// set for non error situation, this is for performance</param>
-        public GetMaximumOrderQuantityForPositionGroupTargetBuyingPowerParameters(
+        public GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
             SecurityManager securities,
             SecurityPortfolioManager portfolio,
             PositionGroupManager positionGroupManager,

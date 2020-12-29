@@ -45,13 +45,13 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupBuyingPowerParameters"/> class
         /// </summary>
-        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="securities">The algorithm's security manager</param>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroup">The position group</param>
         /// <param name="direction">The direction to compute buying power in</param>
         public PositionGroupBuyingPowerParameters(
-            SecurityPortfolioManager portfolio,
             SecurityManager securities,
+            SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup,
             OrderDirection direction
             )

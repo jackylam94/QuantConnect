@@ -424,9 +424,11 @@
     <Compile Include="Common\Securities\FutureOptionMarginBuyingPowerModelTests.cs" />
     <Compile Include="Common\Securities\FutureOption\FuturesOptionsExpiryFunctionsTests.cs" />
     <Compile Include="Common\Securities\Options\OptionSecurityTests.cs" />
+    <Compile Include="Common\Securities\Positions\BuyingPowerModelComparator.cs" />
     <Compile Include="Common\Securities\Positions\CompositePositionGroupResolverTests.cs" />
     <Compile Include="Common\Securities\Positions\PositionCollectionTests.cs" />
     <Compile Include="Common\Securities\Positions\PositionDescriptorTests.cs" />
+    <Compile Include="Common\Securities\Positions\PositionGroupKeyTests.cs" />
     <Compile Include="Common\Securities\Positions\PositionGroupTests.cs" />
     <Compile Include="Common\Securities\Positions\SecurityPositionTests.cs" />
     <Compile Include="Common\Securities\TestDefaultMarginCallModel.cs" />

@@ -52,14 +52,14 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Initializes a new instance of the <see cref="HasSufficientPositionGroupBuyingPowerForOrderParameters"/> class
         /// </summary>
-        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="securities">The algorithm's security manager</param>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroupManager">The algorithm's position group manager</param>
         /// <param name="positionGroup">The position group</param>
         /// <param name="order">The order</param>
         public HasSufficientPositionGroupBuyingPowerForOrderParameters(
-            SecurityPortfolioManager portfolio,
             SecurityManager securities,
+            SecurityPortfolioManager portfolio,
             PositionGroupManager positionGroupManager,
             IPositionGroup positionGroup,
             Order order
@@ -75,11 +75,13 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// This may be called for non-combo type orders where the position group is guaranteed to have exactly one position
         /// </summary>
-        public HasSufficientBuyingPowerForOrderParameters ToSufficientBuyingPowerForOrderParameters()
+        public static implicit operator HasSufficientBuyingPowerForOrderParameters(
+            HasSufficientPositionGroupBuyingPowerForOrderParameters parameters
+            )
         {
-            var position = PositionGroup.Single();
-            var security = Securities[position.Symbol];
-            return new HasSufficientBuyingPowerForOrderParameters(Portfolio, security, Order);
+            var position = parameters.PositionGroup.Single();
+            var security = parameters.Securities[position.Symbol];
+            return new HasSufficientBuyingPowerForOrderParameters(parameters.Portfolio, security, parameters.Order);
         }
 
         /// <summary>
