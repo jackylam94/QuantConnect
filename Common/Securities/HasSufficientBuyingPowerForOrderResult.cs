@@ -21,12 +21,12 @@ namespace QuantConnect.Securities
     public class HasSufficientBuyingPowerForOrderResult
     {
         /// <summary>
-        /// Returns true if there is sufficient buying power to execute an order
+        /// Gets true if there is sufficient buying power to execute an order
         /// </summary>
         public bool IsSufficient { get; }
 
         /// <summary>
-        /// Returns the reason for insufficient buying power to execute an order
+        /// Gets the reason for insufficient buying power to execute an order
         /// </summary>
         public string Reason { get; }
 
@@ -39,6 +39,22 @@ namespace QuantConnect.Securities
         {
             IsSufficient = isSufficient;
             Reason = reason ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Creates a new result indicating that there is sufficient capital for the contemplated order
+        /// </summary>
+        public static HasSufficientBuyingPowerForOrderResult Sufficient()
+        {
+            return new HasSufficientBuyingPowerForOrderResult(true);
+        }
+
+        /// <summary>
+        /// Creates a new result indicating that there is insufficient capital for the contemplated order
+        /// </summary>
+        public static HasSufficientBuyingPowerForOrderResult Insufficient(string reason)
+        {
+            return new HasSufficientBuyingPowerForOrderResult(false, reason);
         }
     }
 }
