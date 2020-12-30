@@ -19,6 +19,16 @@ using static QuantConnect.StringExtensions;
 
 namespace QuantConnect.Securities.Positions
 {
+    public interface IDefaultPositionGroup : IPositionGroup
+    {
+        IEnumerable<IPositionGroup> Groups { get; }
+    }
+
+    public interface IDefaultPosition : IPosition
+    {
+        Security Security { get; }
+    }
+
     /// <summary>
     /// Provides an implementation of <see cref="IPositionGroup"/> that contains exactly one <see cref="IPosition"/>.
     /// This is used as a 'group of last resort' and contains the quantity of security holdings that have not been
@@ -78,9 +88,19 @@ namespace QuantConnect.Securities.Positions
         /// <param name="security">The security</param>
         /// <param name="buyingPowerModel">The position group's buying power model</param>
         public SecurityPositionGroup(Security security, IPositionGroupBuyingPowerModel buyingPowerModel)
+            : this(new SecurityPosition(security), buyingPowerModel)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SecurityPositionGroup"/> class
+        /// </summary>
+        /// <param name="position">The security position</param>
+        /// <param name="buyingPowerModel">The position group's buying power model</param>
+        public SecurityPositionGroup(SecurityPosition position, IPositionGroupBuyingPowerModel buyingPowerModel)
+        {
+            Position = position;
             BuyingPowerModel = buyingPowerModel;
-            Position = new SecurityPosition(security, this);
             Key = PositionGroupKey.Create(Descriptor, new[] {Position});
         }
 

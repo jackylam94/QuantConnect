@@ -103,6 +103,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             public IPositionGroupBuyingPowerModel BuyingPowerModel { get; }
             public string GetUserFriendlyName(IPositionGroup @group) { throw new NotImplementedException(); }
             public IPositionGroup CreatePositionGroup(IReadOnlyCollection<IPosition> positions) { throw new NotImplementedException(); }
+            public IPosition CreatePosition(Symbol symbol, decimal quantity, decimal unitQuantity) { throw new NotImplementedException(); }
             public IEnumerable<IPositionGroup> GetImpactedGroups(PositionGroupCollection groups, Symbol symbol) { throw new NotImplementedException(); }
         }
     }

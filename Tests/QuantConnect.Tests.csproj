@@ -430,7 +430,6 @@
     <Compile Include="Common\Securities\Positions\PositionDescriptorTests.cs" />
     <Compile Include="Common\Securities\Positions\PositionGroupKeyTests.cs" />
     <Compile Include="Common\Securities\Positions\PositionGroupTests.cs" />
-    <Compile Include="Common\Securities\Positions\SecurityPositionTests.cs" />
     <Compile Include="Common\Securities\TestDefaultMarginCallModel.cs" />
     <Compile Include="Common\Statistics\AnnualPerformanceTests.cs" />
     <Compile Include="Common\ProtobufSerializationTests.cs" />

@@ -28,16 +28,16 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             _positions = PositionCollection.Create(_securities.Values);
         }
 
-        [Test]
-        public void Create_FromSecurities_InitializesWithSecurityPositionFromSecurityObject()
-        {
-            foreach (var position in _positions)
-            {
-                Assert.IsInstanceOf<SecurityPosition>(position);
-                var securityPosition = (SecurityPosition) position;
-                Assert.IsNotNull(securityPosition.DefaultGroup);
-            }
-        }
+        //[Test]
+        //public void Create_FromSecurities_InitializesWithSecurityPositionFromSecurityObject()
+        //{
+        //    foreach (var position in _positions)
+        //    {
+        //        Assert.IsInstanceOf<SecurityPosition>(position);
+        //        var securityPosition = (SecurityPosition) position;
+        //        Assert.IsNotNull(securityPosition.DefaultGroup);
+        //    }
+        //}
 
         [Test]
         public void SecurityPosition_Quantity_IsUpdatedBasedOnSecurityHoldings()

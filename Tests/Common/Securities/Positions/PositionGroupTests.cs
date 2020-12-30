@@ -37,8 +37,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         {
             SPY = CreateSecurity(Symbols.SPY);
             SPY_C100 = CreateSecurity(Option.Call[Symbols.SPY, 100]);
-            SPY_DefaultGroup = new SecurityPositionGroup(SPY);
-            SPY_C100_DefaultGroup = new SecurityPositionGroup(SPY_C100);
+            SPY_DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY), null);
+            SPY_C100_DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY_C100), null);
             SPY_C100_CoveredCall = PositionGroup.Create(
                 SecurityPositionGroupDescriptor.Instance,
                 new Position(SPY.Symbol, 500, 100),
@@ -87,8 +87,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             SPY = CreateSecurity(Symbols.SPY);
             SPY_C100 = CreateSecurity(Option.Call[Symbols.SPY, 100]);
 
-            _spyDefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY, TODO));
-            _spy_c100DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY_C100, TODO));
+            _spyDefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY), null);
+            _spy_c100DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY_C100), null);
 
             // TODO : Update to use OptionStrategyPositionGroupDescriptor following options integration
             _coveredCall = PositionGroup.Create(

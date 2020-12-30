@@ -44,18 +44,13 @@ namespace QuantConnect.Securities.Positions
         public decimal Quantity => GetQuantity();
 
         /// <summary>
-        /// Gets this security's default group
-        /// </summary>
-        public SecurityPositionGroup DefaultGroup { get; }
-
-        /// <summary>
         /// Gets the groups this security is a member of, excluding its default <see cref="SecurityPositionGroup"/>
         /// </summary>
         public IEnumerable<IPositionGroup> Groups => _groups.Values;
 
         /// <summary>
-        /// Gets the size of a single lot for the security. For equities in option strategy groups, this should match
-        /// the contract's multiplier (normally 100).
+        /// Gets the size of a single lot for the security. For equities in option strategy groups, this would match
+        /// the contract's multiplier (normally 100) and that position wouldn't be represented w/ this type.
         /// </summary>
         public decimal UnitQuantity => Security.SymbolProperties.LotSize;
 
@@ -69,11 +64,9 @@ namespace QuantConnect.Securities.Positions
         /// Initializes a new instance of the <see cref="SecurityPosition"/> class
         /// </summary>
         /// <param name="security">The security</param>
-        /// <param name="buyingPowerModel">The buying power model used by the default group</param>
-        public SecurityPosition(Security security, SecurityPositionGroupBuyingPowerModel buyingPowerModel)
+        public SecurityPosition(Security security)
         {
             Security = security;
-            DefaultGroup = new SecurityPositionGroup(security, buyingPowerModel);
             _quantity = security.Holdings.Quantity;
             _groups = new Dictionary<PositionGroupKey, IPositionGroup>();
 

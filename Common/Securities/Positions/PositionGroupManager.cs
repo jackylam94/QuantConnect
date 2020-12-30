@@ -87,7 +87,9 @@ namespace QuantConnect.Securities.Positions
                         {
                             // simply adding a security doesn't require group resolution until it has holdings
                             // all we need to do is make sure we add the default SecurityPositionGroup
-                            group = new SecurityPositionGroup(security, _defaultDescriptor.BuyingPowerModel);
+                            //var position = _defaultDescriptor.CreatePosition(security.Symbol, 0, security.SymbolProperties.LotSize);
+                            //group = _defaultDescriptor.CreatePositionGroup(new[] {position});
+                            group = new SecurityPositionGroup(new SecurityPosition(security), _defaultDescriptor.BuyingPowerModel);
                             Groups = Groups.SetItem(group);
                             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
                             if (security.Invested)

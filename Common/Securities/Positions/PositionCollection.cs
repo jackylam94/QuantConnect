@@ -20,6 +20,38 @@ using System.Linq;
 
 namespace QuantConnect.Securities.Positions
 {
+    public class PositionCollection2
+    {
+        private readonly Dictionary<Symbol, SymbolEntry> _symbols;
+        private readonly Dictionary<PositionGroupKey, IPositionGroup> _groups;
+
+        public static PositionCollection Create(IEnumerable<Security> securities)
+        {
+            var symbols = securities.ToDictionary(
+                s => s.Symbol,
+                s => new SymbolEntry(new SecurityPositionGroup(s, null))
+            );
+            return null;
+        }
+
+        private struct SymbolEntry
+        {
+            public readonly List<IPositionGroup> Groups;
+            public readonly SecurityPositionGroup DefaultGroup;
+
+            public SymbolEntry(SecurityPositionGroup defaultGroup)
+            {
+                DefaultGroup = defaultGroup;
+                Groups = new List<IPositionGroup>();
+            }
+        }
+    }
+
+    public class SymbolPositions
+    {
+        private readonly Dictionary<PositionGroupKey, IPosition> _positions;
+    }
+
     /// <summary>
     /// Provides a collection for <see cref="IPosition"/>, keyed by <see cref="SecurityPosition"/>,
     /// supporting multiple positions per symbol. The common usage is to initialize this collection with
@@ -81,7 +113,7 @@ namespace QuantConnect.Securities.Positions
         {
             return new PositionCollection(securities.ToDictionary(
                 security => security.Symbol,
-                security => new Entry(new SecurityPosition(security, TODO))
+                security => new Entry(new SecurityPosition(security))
             ));
         }
 
@@ -142,7 +174,7 @@ namespace QuantConnect.Securities.Positions
                 if (!positions.TryGetValue(symbol, out entry))
                 {
                     var security = securities[symbol];
-                    entry = new Entry(new SecurityPosition(security, TODO));
+                    entry = new Entry(new SecurityPosition(security));
                     positions[symbol] = entry;
                 }
             }
@@ -154,12 +186,12 @@ namespace QuantConnect.Securities.Positions
         /// Creates a new <see cref="PositionGroupCollection"/> containing each <see cref="SecurityPositionGroup"/> present
         /// in this collection. The security position groups are resolved via <see cref="SecurityPosition.DefaultGroup"/>
         /// </summary>
-        public PositionGroupCollection CreateDefaultPositionGroupCollection()
-        {
-            return PositionGroupCollection.Create(_positions.Values
-                .Select(entry => entry.SecurityPosition.DefaultGroup)
-            );
-        }
+        //public PositionGroupCollection CreateDefaultPositionGroupCollection()
+        //{
+        //    return PositionGroupCollection.Create(_positions.Values
+        //        .Select(entry => entry.SecurityPosition.DefaultGroup)
+        //    );
+        //}
 
         /// <summary>
         /// Adds the specified <paramref name="position"/> to this collection. If the position is

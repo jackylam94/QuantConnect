@@ -47,11 +47,14 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public IPositionGroupBuyingPowerModel BuyingPowerModel { get; }
 
+        private readonly SecurityManager _securities;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityPositionGroupDescriptor"/> class
         /// </summary>
-        public SecurityPositionGroupDescriptor(IPositionGroupBuyingPowerModel buyingPowerModel)
+        public SecurityPositionGroupDescriptor(SecurityManager securities, IPositionGroupBuyingPowerModel buyingPowerModel)
         {
+            _securities = securities;
             BuyingPowerModel = buyingPowerModel;
         }
 
@@ -73,9 +76,17 @@ namespace QuantConnect.Securities.Positions
             return string.Join("|", group.Select(p => p.Symbol.ToString()));
         }
 
+        /// <summary>
+        /// Creates a new <see cref="IPosition"/> intended to be a member of a position group of the type
+        /// described by this descriptor
+        /// </summary>
+        /// <param name="symbol">The position's symbol</param>
+        /// <param name="quantity">The position's quantity</param>
+        /// <param name="unitQuantity">The position's unit quantity within the group</param>
+        /// <returns>A new position with the specified properties</returns>
         public IPosition CreatePosition(Symbol symbol, decimal quantity, decimal unitQuantity)
         {
-            return new SecurityPosition();
+            return new SecurityPosition(_securities[symbol]);
         }
 
         /// <summary>
@@ -98,7 +109,7 @@ namespace QuantConnect.Securities.Positions
                 throw new ArgumentException($"Position must be of type {nameof(SecurityPosition)}.");
             }
 
-            return securityPosition.DefaultGroup;
+            return new SecurityPositionGroup(securityPosition, BuyingPowerModel);
         }
 
         /// <summary>

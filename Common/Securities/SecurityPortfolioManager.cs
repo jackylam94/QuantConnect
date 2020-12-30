@@ -85,7 +85,7 @@ namespace QuantConnect.Securities
             Transactions = transactions;
             MarginCallModel = new DefaultMarginCallModel(this, defaultOrderProperties);
             PositionGroupManager = new PositionGroupManager(securityManager);
-            PositionGroupManager.RegisterDescriptor(0, new SecurityPositionGroupDescriptor(
+            PositionGroupManager.RegisterDescriptor(0, new SecurityPositionGroupDescriptor(securityManager,
                 new SecurityPositionGroupBuyingPowerModel(securityManager, this, PositionGroupManager, 0m)
             ));
 
