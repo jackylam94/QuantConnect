@@ -80,16 +80,16 @@ namespace QuantConnect.Securities.Positions
 
                 foreach (Security security in args.NewItems)
                 {
-                    SecurityPositionGroup group;
+                    SecurityPosition group;
                     if (args.Action == NotifyCollectionChangedAction.Add)
                     {
                         if (!Groups.TryGetSecurityGroup(security.Symbol, out group))
                         {
                             // simply adding a security doesn't require group resolution until it has holdings
-                            // all we need to do is make sure we add the default SecurityPositionGroup
+                            // all we need to do is make sure we add the default SecurityPosition
                             //var position = _defaultDescriptor.CreatePosition(security.Symbol, 0, security.SymbolProperties.LotSize);
                             //group = _defaultDescriptor.CreatePositionGroup(new[] {position});
-                            group = new SecurityPositionGroup(new SecurityPosition(security, null), _defaultDescriptor.BuyingPowerModel);
+                            group = new SecurityPosition(security, _defaultDescriptor);
                             Groups = Groups.SetItem(group);
                             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
                             if (security.Invested)
@@ -118,7 +118,7 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Registers the specified <paramref name="descriptor"/> and sets at which index its resolver should run.
         /// Specify <code>index=0</code> to run first and <code>index=Descriptors.Count-1</code> to run last. The
-        /// last resolver is always the default resolver for the <see cref="SecurityPositionGroup"/>.
+        /// last resolver is always the default resolver for the <see cref="SecurityPosition"/>.
         /// </summary>
         /// <param name="index">The index the descriptor's resolver should run at.</param>
         /// <param name="descriptor">The position group's descriptor to register</param>
@@ -155,13 +155,13 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
-        /// Gets the default <see cref="SecurityPositionGroup"/> for the specified <paramref name="symbol"/>
+        /// Gets the default <see cref="SecurityPosition"/> for the specified <paramref name="symbol"/>
         /// </summary>
         /// <param name="symbol">The symbol whose default group we seek</param>
         /// <returns>The default position group for the specified symbol</returns>
-        public SecurityPositionGroup GetDefaultPositionGroup(Symbol symbol)
+        public SecurityPosition GetDefaultPositionGroup(Symbol symbol)
         {
-            SecurityPositionGroup group;
+            SecurityPosition group;
             if (!Groups.TryGetSecurityGroup(symbol, out group))
             {
                 throw new KeyNotFoundException($"Default position group for {symbol} was not found.");

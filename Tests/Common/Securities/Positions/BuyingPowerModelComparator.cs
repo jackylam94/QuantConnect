@@ -59,7 +59,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetMaintenanceMargin(security);
             var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
                 new ReservedBuyingPowerForPositionGroupParameters(
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(security.Symbol)
+                    Algorithm.Portfolio,
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(security.Symbol)
                 )
             );
 
@@ -75,7 +76,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetInitialMarginRequirement(security, quantity);
             var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
                 new ReservedBuyingPowerForPositionGroupParameters(
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(security.Symbol)
+                    Algorithm.Portfolio,
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(security.Symbol)
                 )
             );
 
@@ -98,8 +100,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.HasSufficientBuyingPowerForOrder(parameters);
             var actual = PositionGroupModel.HasSufficientBuyingPowerForOrder(
                 new HasSufficientPositionGroupBuyingPowerForOrderParameters(
-                    Algorithm.Securities, Algorithm.Portfolio, Algorithm.Portfolio.PositionGroupManager,
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol),
+                    Algorithm.Portfolio, Algorithm.Portfolio.Positions,
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
                     parameters.Order
                 )
             );
@@ -124,7 +126,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetMaximumOrderQuantityForTargetBuyingPower(parameters);
             var actual = PositionGroupModel.GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
                 new GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol),
+                    Algorithm.Portfolio,
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
                     parameters.TargetBuyingPower,
                     parameters.SilenceNonErrorReasons
                 )
@@ -159,8 +162,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetMaximumOrderQuantityForDeltaBuyingPower(parameters);
             var actual = PositionGroupModel.GetMaximumPositionGroupOrderQuantityForDeltaBuyingPower(
                 new GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters(
-                    Algorithm.Securities, Algorithm.Portfolio, Algorithm.Portfolio.PositionGroupManager,
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol),
+                    Algorithm.Portfolio,
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
                     parameters.DeltaBuyingPower,
                     parameters.SilenceNonErrorReasons
                 )
@@ -191,7 +194,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetReservedBuyingPowerForPosition(parameters);
             var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
                 new ReservedBuyingPowerForPositionGroupParameters(
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol)
+                    Algorithm.Portfolio,
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol)
                 )
             );
 
@@ -207,9 +211,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetBuyingPower(parameters);
             var actual = PositionGroupModel.GetPositionGroupBuyingPower(
                 new PositionGroupBuyingPowerParameters(
-                    Algorithm.Securities,
                     Algorithm.Portfolio,
-                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol),
+                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
                     parameters.Direction
                 )
             );

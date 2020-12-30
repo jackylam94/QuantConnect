@@ -25,7 +25,7 @@ namespace QuantConnect.Securities.Positions
     /// </summary>
     /// <remarks>
     /// At time of writing there are currently three different types of position groups being considered.
-    /// 1. Default: <see cref="SecurityPositionGroup"/>
+    /// 1. Default: <see cref="SecurityPosition"/>
     /// 2. Options strategy
     /// 3. Futures strategy
     /// </remarks>

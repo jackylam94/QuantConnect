@@ -28,11 +28,21 @@ namespace QuantConnect.Securities.Positions
         public IReadOnlyCollection<IPosition> PositionGroup { get; }
 
         /// <summary>
+        /// Gets the algorithm's portfolio manager
+        /// </summary>
+        public SecurityPortfolioManager Portfolio { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupInitialMarginParameters"/> class
         /// </summary>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroup">The position group to compute initial margin requirement for</param>
-        public PositionGroupInitialMarginParameters(IPositionGroup positionGroup)
+        public PositionGroupInitialMarginParameters(
+            SecurityPortfolioManager portfolio,
+            IPositionGroup positionGroup
+            )
         {
+            Portfolio = portfolio;
             PositionGroup = positionGroup;
         }
     }

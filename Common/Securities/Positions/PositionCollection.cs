@@ -29,7 +29,7 @@ namespace QuantConnect.Securities.Positions
         {
             var symbols = securities.ToDictionary(
                 s => s.Symbol,
-                s => new SymbolEntry(new SecurityPositionGroup(s, null))
+                s => new SymbolEntry(new SecurityPosition(s, null))
             );
             return null;
         }
@@ -37,9 +37,9 @@ namespace QuantConnect.Securities.Positions
         private struct SymbolEntry
         {
             public readonly List<IPositionGroup> Groups;
-            public readonly SecurityPositionGroup DefaultGroup;
+            public readonly SecurityPosition DefaultGroup;
 
-            public SymbolEntry(SecurityPositionGroup defaultGroup)
+            public SymbolEntry(SecurityPosition defaultGroup)
             {
                 DefaultGroup = defaultGroup;
                 Groups = new List<IPositionGroup>();
@@ -183,7 +183,7 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
-        /// Creates a new <see cref="PositionGroupCollection"/> containing each <see cref="SecurityPositionGroup"/> present
+        /// Creates a new <see cref="PositionGroupCollection"/> containing each <see cref="SecurityPosition"/> present
         /// in this collection. The security position groups are resolved via <see cref="SecurityPosition.DefaultGroup"/>
         /// </summary>
         //public PositionGroupCollection CreateDefaultPositionGroupCollection()

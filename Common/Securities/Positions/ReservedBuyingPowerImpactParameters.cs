@@ -28,13 +28,21 @@ namespace QuantConnect.Securities.Positions
         public IReadOnlyCollection<IPosition> ContemplatedChanges { get; }
 
         /// <summary>
+        /// Gets the algorithm's portfolio manager
+        /// </summary>
+        public SecurityPortfolioManager Portfolio { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ReservedBuyingPowerImpactParameters"/> class
         /// </summary>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="contemplatedChanges">The position changes being contemplated</param>
         public ReservedBuyingPowerImpactParameters(
+            SecurityPortfolioManager portfolio,
             IReadOnlyCollection<IPosition> contemplatedChanges
             )
         {
+            Portfolio = portfolio;
             ContemplatedChanges = contemplatedChanges;
         }
     }

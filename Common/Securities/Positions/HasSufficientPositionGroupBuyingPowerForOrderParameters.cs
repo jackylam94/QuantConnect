@@ -51,13 +51,11 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Initializes a new instance of the <see cref="HasSufficientPositionGroupBuyingPowerForOrderParameters"/> class
         /// </summary>
-        /// <param name="securities">The algorithm's security manager</param>
         /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroupManager">The algorithm's position group manager</param>
         /// <param name="positionGroup">The position group</param>
         /// <param name="order">The order</param>
         public HasSufficientPositionGroupBuyingPowerForOrderParameters(
-            SecurityManager securities,
             SecurityPortfolioManager portfolio,
             PositionGroupManager positionGroupManager,
             IPositionGroup positionGroup,
@@ -66,7 +64,6 @@ namespace QuantConnect.Securities.Positions
         {
             Order = order;
             Portfolio = portfolio;
-            Securities = securities;
             PositionGroup = positionGroup;
             PositionGroupManager = positionGroupManager;
         }
@@ -90,7 +87,7 @@ namespace QuantConnect.Securities.Positions
             HasSufficientPositionGroupBuyingPowerForOrderParameters parameters
             )
         {
-            return new ReservedBuyingPowerImpactParameters(parameters.PositionGroup);
+            return new ReservedBuyingPowerImpactParameters(parameters.Portfolio, parameters.PositionGroup);
         }
 
         /// <summary>

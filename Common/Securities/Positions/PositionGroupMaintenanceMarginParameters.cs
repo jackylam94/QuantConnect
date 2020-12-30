@@ -26,11 +26,21 @@ namespace QuantConnect.Securities.Positions
         public IPositionGroup PositionGroup { get; }
 
         /// <summary>
+        /// Gets the algorithm's portfolio manager
+        /// </summary>
+        public SecurityPortfolioManager Portfolio { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupMaintenanceMarginParameters"/> class
         /// </summary>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroup">The position group to calculate maintenance margin for</param>
-        public PositionGroupMaintenanceMarginParameters(IPositionGroup positionGroup)
+        public PositionGroupMaintenanceMarginParameters(
+            SecurityPortfolioManager portfolio,
+            IPositionGroup positionGroup
+            )
         {
+            Portfolio = portfolio;
             PositionGroup = positionGroup;
         }
     }

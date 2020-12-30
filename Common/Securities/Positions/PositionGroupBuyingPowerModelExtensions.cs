@@ -29,11 +29,12 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public static decimal GetMaintenanceMargin(
             this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup
             )
         {
             return model.GetMaintenanceMargin(
-                new PositionGroupMaintenanceMarginParameters(positionGroup)
+                new PositionGroupMaintenanceMarginParameters(portfolio, positionGroup)
             );
         }
 
@@ -42,11 +43,12 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public static decimal GetInitialMarginRequirement(
             this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup
             )
         {
             return model.GetInitialMarginRequirement(
-                new PositionGroupInitialMarginParameters(positionGroup)
+                new PositionGroupInitialMarginParameters(portfolio, positionGroup)
             );
         }
 
@@ -55,12 +57,13 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public static decimal GetInitialMarginRequiredForOrder(
             this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup,
             Order order
             )
         {
             return model.GetInitialMarginRequiredForOrder(
-                new PositionGroupInitialMarginRequiredForOrderParameters(positionGroup, order)
+                new PositionGroupInitialMarginRequiredForOrderParameters(portfolio, positionGroup, order)
             );
         }
 
@@ -73,11 +76,12 @@ namespace QuantConnect.Securities.Positions
         /// <returns>Returns the portfolio's total portfolio value and margin used before and after the position changes are applied</returns>
         public static ReservedBuyingPowerImpact GetReservedBuyingPowerImpact(
             this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
             IReadOnlyCollection<IPosition> contemplatedChanges
             )
         {
             return model.GetReservedBuyingPowerImpact(
-                new ReservedBuyingPowerImpactParameters(contemplatedChanges)
+                new ReservedBuyingPowerImpactParameters(portfolio, contemplatedChanges)
             );
         }
 
@@ -86,11 +90,12 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public static ReservedBuyingPowerForPositionGroup GetReservedBuyingPowerForPositionGroup(
             this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup
             )
         {
             return model.GetReservedBuyingPowerForPositionGroup(
-                new ReservedBuyingPowerForPositionGroupParameters(positionGroup)
+                new ReservedBuyingPowerForPositionGroupParameters(portfolio, positionGroup)
             );
         }
     }

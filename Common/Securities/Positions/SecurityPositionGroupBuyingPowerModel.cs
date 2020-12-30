@@ -17,7 +17,7 @@ namespace QuantConnect.Securities.Positions
 {
     /// <summary>
     /// Provides an implementation of <see cref="IPositionGroupBuyingPowerModel"/> that computes margin as the sum
-    /// of individual security margins. This is the default model to be used with the <see cref="SecurityPositionGroup"/>
+    /// of individual security margins. This is the default model to be used with the <see cref="SecurityPosition"/>
     /// and is equivalent to the computing margin while ignoring any grouping of securities.
     /// </summary>
     public class SecurityPositionGroupBuyingPowerModel : PositionGroupBuyingPowerModel
@@ -25,17 +25,9 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityPositionGroupBuyingPowerModel"/> class
         /// </summary>
-        /// <param name="securities">The algorithm's security manager</param>
-        /// <param name="portfolio">The algorithm's portfolio manager</param>
-        /// <param name="positions">The algorithm's position manager</param>
         /// <param name="requiredFreeBuyingPowerPercent">The percentage of portfolio buying power to leave as a buffer</param>
-        public SecurityPositionGroupBuyingPowerModel(
-            SecurityManager securities,
-            SecurityPortfolioManager portfolio,
-            PositionGroupManager positions,
-            decimal requiredFreeBuyingPowerPercent
-            )
-            : base(securities, portfolio, positions, requiredFreeBuyingPowerPercent)
+        public SecurityPositionGroupBuyingPowerModel(decimal requiredFreeBuyingPowerPercent = 0m)
+            : base(requiredFreeBuyingPowerPercent)
         {
         }
 
@@ -50,7 +42,7 @@ namespace QuantConnect.Securities.Positions
             var buyingPower = 0m;
             foreach (var position in parameters.PositionGroup)
             {
-                var security = Securities[position.Symbol];
+                var security = parameters.Portfolio.Securities[position.Symbol];
                 var result = security.BuyingPowerModel.GetReservedBuyingPowerForPosition(
                     new ReservedBuyingPowerForPositionParameters(security)
                 );
@@ -69,7 +61,7 @@ namespace QuantConnect.Securities.Positions
             var initialMarginRequirement = 0m;
             foreach (var position in parameters.PositionGroup)
             {
-                var security = Securities[position.Symbol];
+                var security = parameters.Portfolio.Securities[position.Symbol];
                 initialMarginRequirement += security.BuyingPowerModel.GetInitialMarginRequirement(
                     security, position.Quantity
                 );
@@ -87,9 +79,9 @@ namespace QuantConnect.Securities.Positions
             foreach (var position in parameters.PositionGroup)
             {
                 // TODO : Support combo order by pull symbol-specific order
-                var security = Securities[position.Symbol];
+                var security = parameters.Portfolio.Securities[position.Symbol];
                 initialMarginRequirement += security.BuyingPowerModel.GetInitialMarginRequiredForOrder(
-                    new InitialMarginRequiredForOrderParameters(Portfolio.CashBook, security, parameters.Order)
+                    new InitialMarginRequiredForOrderParameters(parameters.Portfolio.CashBook, security, parameters.Order)
                 );
             }
 

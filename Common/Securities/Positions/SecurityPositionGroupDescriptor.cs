@@ -21,7 +21,7 @@ using QuantConnect.Interfaces;
 namespace QuantConnect.Securities.Positions
 {
     /// <summary>
-    /// Provides an implementation of <see cref="IPositionGroupDescriptor"/> for the <see cref="SecurityPositionGroup"/>.
+    /// Provides an implementation of <see cref="IPositionGroupDescriptor"/> for the <see cref="SecurityPosition"/>.
     /// This is the 'default' position group and its functions for detecting position group impacts only returns
     /// references to positions/groups of the same security.
     /// </summary>
@@ -35,7 +35,7 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the type of the <see cref="IPositionGroup"/> implementation
         /// </summary>
-        public Type Type { get; } = typeof(SecurityPositionGroup);
+        public Type Type { get; } = typeof(SecurityPosition);
 
         /// <summary>
         /// Gets the instance of <see cref="SecurityPositionGroupResolver"/>
@@ -86,11 +86,11 @@ namespace QuantConnect.Securities.Positions
         /// <returns>A new position with the specified properties</returns>
         public IPosition CreatePosition(Symbol symbol, decimal quantity, decimal unitQuantity)
         {
-            return new SecurityPosition(_securities[symbol]);
+            return new SecurityPosition(_securities[symbol], this);
         }
 
         /// <summary>
-        /// Creates a new <see cref="SecurityPositionGroup"/> from the specified <paramref name="positions"/>.
+        /// Creates a new <see cref="SecurityPosition"/> from the specified <paramref name="positions"/>.
         /// The provided <paramref name="positions"/> collection must only have one position and it must be of
         /// type <see cref="SecurityPosition"/>, otherwise an <see cref="ArgumentException"/> will be thrown.
         /// </summary>
@@ -109,7 +109,7 @@ namespace QuantConnect.Securities.Positions
                 throw new ArgumentException($"Position must be of type {nameof(SecurityPosition)}.");
             }
 
-            return new SecurityPositionGroup(securityPosition, BuyingPowerModel);
+            return securityPosition;
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace QuantConnect.Securities.Positions
         /// <returns>An enumerable of groups that can be impacted by changes in the <paramref name="symbol"/>'s holdings</returns>
         public IEnumerable<IPositionGroup> GetImpactedGroups(PositionGroupCollection groups, Symbol symbol)
         {
-            SecurityPositionGroup defaultGroup;
+            SecurityPosition defaultGroup;
             if (!groups.TryGetSecurityGroup(symbol, out defaultGroup))
             {
                 // if no default group exists then we're guaranteed no other groups exist for this symbol

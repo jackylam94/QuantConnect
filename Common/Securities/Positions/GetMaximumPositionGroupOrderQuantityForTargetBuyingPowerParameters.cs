@@ -37,18 +37,26 @@ namespace QuantConnect.Securities.Positions
         public IPositionGroup PositionGroup { get; }
 
         /// <summary>
+        /// Gets the algorithm's portfolio manager
+        /// </summary>
+        public SecurityPortfolioManager Portfolio { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="GetMaximumOrderQuantityForTargetBuyingPowerParameters"/> class
         /// </summary>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroup">The position group to be purchased with 'unit' quantity for the group</param>
         /// <param name="targetBuyingPower">The target percentage buying power</param>
         /// <param name="silenceNonErrorReasons">True will not return <see cref="GetMaximumPositionGroupOrderQuantityResult.Reason"/>
         /// set for non error situation, this is for performance</param>
         public GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
+            SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup,
             decimal targetBuyingPower,
             bool silenceNonErrorReasons = false
             )
         {
+            Portfolio = portfolio;
             PositionGroup = positionGroup;
             TargetBuyingPower = targetBuyingPower;
             SilenceNonErrorReasons = silenceNonErrorReasons;

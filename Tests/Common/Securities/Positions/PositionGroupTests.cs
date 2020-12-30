@@ -30,15 +30,15 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         public readonly Security SPY;
         public readonly Security SPY_C100;
         public readonly IPositionGroup SPY_C100_CoveredCall;
-        public readonly SecurityPositionGroup SPY_DefaultGroup;
-        public readonly SecurityPositionGroup SPY_C100_DefaultGroup;
+        public readonly SecurityPosition SPY_DefaultGroup;
+        public readonly SecurityPosition SPY_C100_DefaultGroup;
 
         public PositionGroups()
         {
             SPY = CreateSecurity(Symbols.SPY);
             SPY_C100 = CreateSecurity(Option.Call[Symbols.SPY, 100]);
-            SPY_DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY), null);
-            SPY_C100_DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY_C100), null);
+            SPY_DefaultGroup = new SecurityPosition(SPY, null);
+            SPY_C100_DefaultGroup = new SecurityPosition(SPY_C100, null);
             SPY_C100_CoveredCall = PositionGroup.Create(
                 SecurityPositionGroupDescriptor.Instance,
                 new Position(SPY.Symbol, 500, 100),
@@ -78,8 +78,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         private Security SPY;
         private Security SPY_C100;
         private IPositionGroup _coveredCall;
-        private SecurityPositionGroup _spyDefaultGroup;
-        private SecurityPositionGroup _spy_c100DefaultGroup;
+        private SecurityPosition _spyDefaultGroup;
+        private SecurityPosition _spy_c100DefaultGroup;
 
         [SetUp]
         public void Setup()
@@ -87,8 +87,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             SPY = CreateSecurity(Symbols.SPY);
             SPY_C100 = CreateSecurity(Option.Call[Symbols.SPY, 100]);
 
-            _spyDefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY), null);
-            _spy_c100DefaultGroup = new SecurityPositionGroup(new SecurityPosition(SPY_C100), null);
+            _spyDefaultGroup = new SecurityPosition(SPY, null);
+            _spy_c100DefaultGroup = new SecurityPosition(SPY_C100, null);
 
             // TODO : Update to use OptionStrategyPositionGroupDescriptor following options integration
             _coveredCall = PositionGroup.Create(
@@ -130,7 +130,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         [Test]
         public void Empty_CreatesNewEmptyPositionGroup()
         {
-            var positions = new []{_spyDefaultGroup.Position};
+            var positions = new []{_spyDefaultGroup};
             var empty = PositionGroup.Empty(
                 PositionGroupKey.Create(SecurityPositionGroupDescriptor.Instance, positions)
             );
@@ -154,7 +154,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         [Test]
         public void Negate_ReturnsSameGroup_WhenQuantityIsZero()
         {
-            Assert.AreSame(_spyDefaultGroup, _spyDefaultGroup.Negate());
+            var positionGroup = (IPositionGroup) _spyDefaultGroup;
+            Assert.AreSame(_spyDefaultGroup, positionGroup.Negate());
         }
 
         [Test]
@@ -222,7 +223,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             descriptor.Setup(d => d.GetUserFriendlyName(It.IsAny<IPositionGroup>()))
                 .Returns(userFriendlyName);
 
-            var group = PositionGroup.Create(descriptor.Object, _spyDefaultGroup.Position);
+            var group = PositionGroup.Create(descriptor.Object, _spyDefaultGroup);
             Assert.AreEqual(userFriendlyName, group.GetUserFriendlyName());
         }
 

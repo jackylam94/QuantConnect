@@ -23,19 +23,9 @@ namespace QuantConnect.Securities.Positions
     public class GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters
     {
         /// <summary>
-        /// Gets the algorithm's security manager
-        /// </summary>
-        public SecurityManager Securities { get; }
-
-        /// <summary>
         /// Gets the algorithm's portfolio manager
         /// </summary>
         public SecurityPortfolioManager Portfolio { get; }
-
-        /// <summary>
-        /// Gets the algorithm's position group manager
-        /// </summary>
-        public PositionGroupManager PositionGroupManager { get; }
 
         /// <summary>
         /// Gets the position group
@@ -57,27 +47,21 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Initializes a new instance of the <see cref="GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters"/> class
         /// </summary>
-        /// <param name="securities">The algorithm's security manager</param>
         /// <param name="portfolio">The algorithm's portfolio manager</param>
-        /// <param name="positionGroupManager">The algorithm's position group manager</param>
         /// <param name="positionGroup">The position group</param>
         /// <param name="deltaBuyingPower">The delta buying power to apply. Sign defines the position side to apply the delta</param>
         /// <param name="silenceNonErrorReasons">True will not return <see cref="GetMaximumPositionGroupOrderQuantityResult.Reason"/>
         /// set for non error situation, this is for performance</param>
         public GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters(
-            SecurityManager securities,
             SecurityPortfolioManager portfolio,
-            PositionGroupManager positionGroupManager,
             IPositionGroup positionGroup,
             decimal deltaBuyingPower,
             bool silenceNonErrorReasons = false
             )
         {
-            Securities = securities;
             Portfolio = portfolio;
             PositionGroup = positionGroup;
             DeltaBuyingPower = deltaBuyingPower;
-            PositionGroupManager = positionGroupManager;
             SilenceNonErrorReasons = silenceNonErrorReasons;
         }
 
@@ -88,7 +72,7 @@ namespace QuantConnect.Securities.Positions
             GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters parameters
             )
         {
-            return new ReservedBuyingPowerForPositionGroupParameters(parameters.PositionGroup);
+            return new ReservedBuyingPowerForPositionGroupParameters(parameters.Portfolio, parameters.PositionGroup);
         }
 
         public static implicit operator GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
@@ -99,14 +83,16 @@ namespace QuantConnect.Securities.Positions
             // by determining the currently used (reserved) buying power and adding the delta to
             // arrive at a target buying power percentage
 
-            var manager = parameters.PositionGroupManager;
-            var model = parameters.PositionGroup.Descriptor.BuyingPowerModel;
-            var usedBuyingPower = model.GetReservedBuyingPowerForPositionGroup(parameters);
-            var currentPositionGroup = manager.GetPositionGroup(parameters.PositionGroup.Key);
+            var currentPositionGroup = parameters.Portfolio.Positions.GetPositionGroup(parameters.PositionGroup.Key);
+            var usedBuyingPower = parameters.PositionGroup.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(
+                parameters.Portfolio, currentPositionGroup
+            );
+
             var signedUsedBuyingPower = Math.Sign(currentPositionGroup.Quantity) * usedBuyingPower;
             var targetBuyingPower = signedUsedBuyingPower + parameters.DeltaBuyingPower;
 
             return new GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
+                parameters.Portfolio,
                 parameters.PositionGroup,
                 parameters.Portfolio.TotalPortfolioValue != 0
                     ? targetBuyingPower / parameters.Portfolio.TotalPortfolioValue

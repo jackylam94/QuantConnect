@@ -22,7 +22,6 @@ using static QuantConnect.StringExtensions;
 
 namespace QuantConnect.Securities.Positions
 {
-
     /// <summary>
     /// Provides a base class implementation of <see cref="IPositionGroupBuyingPowerModel"/> that uses the concepts of
     /// initial margin and maintenance margin to determine if we have sufficient capital to open a position or to maintain
@@ -33,21 +32,6 @@ namespace QuantConnect.Securities.Positions
     public abstract class PositionGroupBuyingPowerModel : IPositionGroupBuyingPowerModel
     {
         /// <summary>
-        /// Gets the algorithm's security manager
-        /// </summary>
-        protected SecurityManager Securities { get; }
-
-        /// <summary>
-        /// Gets the algorithm's position manager
-        /// </summary>
-        protected PositionGroupManager Positions { get; }
-
-        /// <summary>
-        /// Gets the algorithm's portfolio manager
-        /// </summary>
-        protected SecurityPortfolioManager Portfolio { get; }
-
-        /// <summary>
         /// Gets the percentage of portfolio buying power to leave as a buffer
         /// </summary>
         protected decimal RequiredFreeBuyingPowerPercent { get; }
@@ -55,20 +39,9 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupBuyingPowerModel"/> class
         /// </summary>
-        /// <param name="securities">The algorithm's security manager</param>
-        /// <param name="portfolio">The algorithm's portfolio manager</param>
-        /// <param name="positions">The algorithm's position manager</param>
         /// <param name="requiredFreeBuyingPowerPercent">The percentage of portfolio buying power to leave as a buffer</param>
-        protected PositionGroupBuyingPowerModel(
-            SecurityManager securities,
-            SecurityPortfolioManager portfolio,
-            PositionGroupManager positions,
-            decimal requiredFreeBuyingPowerPercent
-            )
+        protected PositionGroupBuyingPowerModel(decimal requiredFreeBuyingPowerPercent = 0m)
         {
-            Portfolio = portfolio;
-            Positions = positions;
-            Securities = securities;
             RequiredFreeBuyingPowerPercent = requiredFreeBuyingPowerPercent;
         }
 
@@ -109,33 +82,33 @@ namespace QuantConnect.Securities.Positions
             //   5. Compute the contemplated reserved buying power on these newly resolved groups
 
             // 1. Determine impacted groups
-            var impactedGroups = Positions.Groups.GetImpactedGroups(parameters.ContemplatedChanges).ToList();
+            var impactedGroups = parameters.Portfolio.Positions.Groups.GetImpactedGroups(parameters.ContemplatedChanges).ToList();
 
             // 2. Compute current reserved buying power
             var current = 0m;
             foreach (var impactedGroup in impactedGroups)
             {
                 current += impactedGroup.BuyingPowerModel
-                    .GetReservedBuyingPowerForPositionGroup(impactedGroup);
+                    .GetReservedBuyingPowerForPositionGroup(parameters.Portfolio, impactedGroup);
             }
 
             // 3. Apply contemplated changes
             var impactedSymbols = impactedGroups.SelectMany(group => group.Select(position => position.Symbol)).Distinct();
-            var positions = PositionCollection.CreateWithSecurityPositions(Securities, impactedSymbols);
+            var positions = PositionCollection.CreateWithSecurityPositions(parameters.Portfolio.Securities, impactedSymbols);
             foreach (var position in parameters.ContemplatedChanges)
             {
                 positions.Add(position);
             }
 
             // 4. Resolve new position groups
-            var contemplatedGroups = Positions.Resolver.ResolvePositionGroups(positions);
+            var contemplatedGroups = parameters.Portfolio.Positions.Resolver.ResolvePositionGroups(positions);
 
             // 5. Compute contemplated reserved buying power
             var contemplated = 0m;
             foreach (var contemplatedGroup in contemplatedGroups)
             {
                 contemplated += contemplatedGroup.BuyingPowerModel
-                    .GetReservedBuyingPowerForPositionGroup(contemplatedGroup);
+                    .GetReservedBuyingPowerForPositionGroup(parameters.Portfolio, contemplatedGroup);
             }
 
             return new ReservedBuyingPowerImpact(
@@ -170,7 +143,7 @@ namespace QuantConnect.Securities.Positions
 
             // 1. Confirm we meet initial margin requirements, accounting for buffer
             var freeMargin = parameters.Portfolio.MarginRemaining * (1 - RequiredFreeBuyingPowerPercent);
-            var initialMargin = this.GetInitialMarginRequirement(parameters.PositionGroup);
+            var initialMargin = this.GetInitialMarginRequirement(parameters.Portfolio, parameters.PositionGroup);
             if (freeMargin < initialMargin)
             {
                 return parameters.Insufficient(Invariant(
@@ -235,7 +208,7 @@ namespace QuantConnect.Securities.Positions
 
             // 1. Determine current holdings of position group
             var positionGroup = parameters.PositionGroup;
-            var currentPositionGroup = Positions.GetPositionGroup(positionGroup.Key);
+            var currentPositionGroup = parameters.Portfolio.Positions.GetPositionGroup(positionGroup.Key);
 
             // 2. If targeting zero, short circuit and return the negative of existing quantities
             if (parameters.TargetBuyingPower == 0m)
@@ -245,14 +218,14 @@ namespace QuantConnect.Securities.Positions
 
             // 3. Determine target buying power, taking into account RequiredFreeBuyingPowerPercent
             var bufferFactor = 1 - RequiredFreeBuyingPowerPercent;
-            var totalPortfolioValue = Portfolio.TotalPortfolioValue;
+            var totalPortfolioValue = parameters.Portfolio.TotalPortfolioValue;
             var signedTargetFinalMarginValue = bufferFactor * parameters.TargetBuyingPower * totalPortfolioValue;
 
             // 4. Determine initial margin requirement for current holdings
             var currentSignedUsedMargin = 0m;
             if (currentPositionGroup.Quantity != 0)
             {
-                currentSignedUsedMargin = this.GetInitialMarginRequirement(currentPositionGroup);
+                currentSignedUsedMargin = this.GetInitialMarginRequirement(parameters.Portfolio, currentPositionGroup);
             }
 
             // 5. Determine if we need to buy or sell to reach target, we'll work in the land of absolutes after this
@@ -263,18 +236,18 @@ namespace QuantConnect.Securities.Positions
             var groupUnit = positionGroup.WithUnitQuantities();
 
             // 7. Compute initial margin requirement for a single unit
-            var absUnitMargin = GetInitialMarginRequirement(new PositionGroupInitialMarginParameters(groupUnit));
+            var absUnitMargin = GetInitialMarginRequirement(new PositionGroupInitialMarginParameters(parameters.Portfolio, groupUnit));
             if (absUnitMargin == 0m)
             {
                 // likely due to missing price data
-                var zeroPricedPosition = positionGroup.FirstOrDefault(p => Securities.GetValueOrDefault(p.Symbol)?.Price == 0m);
+                var zeroPricedPosition = positionGroup.FirstOrDefault(p => parameters.Portfolio.Securities.GetValueOrDefault(p.Symbol)?.Price == 0m);
                 return parameters.Error(zeroPricedPosition?.Symbol.GetZeroPriceMessage()
                     ?? $"Computed zero initial margin requirement for {positionGroup.GetUserFriendlyName()}."
                 );
             }
 
             // 7a. Compute order fees associated w/ unit order and update target absFinalOrderMargin
-            var orderFees = GetOrderFeeInAccountCurrency(groupUnit).Amount;
+            var orderFees = GetOrderFeeInAccountCurrency(parameters.Portfolio, groupUnit).Amount;
             var absFinalOrderMargin = absFinalOrderMarginWithoutFees - orderFees;
 
             // 8. Verify target is more that the unit margin -- for groups, minimum is same as unit margin
@@ -317,7 +290,7 @@ namespace QuantConnect.Securities.Positions
                 }
 
                 // 12. Update order fees and target margin -- we're taking fees off the top since they are less likely to be linear
-                orderFees = GetOrderFeeInAccountCurrency(groupUnit.WithQuantity(orderQuantity)).Amount;
+                orderFees = GetOrderFeeInAccountCurrency(parameters.Portfolio, groupUnit.WithQuantity(orderQuantity)).Amount;
                 absFinalOrderMargin = absFinalOrderMarginWithoutFees - orderFees;
 
                 if (loopCount == 0)
@@ -330,7 +303,7 @@ namespace QuantConnect.Securities.Positions
                     if (groupUnit.Count == 1)
                     {
                         // single security group
-                        var security = Securities[groupUnit.Single().Symbol];
+                        var security = parameters.Portfolio.Securities[groupUnit.Single().Symbol];
                         message = "GetMaximumPositionGroupOrderQuantityForTargetBuyingPower failed to converge to target order margin " +
                             Invariant($"{absFinalOrderMargin}. Current order margin is {orderMargin}. Order quantity {orderQuantity}. ") +
                             Invariant($"Lot size is {security.SymbolProperties.LotSize}. Order fees {orderFees}. Security symbol ") +
@@ -384,7 +357,7 @@ namespace QuantConnect.Securities.Positions
             )
         {
             return new ReservedBuyingPowerForPositionGroup(
-                this.GetMaintenanceMargin(parameters.PositionGroup)
+                this.GetMaintenanceMargin(parameters.Portfolio, parameters.PositionGroup)
             );
         }
 
@@ -417,25 +390,25 @@ namespace QuantConnect.Securities.Positions
 
                 // 2b. Rebate the initial margin equivalent of current position
                 // this interface doesn't have a concept of initial margin as it's an impl detail of the BuyingPowerModel base class
-                buyingPower += this.GetInitialMarginRequirement(parameters.PositionGroup);
+                buyingPower += this.GetInitialMarginRequirement(parameters.Portfolio, parameters.PositionGroup);
             }
 
             return new PositionGroupBuyingPower(buyingPower);
         }
 
         /// <summary>
-        /// Helper function to compute the order fees associated with executing market orders for the specified <paramref name="group"/>
+        /// Helper function to compute the order fees associated with executing market orders for the specified <paramref name="positionGroup"/>
         /// </summary>
-        protected virtual CashAmount GetOrderFeeInAccountCurrency(IPositionGroup positionGroup)
+        protected virtual CashAmount GetOrderFeeInAccountCurrency(SecurityPortfolioManager portfolio, IPositionGroup positionGroup)
         {
             // TODO : Add Order parameter to support Combo order type, pulling the orders per position
 
-            var utcTime = Securities.UtcTime;
-            var orderFee = new CashAmount(0m, Portfolio.CashBook.AccountCurrency);
+            var utcTime = portfolio.Securities.UtcTime;
+            var orderFee = new CashAmount(0m, portfolio.CashBook.AccountCurrency);
 
             foreach (var position in positionGroup)
             {
-                var security = Securities[position.Symbol];
+                var security = portfolio.Securities[position.Symbol];
                 var order = new MarketOrder(position.Symbol, position.Quantity, utcTime);
                 orderFee += security.FeeModel.GetOrderFee(new OrderFeeParameters(security, order)).Value;
             }

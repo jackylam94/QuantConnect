@@ -43,6 +43,9 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public Symbol Symbol => Security.Symbol;
 
+        /// <summary>
+        /// Gets the deterministic key for this group
+        /// </summary>
         public PositionGroupKey Key { get; }
 
         /// <summary>
@@ -61,7 +64,7 @@ namespace QuantConnect.Securities.Positions
         public IPositionGroupBuyingPowerModel BuyingPowerModel => Descriptor.BuyingPowerModel;
 
         /// <summary>
-        /// Gets the groups this security is a member of, excluding its default <see cref="SecurityPositionGroup"/>
+        /// Gets the groups this security is a member of, excluding its default <see cref="SecurityPosition"/>
         /// </summary>
         public IEnumerable<IPositionGroup> Groups => _groups.Values;
 
@@ -92,6 +95,15 @@ namespace QuantConnect.Securities.Positions
             // each time this security's holdings change we'll need to recompute the quantity allocated to this group
             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
         }
+
+        /// <summary>
+        /// Gets whether this position  is empty
+        /// </summary>
+        /// <remarks>
+        /// This is provided to remove ambiguity in extension methods as this type implements both:
+        /// <see cref="PositionExtensions.IsEmpty"/> and <see cref="PositionGroup.IsEmpty"/>
+        /// </remarks>
+        public bool IsEmpty() => Quantity != 0;
 
         /// <summary>
         /// Returns <code>this</code> if the provided <paramref name="symbol"/> matches,

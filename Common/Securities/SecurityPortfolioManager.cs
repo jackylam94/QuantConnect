@@ -69,7 +69,7 @@ namespace QuantConnect.Securities
         /// We'll likely want to put this on IAlgorithm when we're ready to expose the
         /// position groups feature to algorithms.
         /// </remarks>
-        internal PositionGroupManager PositionGroupManager { get; }
+        internal PositionGroupManager Positions { get; }
 
         /// <summary>
         /// The list of pending funds waiting for settlement time
@@ -84,9 +84,9 @@ namespace QuantConnect.Securities
             Securities = securityManager;
             Transactions = transactions;
             MarginCallModel = new DefaultMarginCallModel(this, defaultOrderProperties);
-            PositionGroupManager = new PositionGroupManager(securityManager);
-            PositionGroupManager.RegisterDescriptor(0, new SecurityPositionGroupDescriptor(securityManager,
-                new SecurityPositionGroupBuyingPowerModel(securityManager, this, PositionGroupManager, 0m)
+            Positions = new PositionGroupManager(securityManager);
+            Positions.RegisterDescriptor(0, new SecurityPositionGroupDescriptor(securityManager,
+                new SecurityPositionGroupBuyingPowerModel(0m)
             ));
 
             CashBook = new CashBook();
@@ -489,10 +489,9 @@ namespace QuantConnect.Securities
             get
             {
                 decimal sum = 0;
-                foreach (var group in PositionGroupManager.Groups.Where(group => !group.IsEmpty()))
+                foreach (var group in Positions.Groups.Where(group => !group.IsEmpty()))
                 {
-                    var context = new ReservedBuyingPowerForPositionGroupParameters(group);
-                    var reservedBuyingPower = group.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(context);
+                    var reservedBuyingPower = group.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(this, group);
                     sum += reservedBuyingPower.AbsoluteUsedBuyingPower;
                 }
 

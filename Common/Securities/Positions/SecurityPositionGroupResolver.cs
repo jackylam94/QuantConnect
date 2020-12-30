@@ -17,7 +17,7 @@ namespace QuantConnect.Securities.Positions
 {
     /// <summary>
     /// Provides an implementation of <see cref="IPositionGroupResolver"/> that resolves all positions provided into
-    /// the default group type of <see cref="SecurityPositionGroup"/>, each containing exactly one position of type
+    /// the default group type of <see cref="SecurityPosition"/>, each containing exactly one position of type
     /// <see cref="SecurityPosition"/>
     /// </summary>
     public class SecurityPositionGroupResolver : IPositionGroupResolver
@@ -31,7 +31,8 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection ResolvePositionGroups(PositionCollection positions)
         {
-            return positions.CreateDefaultPositionGroupCollection();
+            return null;
+            //return positions.CreateDefaultPositionGroupCollection();
         }
     }
 }
