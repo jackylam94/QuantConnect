@@ -89,7 +89,7 @@ namespace QuantConnect.Securities.Positions
                             // all we need to do is make sure we add the default SecurityPositionGroup
                             //var position = _defaultDescriptor.CreatePosition(security.Symbol, 0, security.SymbolProperties.LotSize);
                             //group = _defaultDescriptor.CreatePositionGroup(new[] {position});
-                            group = new SecurityPositionGroup(new SecurityPosition(security), _defaultDescriptor.BuyingPowerModel);
+                            group = new SecurityPositionGroup(new SecurityPosition(security, null), _defaultDescriptor.BuyingPowerModel);
                             Groups = Groups.SetItem(group);
                             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
                             if (security.Invested)

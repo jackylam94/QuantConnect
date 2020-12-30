@@ -26,8 +26,13 @@ namespace QuantConnect.Securities.Positions
     /// associated <see cref="SecurityPosition"/> and this position is also used to track all other groups for which
     /// the security belongs.
     /// </summary>
-    public class SecurityPosition : IPosition, IEnumerable<IPositionGroup>, IEquatable<SecurityPosition>, IDisposable
+    public class SecurityPosition : IPosition, IPositionGroup, IEnumerable<IPositionGroup>, IEquatable<SecurityPosition>, IDisposable
     {
+        /// <summary>
+        /// Gets the number one, which is the count of positions in the default group.
+        /// </summary>
+        public int Count { get; } = 1;
+
         /// <summary>
         /// Gets the security
         /// </summary>
@@ -38,10 +43,22 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public Symbol Symbol => Security.Symbol;
 
+        public PositionGroupKey Key { get; }
+
         /// <summary>
         /// Gets the quantity in this position
         /// </summary>
         public decimal Quantity => GetQuantity();
+
+        /// <summary>
+        /// Gets the type of the position group
+        /// </summary>
+        public IPositionGroupDescriptor Descriptor { get; }
+
+        /// <summary>
+        /// Gets the model defining how margin is computed for this group of positions
+        /// </summary>
+        public IPositionGroupBuyingPowerModel BuyingPowerModel => Descriptor.BuyingPowerModel;
 
         /// <summary>
         /// Gets the groups this security is a member of, excluding its default <see cref="SecurityPositionGroup"/>
@@ -64,14 +81,30 @@ namespace QuantConnect.Securities.Positions
         /// Initializes a new instance of the <see cref="SecurityPosition"/> class
         /// </summary>
         /// <param name="security">The security</param>
-        public SecurityPosition(Security security)
+        /// <param name="descriptor">The position group descriptor for the default group</param>
+        public SecurityPosition(Security security, SecurityPositionGroupDescriptor descriptor)
         {
             Security = security;
+            Descriptor = descriptor;
             _quantity = security.Holdings.Quantity;
             _groups = new Dictionary<PositionGroupKey, IPositionGroup>();
 
             // each time this security's holdings change we'll need to recompute the quantity allocated to this group
             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
+        }
+
+        /// <summary>
+        /// Returns <code>this</code> if the provided <paramref name="symbol"/> matches,
+        /// otherwise a <see cref="KeyNotFoundException"/> is thrown.
+        /// </summary>
+        public IPosition GetPosition(Symbol symbol)
+        {
+            if (Symbol == symbol)
+            {
+                return this;
+            }
+
+            throw new KeyNotFoundException($"{symbol} was not found in the group. This group is only for {Symbol}");
         }
 
         /// <summary>
@@ -174,7 +207,7 @@ namespace QuantConnect.Securities.Positions
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
@@ -189,6 +222,13 @@ namespace QuantConnect.Securities.Positions
             return Security.Symbol.GetHashCode();
         }
 
+        /// <summary>Returns an enumerator that iterates through the collection.</summary>
+        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
+        IEnumerator<IPosition> IEnumerable<IPosition>.GetEnumerator()
+        {
+            yield return this;
+        }
+
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
@@ -196,33 +236,12 @@ namespace QuantConnect.Securities.Positions
             return Invariant($"Position: {Symbol.Value}: {Quantity}");
         }
 
-        /// <summary>Returns an enumerator that iterates through the collection.</summary>
-        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-        public IEnumerator<IPositionGroup> GetEnumerator() => _groups.Values.GetEnumerator();
-
-        /// <summary>Returns an enumerator that iterates through a collection.</summary>
-        /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
-            Security.Holdings.QuantityChanged -= HoldingsOnQuantityChanged;
-        }
-
         /// <summary>
-        /// Defines a finalizer to ensure <see cref="Dispose"/> is called even if we forget to.
-        /// NOTE: We should still endeavor to call dispose because finalizers aren't guaranteed to run
+        /// Event handler for <see cref="SecurityHolding.QuantityChanged"/>
         /// </summary>
-        ~SecurityPosition()
+        protected virtual void HoldingsOnQuantityChanged(object sender, SecurityHoldingQuantityChangedEventArgs e)
         {
-            Dispose();
+            _quantityInvalidated = true;
         }
 
         /// <summary>
@@ -247,12 +266,33 @@ namespace QuantConnect.Securities.Positions
             return _quantity;
         }
 
-        /// <summary>
-        /// Event handler for <see cref="SecurityHolding.QuantityChanged"/>
-        /// </summary>
-        protected virtual void HoldingsOnQuantityChanged(object sender, SecurityHoldingQuantityChangedEventArgs e)
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
         {
-            _quantityInvalidated = true;
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            Security.Holdings.QuantityChanged -= HoldingsOnQuantityChanged;
+        }
+
+        /// <summary>Returns an enumerator that iterates through the collection.</summary>
+        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
+        public IEnumerator<IPositionGroup> GetEnumerator() => _groups.Values.GetEnumerator();
+
+        /// <summary>Returns an enumerator that iterates through a collection.</summary>
+        /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// Defines a finalizer to ensure <see cref="Dispose"/> is called even if we forget to.
+        /// NOTE: We should still endeavor to call dispose because finalizers aren't guaranteed to run
+        /// </summary>
+        ~SecurityPosition()
+        {
+            Dispose();
         }
 
         /// <summary>

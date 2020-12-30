@@ -88,7 +88,7 @@ namespace QuantConnect.Securities.Positions
         /// <param name="security">The security</param>
         /// <param name="buyingPowerModel">The position group's buying power model</param>
         public SecurityPositionGroup(Security security, IPositionGroupBuyingPowerModel buyingPowerModel)
-            : this(new SecurityPosition(security), buyingPowerModel)
+            : this(new SecurityPosition(security, null), buyingPowerModel)
         {
         }
 
