@@ -108,7 +108,9 @@ namespace QuantConnect.Tests.Common.Securities
 
             _buyingPowerModel = new BuyingPowerModelComparator(
                 new CashBuyingPowerModel(),
-                new SecurityPositionGroupBuyingPowerModel(0m),
+                new SecurityPositionGroupBuyingPowerModel(
+                    _algorithm.Securities, _algorithm.Portfolio, _algorithm.Portfolio.PositionGroupManager, 0m
+                ),
                 _algorithm
             );
 

@@ -54,6 +54,43 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             SecurityModel.SetLeverage(security, leverage);
         }
 
+        public decimal GetMaintenanceMargin(Security security)
+        {
+            var expected = SecurityModel.GetMaintenanceMargin(security);
+            var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
+                new ReservedBuyingPowerForPositionGroupParameters(
+                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(security.Symbol)
+                )
+            );
+
+            Assert.AreEqual(expected, actual,
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaintenanceMargin)}"
+            );
+
+            return expected;
+        }
+
+        public decimal GetInitialMarginRequirement(Security security, decimal quantity)
+        {
+            var expected = SecurityModel.GetInitialMarginRequirement(security, quantity);
+            var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
+                new ReservedBuyingPowerForPositionGroupParameters(
+                    Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(security.Symbol)
+                )
+            );
+
+            Assert.AreEqual(expected, actual,
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaintenanceMargin)}"
+            );
+
+            return expected;
+        }
+
+        public decimal GetInitialMarginRequiredForOrder(InitialMarginRequiredForOrderParameters parameters)
+        {
+            throw new NotImplementedException();
+        }
+
         public HasSufficientBuyingPowerForOrderResult HasSufficientBuyingPowerForOrder(
             HasSufficientBuyingPowerForOrderParameters parameters
             )
@@ -68,13 +105,13 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             );
 
             Assert.AreEqual(expected.IsSufficient, actual.IsSufficient,
-                $"{PositionGroupModel.GetType().Name}.{nameof(HasSufficientBuyingPowerForOrder)}: " +
+                $"{PositionGroupModel.GetType().Name}:{nameof(HasSufficientBuyingPowerForOrder)}: " +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"
             );
 
             Assert.AreEqual(expected.Reason, actual.Reason,
-                $"{PositionGroupModel.GetType().Name}.{nameof(HasSufficientBuyingPowerForOrder)}"
+                $"{PositionGroupModel.GetType().Name}:{nameof(HasSufficientBuyingPowerForOrder)}"
             );
 
             return expected;
@@ -87,7 +124,6 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetMaximumOrderQuantityForTargetBuyingPower(parameters);
             var actual = PositionGroupModel.GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
                 new GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
-                    Algorithm.Securities, Algorithm.Portfolio, Algorithm.Portfolio.PositionGroupManager,
                     Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol),
                     parameters.TargetBuyingPower,
                     parameters.SilenceNonErrorReasons
@@ -95,20 +131,20 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             );
 
             Assert.AreEqual(expected.IsError, actual.IsError,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
                 $"ExpectedQuantity: {expected.Quantity} ActualQuantity: {actual.Quantity} {Environment.NewLine}" +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"
             );
 
             Assert.AreEqual(expected.Quantity, actual.Quantity,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"
             );
 
             Assert.AreEqual(expected.Reason, actual.Reason,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"
             );
@@ -131,20 +167,20 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             );
 
             Assert.AreEqual(expected.IsError, actual.IsError,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetMaximumOrderQuantityForDeltaBuyingPower)}: " +
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForDeltaBuyingPower)}: " +
                 $"ExpectedQuantity: {expected.Quantity} ActualQuantity: {actual.Quantity} {Environment.NewLine}" +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"
             );
 
             Assert.AreEqual(expected.Quantity, actual.Quantity,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetMaximumOrderQuantityForDeltaBuyingPower)}: " +
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForDeltaBuyingPower)}: " +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"
             );
 
             Assert.AreEqual(expected.Reason, actual.Reason,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetMaximumOrderQuantityForDeltaBuyingPower)}"
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForDeltaBuyingPower)}"
             );
 
             return expected;
@@ -155,13 +191,12 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetReservedBuyingPowerForPosition(parameters);
             var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
                 new ReservedBuyingPowerForPositionGroupParameters(
-                    Algorithm.Securities,
                     Algorithm.Portfolio.PositionGroupManager.GetDefaultPositionGroup(parameters.Security.Symbol)
                 )
             );
 
             Assert.AreEqual(expected.AbsoluteUsedBuyingPower, actual.AbsoluteUsedBuyingPower,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetReservedBuyingPowerForPosition)}"
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetReservedBuyingPowerForPosition)}"
             );
 
             return expected;
@@ -180,7 +215,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             );
 
             Assert.AreEqual(expected.Value, actual.Value,
-                $"{PositionGroupModel.GetType().Name}.{nameof(GetBuyingPower)}"
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetBuyingPower)}"
             );
 
             return expected;

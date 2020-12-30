@@ -21,6 +21,27 @@ namespace QuantConnect.Securities.Positions
     public interface IPositionGroupBuyingPowerModel
     {
         /// <summary>
+        /// Gets the margin currently allocated to the specified position group
+        /// </summary>
+        decimal GetMaintenanceMargin(
+            PositionGroupMaintenanceMarginParameters parameters
+            );
+
+        /// <summary>
+        /// The margin that must be held in order to change positions by the changes defined by the provided position group
+        /// </summary>
+        decimal GetInitialMarginRequirement(
+            PositionGroupInitialMarginParameters parameters
+            );
+
+        /// <summary>
+        /// Gets the total margin required to execute the specified order in units of the account currency including fees
+        /// </summary>
+        decimal GetInitialMarginRequiredForOrder(
+            PositionGroupInitialMarginRequiredForOrderParameters parameters
+            );
+
+        /// <summary>
         /// Computes the impact on the portfolio's buying power from adding the position group to the portfolio. This is
         /// a 'what if' analysis to determine what the state of the portfolio would be if these changes were applied. The
         /// delta (before - after) is the margin requirement for adding the positions and if the margin used after the changes
@@ -76,6 +97,8 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         /// <param name="parameters">A parameters object containing the algorithm's portfolio, security, and order direction</param>
         /// <returns>The buying power available for the trade</returns>
-        PositionGroupBuyingPower GetPositionGroupBuyingPower(PositionGroupBuyingPowerParameters parameters);
+        PositionGroupBuyingPower GetPositionGroupBuyingPower(
+            PositionGroupBuyingPowerParameters parameters
+            );
     }
 }

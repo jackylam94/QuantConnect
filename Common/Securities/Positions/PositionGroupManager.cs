@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using QuantConnect.Interfaces;
 
 namespace QuantConnect.Securities.Positions
@@ -32,9 +33,11 @@ namespace QuantConnect.Securities.Positions
         public int Count => Groups?.Count ?? 0;
 
         private bool _requiresGroupResolution;
+        private SecurityPositionGroupDescriptor _defaultDescriptor;
+
         private readonly SecurityManager _securities;
         private readonly CompositePositionGroupResolver _resolver;
-        private readonly HashSet<IPositionGroupDescriptor> _descriptors;
+        private readonly List<IPositionGroupDescriptor> _descriptors;
 
         /// <summary>
         /// Gets the resolver used to determine the set of <see cref="IPositionGroup"/> for the algorithm
@@ -60,14 +63,21 @@ namespace QuantConnect.Securities.Positions
         {
             _securities = securities;
             Groups = PositionGroupCollection.Empty;
-            _resolver = new CompositePositionGroupResolver(SecurityPositionGroupResolver.Instance);
-            _descriptors = new HashSet<IPositionGroupDescriptor> {SecurityPositionGroupDescriptor.Instance};
+            _resolver = new CompositePositionGroupResolver();
+            _descriptors = new List<IPositionGroupDescriptor>();
 
             // we must be notified each time our holdings change, so each time a security is added, we
             // want to bind to its SecurityHolding.QuantityChanged event so we can trigger the resolver
 
             securities.CollectionChanged += (sender, args) =>
             {
+                if (_defaultDescriptor == null)
+                {
+                    throw new InvalidOperationException(
+                        "The default SecurityPositionGroupDescriptor must be registered before adding securities to the algorithm."
+                    );
+                }
+
                 foreach (Security security in args.NewItems)
                 {
                     SecurityPositionGroup group;
@@ -77,7 +87,8 @@ namespace QuantConnect.Securities.Positions
                         {
                             // simply adding a security doesn't require group resolution until it has holdings
                             // all we need to do is make sure we add the default SecurityPositionGroup
-                            Groups = Groups.SetItem(new SecurityPositionGroup(security));
+                            group = new SecurityPositionGroup(security, _defaultDescriptor.BuyingPowerModel);
+                            Groups = Groups.SetItem(group);
                             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
                             if (security.Invested)
                             {
@@ -107,9 +118,9 @@ namespace QuantConnect.Securities.Positions
         /// Specify <code>index=0</code> to run first and <code>index=Descriptors.Count-1</code> to run last. The
         /// last resolver is always the default resolver for the <see cref="SecurityPositionGroup"/>.
         /// </summary>
-        /// <param name="descriptor">The position group's descriptor to register</param>
         /// <param name="index">The index the descriptor's resolver should run at.</param>
-        public void RegisterDescriptor(IPositionGroupDescriptor descriptor, int index)
+        /// <param name="descriptor">The position group's descriptor to register</param>
+        public void RegisterDescriptor(int index, IPositionGroupDescriptor descriptor)
         {
             if (index > Descriptors.Count)
             {
@@ -118,10 +129,14 @@ namespace QuantConnect.Securities.Positions
                 );
             }
 
-            if (_descriptors.Add(descriptor))
+            var defaultDescriptor = descriptor as SecurityPositionGroupDescriptor;
+            if (defaultDescriptor != null)
             {
-                _resolver.Add(descriptor.Resolver, index);
+                _defaultDescriptor = defaultDescriptor;
             }
+
+            _descriptors.Add(descriptor);
+            _resolver.Add(descriptor.Resolver, index);
         }
 
         /// <summary>

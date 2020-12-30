@@ -76,20 +76,12 @@ namespace QuantConnect.Securities.Positions
         /// Initializes a new instance of the <see cref="SecurityPositionGroup"/> class
         /// </summary>
         /// <param name="security">The security</param>
-        public SecurityPositionGroup(Security security)
-            : this(new SecurityPosition(security))
+        /// <param name="buyingPowerModel">The position group's buying power model</param>
+        public SecurityPositionGroup(Security security, IPositionGroupBuyingPowerModel buyingPowerModel)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SecurityPositionGroup"/> class
-        /// </summary>
-        /// <param name="position">The <see cref="SecurityPosition"/> for this security</param>
-        public SecurityPositionGroup(SecurityPosition position)
-        {
-            Position = position;
-            Key = PositionGroupKey.Create(Descriptor, new[] {position});
-            BuyingPowerModel = new SecurityPositionGroupBuyingPowerModel(0m);
+            BuyingPowerModel = buyingPowerModel;
+            Position = new SecurityPosition(security, this);
+            Key = PositionGroupKey.Create(Descriptor, new[] {Position});
         }
 
         /// <summary>

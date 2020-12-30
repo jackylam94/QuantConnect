@@ -69,11 +69,12 @@ namespace QuantConnect.Securities.Positions
         /// Initializes a new instance of the <see cref="SecurityPosition"/> class
         /// </summary>
         /// <param name="security">The security</param>
-        public SecurityPosition(Security security)
+        /// <param name="buyingPowerModel">The buying power model used by the default group</param>
+        public SecurityPosition(Security security, SecurityPositionGroupBuyingPowerModel buyingPowerModel)
         {
             Security = security;
+            DefaultGroup = new SecurityPositionGroup(security, buyingPowerModel);
             _quantity = security.Holdings.Quantity;
-            DefaultGroup = new SecurityPositionGroup(this);
             _groups = new Dictionary<PositionGroupKey, IPositionGroup>();
 
             // each time this security's holdings change we'll need to recompute the quantity allocated to this group

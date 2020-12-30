@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QuantConnect.Interfaces;
 
 namespace QuantConnect.Securities.Positions
 {
@@ -29,7 +30,7 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the instance of <see cref="SecurityPositionGroupDescriptor"/>
         /// </summary>
-        public static IPositionGroupDescriptor Instance { get; } = new SecurityPositionGroupDescriptor();
+        public static IPositionGroupDescriptor Instance { get; } = null;//new SecurityPositionGroupDescriptor(0m);
 
         /// <summary>
         /// Gets the type of the <see cref="IPositionGroup"/> implementation
@@ -44,7 +45,15 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the instance of <see cref="SecurityPositionGroupBuyingPowerModel"/>
         /// </summary>
-        public IPositionGroupBuyingPowerModel BuyingPowerModel { get; } = new SecurityPositionGroupBuyingPowerModel(0m);
+        public IPositionGroupBuyingPowerModel BuyingPowerModel { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SecurityPositionGroupDescriptor"/> class
+        /// </summary>
+        public SecurityPositionGroupDescriptor(IPositionGroupBuyingPowerModel buyingPowerModel)
+        {
+            BuyingPowerModel = buyingPowerModel;
+        }
 
         /// <summary>
         /// Returns the group's symbol as a user friendly name. If multiple symbols are grouped, they are separated
@@ -62,6 +71,11 @@ namespace QuantConnect.Securities.Positions
             }
 
             return string.Join("|", group.Select(p => p.Symbol.ToString()));
+        }
+
+        public IPosition CreatePosition(Symbol symbol, decimal quantity, decimal unitQuantity)
+        {
+            return new SecurityPosition();
         }
 
         /// <summary>
@@ -84,7 +98,7 @@ namespace QuantConnect.Securities.Positions
                 throw new ArgumentException($"Position must be of type {nameof(SecurityPosition)}.");
             }
 
-            return new SecurityPositionGroup(securityPosition);
+            return securityPosition.DefaultGroup;
         }
 
         /// <summary>

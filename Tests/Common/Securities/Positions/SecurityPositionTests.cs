@@ -15,7 +15,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         public void Setup()
         {
             _security = CreateSecurity(Symbols.AAPL);
-            _securityPosition = new SecurityPosition(_security);
+            _securityPosition = new SecurityPosition(_security, TODO);
             _securityPositionGroup = _securityPosition.DefaultGroup;
         }
 

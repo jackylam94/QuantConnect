@@ -16,20 +16,20 @@
 namespace QuantConnect.Securities.Positions
 {
     /// <summary>
-    /// Defines the parameters for <see cref="IBuyingPowerModel.GetReservedBuyingPowerForPosition"/>
+    /// Parameters for <see cref="IPositionGroupBuyingPowerModel.GetMaintenanceMargin"/>
     /// </summary>
-    public class ReservedBuyingPowerForPositionGroupParameters
+    public class PositionGroupMaintenanceMarginParameters
     {
         /// <summary>
-        /// Gets the <see cref="IPositionGroup"/>
+        /// Gets the position group to calculate maintenance margin for
         /// </summary>
         public IPositionGroup PositionGroup { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReservedBuyingPowerForPositionGroupParameters"/> class
+        /// Initializes a new instance of the <see cref="PositionGroupMaintenanceMarginParameters"/> class
         /// </summary>
-        /// <param name="positionGroup">The position group</param>
-        public ReservedBuyingPowerForPositionGroupParameters(IPositionGroup positionGroup)
+        /// <param name="positionGroup">The position group to calculate maintenance margin for</param>
+        public PositionGroupMaintenanceMarginParameters(IPositionGroup positionGroup)
         {
             PositionGroup = positionGroup;
         }

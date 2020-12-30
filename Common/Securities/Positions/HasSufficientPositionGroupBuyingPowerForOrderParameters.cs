@@ -15,7 +15,6 @@
 
 using System.Linq;
 using QuantConnect.Orders;
-using QuantConnect.Orders.Fees;
 
 namespace QuantConnect.Securities.Positions
 {
@@ -91,12 +90,23 @@ namespace QuantConnect.Securities.Positions
             HasSufficientPositionGroupBuyingPowerForOrderParameters parameters
             )
         {
-            return new ReservedBuyingPowerImpactParameters(
-                parameters.Securities,
-                parameters.Portfolio,
-                parameters.PositionGroupManager,
-                parameters.PositionGroup
-            );
+            return new ReservedBuyingPowerImpactParameters(parameters.PositionGroup);
+        }
+
+        /// <summary>
+        /// Creates a new result indicating that there is sufficient buying power for the contemplated order
+        /// </summary>
+        public HasSufficientPositionGroupBuyingPowerForOrderResult Sufficient()
+        {
+            return new HasSufficientPositionGroupBuyingPowerForOrderResult(true);
+        }
+
+        /// <summary>
+        /// Creates a new result indicating that there is insufficient buying power for the contemplated order
+        /// </summary>
+        public HasSufficientPositionGroupBuyingPowerForOrderResult Insufficient(string reason)
+        {
+            return new HasSufficientPositionGroupBuyingPowerForOrderResult(false, reason);
         }
     }
 }

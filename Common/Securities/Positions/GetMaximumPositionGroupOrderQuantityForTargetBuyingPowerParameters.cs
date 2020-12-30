@@ -37,45 +37,53 @@ namespace QuantConnect.Securities.Positions
         public IPositionGroup PositionGroup { get; }
 
         /// <summary>
-        /// Gets the algorithm's portfolio manager
-        /// </summary>
-        public SecurityPortfolioManager Portfolio { get; }
-
-        /// <summary>
-        /// Gets the algorithm's security manager
-        /// </summary>
-        public SecurityManager Securities { get; }
-
-        /// <summary>
-        /// Gets the algorithm's position group manager
-        /// </summary>
-        public PositionGroupManager PositionGroupManager { get; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="GetMaximumOrderQuantityForTargetBuyingPowerParameters"/> class
         /// </summary>
-        /// <param name="securities">The algorithm's security manager</param>
-        /// <param name="portfolio">The algorithm's portfolio manager</param>
-        /// <param name="positionGroupManager">The algorithm's position group manager</param>
         /// <param name="positionGroup">The position group to be purchased with 'unit' quantity for the group</param>
         /// <param name="targetBuyingPower">The target percentage buying power</param>
         /// <param name="silenceNonErrorReasons">True will not return <see cref="GetMaximumPositionGroupOrderQuantityResult.Reason"/>
         /// set for non error situation, this is for performance</param>
         public GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
-            SecurityManager securities,
-            SecurityPortfolioManager portfolio,
-            PositionGroupManager positionGroupManager,
             IPositionGroup positionGroup,
             decimal targetBuyingPower,
             bool silenceNonErrorReasons = false
             )
         {
-            Securities = securities;
-            Portfolio = portfolio;
             PositionGroup = positionGroup;
             TargetBuyingPower = targetBuyingPower;
-            PositionGroupManager = positionGroupManager;
             SilenceNonErrorReasons = silenceNonErrorReasons;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="GetMaximumPositionGroupOrderQuantityResult"/> with zero quantity and an error message.
+        /// </summary>
+        public GetMaximumPositionGroupOrderQuantityResult Error(string reason)
+        {
+            return new GetMaximumPositionGroupOrderQuantityResult(0, reason, true);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="GetMaximumPositionGroupOrderQuantityResult"/> with zero quantity and no message.
+        /// </summary>
+        public GetMaximumPositionGroupOrderQuantityResult Zero()
+        {
+            return new GetMaximumPositionGroupOrderQuantityResult(0, string.Empty, false);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="GetMaximumPositionGroupOrderQuantityResult"/> with zero quantity and an info message.
+        /// </summary>
+        public GetMaximumPositionGroupOrderQuantityResult Zero(string reason)
+        {
+            return new GetMaximumPositionGroupOrderQuantityResult(0, reason, false);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="GetMaximumPositionGroupOrderQuantityResult"/> for the specified quantity and no message.
+        /// </summary>
+        public GetMaximumPositionGroupOrderQuantityResult Result(decimal quantity)
+        {
+            return new GetMaximumPositionGroupOrderQuantityResult(quantity, string.Empty, false);
         }
     }
 }

@@ -91,9 +91,7 @@ namespace QuantConnect.Securities.Positions
             PositionGroupBuyingPowerParameters parameters
             )
         {
-            return new ReservedBuyingPowerForPositionGroupParameters(
-                parameters.Securities, parameters.PositionGroup
-            );
+            return new ReservedBuyingPowerForPositionGroupParameters(parameters.PositionGroup);
         }
     }
 }

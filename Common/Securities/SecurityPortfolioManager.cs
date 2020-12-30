@@ -85,6 +85,9 @@ namespace QuantConnect.Securities
             Transactions = transactions;
             MarginCallModel = new DefaultMarginCallModel(this, defaultOrderProperties);
             PositionGroupManager = new PositionGroupManager(securityManager);
+            PositionGroupManager.RegisterDescriptor(0, new SecurityPositionGroupDescriptor(
+                new SecurityPositionGroupBuyingPowerModel(securityManager, this, PositionGroupManager, 0m)
+            ));
 
             CashBook = new CashBook();
             UnsettledCashBook = new CashBook();
@@ -488,7 +491,7 @@ namespace QuantConnect.Securities
                 decimal sum = 0;
                 foreach (var group in PositionGroupManager.Groups.Where(group => !group.IsEmpty()))
                 {
-                    var context = new ReservedBuyingPowerForPositionGroupParameters(Securities, group);
+                    var context = new ReservedBuyingPowerForPositionGroupParameters(group);
                     var reservedBuyingPower = group.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(context);
                     sum += reservedBuyingPower.AbsoluteUsedBuyingPower;
                 }

@@ -81,7 +81,7 @@ namespace QuantConnect.Securities.Positions
         {
             return new PositionCollection(securities.ToDictionary(
                 security => security.Symbol,
-                security => new Entry(new SecurityPosition(security))
+                security => new Entry(new SecurityPosition(security, TODO))
             ));
         }
 
@@ -142,7 +142,7 @@ namespace QuantConnect.Securities.Positions
                 if (!positions.TryGetValue(symbol, out entry))
                 {
                     var security = securities[symbol];
-                    entry = new Entry(new SecurityPosition(security));
+                    entry = new Entry(new SecurityPosition(security, TODO));
                     positions[symbol] = entry;
                 }
             }

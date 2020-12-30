@@ -17,49 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using NUnit.Framework;
-using QuantConnect.Securities;
 using QuantConnect.Securities.Positions;
 using static QuantConnect.Securities.Positions.PositionGroupKey;
 
 namespace QuantConnect.Tests.Common.Securities.Positions
 {
-    [TestFixture]
-    public class PositionGroupBuyingPowerModelTests
-    {
-        private class TestModel : PositionGroupBuyingPowerModel
-        {
-            public TestModel(decimal requiredFreeBuyingPowerPercent)
-                : base(requiredFreeBuyingPowerPercent)
-            {
-            }
-
-            protected override decimal GetInitialMarginRequirement(SecurityManager securities, IPositionGroup group)
-            {
-                throw new NotImplementedException();
-            }
-
-            protected override decimal GetMaintenanceMarginRequirement(SecurityManager securities, IPositionGroup group)
-            {
-                throw new NotImplementedException();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Provides an implementation of <see cref="SecurityPositionGroupBuyingPowerModel"/> that verifies results are
-    /// the same as the referenced <see cref="IBuyingPowerModel"/>. This allows us to easily confirm that the default
-    /// modeling produces the same exact results as all of the other models.
-    /// </summary>
-    //public class RegressionPositionGroupBuyingPowerModel : SecurityPositionGroupBuyingPowerModel
-    //{
-    //    public IBuyingPowerModel Reference { get; }
-    //    public RegressionPositionGroupBuyingPowerModel(decimal requiredFreeBuyingPowerPercent, IBuyingPowerModel reference)
-    //        : base(requiredFreeBuyingPowerPercent)
-    //    {
-    //        Reference = reference;
-    //    }
-    //}
-
     [TestFixture]
     public class PositionGroupKeyTests
     {

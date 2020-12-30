@@ -13,23 +13,25 @@
  * limitations under the License.
 */
 
+using System.Collections.Generic;
+
 namespace QuantConnect.Securities.Positions
 {
     /// <summary>
-    /// Defines the parameters for <see cref="IBuyingPowerModel.GetReservedBuyingPowerForPosition"/>
+    /// Parameters for the <see cref="IPositionGroupBuyingPowerModel.GetInitialMarginRequirement"/>
     /// </summary>
-    public class ReservedBuyingPowerForPositionGroupParameters
+    public class PositionGroupInitialMarginParameters
     {
         /// <summary>
-        /// Gets the <see cref="IPositionGroup"/>
+        /// Gets the position group to compute initial margin requirement for
         /// </summary>
-        public IPositionGroup PositionGroup { get; }
+        public IReadOnlyCollection<IPosition> PositionGroup { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReservedBuyingPowerForPositionGroupParameters"/> class
+        /// Initializes a new instance of the <see cref="PositionGroupInitialMarginParameters"/> class
         /// </summary>
-        /// <param name="positionGroup">The position group</param>
-        public ReservedBuyingPowerForPositionGroupParameters(IPositionGroup positionGroup)
+        /// <param name="positionGroup">The position group to compute initial margin requirement for</param>
+        public PositionGroupInitialMarginParameters(IPositionGroup positionGroup)
         {
             PositionGroup = positionGroup;
         }

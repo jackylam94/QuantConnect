@@ -54,6 +54,16 @@ namespace QuantConnect.Securities.Positions
         string GetUserFriendlyName(IPositionGroup group);
 
         /// <summary>
+        /// Creates a new <see cref="IPosition"/> intended to be a member of a position group of the type
+        /// described by this descriptor
+        /// </summary>
+        /// <param name="symbol">The position's symbol</param>
+        /// <param name="quantity">The position's quantity</param>
+        /// <param name="unitQuantity">The position's unit quantity within the group</param>
+        /// <returns>A new position with the specified properties</returns>
+        IPosition CreatePosition(Symbol symbol, decimal quantity, decimal unitQuantity);
+
+        /// <summary>
         /// Creates a new <see cref="IPositionGroup"/> from the specified <paramref name="positions"/>
         /// </summary>
         /// <param name="positions">The positions to be placed into this type of grouping</param>

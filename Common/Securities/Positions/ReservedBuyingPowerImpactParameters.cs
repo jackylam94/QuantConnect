@@ -23,43 +23,19 @@ namespace QuantConnect.Securities.Positions
     public class ReservedBuyingPowerImpactParameters
     {
         /// <summary>
-        /// Gets the algorithm's security manager
-        /// </summary>
-        public SecurityManager Securities { get; }
-
-        /// <summary>
         /// Gets the position changes being contemplated
         /// </summary>
         public IReadOnlyCollection<IPosition> ContemplatedChanges { get; }
 
         /// <summary>
-        /// Gets the algorithm's portfolio manager
-        /// </summary>
-        public SecurityPortfolioManager Portfolio { get; }
-
-        /// <summary>
-        /// Gets the algorithm's position group manager
-        /// </summary>
-        public PositionGroupManager PositionGroupManager { get; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ReservedBuyingPowerImpactParameters"/> class
         /// </summary>
-        /// <param name="securities">The algorithm's securities manager</param>
-        /// <param name="portfolio">The algorithm's portfolio manager</param>
-        /// <param name="positionGroupManager">The algorithm's position group manager</param>
         /// <param name="contemplatedChanges">The position changes being contemplated</param>
         public ReservedBuyingPowerImpactParameters(
-            SecurityManager securities,
-            SecurityPortfolioManager portfolio,
-            PositionGroupManager positionGroupManager,
             IReadOnlyCollection<IPosition> contemplatedChanges
             )
         {
-            Portfolio = portfolio;
-            Securities = securities;
             ContemplatedChanges = contemplatedChanges;
-            PositionGroupManager = positionGroupManager;
         }
     }
 }

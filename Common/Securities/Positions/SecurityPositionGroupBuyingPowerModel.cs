@@ -13,8 +13,6 @@
  * limitations under the License.
 */
 
-using System;
-
 namespace QuantConnect.Securities.Positions
 {
     /// <summary>
@@ -24,56 +22,35 @@ namespace QuantConnect.Securities.Positions
     /// </summary>
     public class SecurityPositionGroupBuyingPowerModel : PositionGroupBuyingPowerModel
     {
-        public decimal InitialMarginRequirement { get; set; } = 1m;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityPositionGroupBuyingPowerModel"/> class
         /// </summary>
-        /// <param name="requiredFreeBuyingPowerPercent"></param>
-        public SecurityPositionGroupBuyingPowerModel(decimal requiredFreeBuyingPowerPercent)
-            : base(requiredFreeBuyingPowerPercent)
+        /// <param name="securities">The algorithm's security manager</param>
+        /// <param name="portfolio">The algorithm's portfolio manager</param>
+        /// <param name="positions">The algorithm's position manager</param>
+        /// <param name="requiredFreeBuyingPowerPercent">The percentage of portfolio buying power to leave as a buffer</param>
+        public SecurityPositionGroupBuyingPowerModel(
+            SecurityManager securities,
+            SecurityPortfolioManager portfolio,
+            PositionGroupManager positions,
+            decimal requiredFreeBuyingPowerPercent
+            )
+            : base(securities, portfolio, positions, requiredFreeBuyingPowerPercent)
         {
         }
 
         /// <summary>
-        /// Gets the initial margin required for an order resulting in a position change equal to the provided <paramref name="group"/>.
+        /// Gets the margin currently allocated to the specified holding
         /// </summary>
-        /// <remarks>
-        /// Each unique classification of position groups (option strategies/future strategies) and even each brokerage
-        /// defines their own methodology for computing initial and maintenance margin requirements.
-        /// </remarks>
-        protected override decimal GetInitialMarginRequirement(SecurityManager securities, IPositionGroup group)
-        {
-            var initialMarginRequirement = 0m;
-            foreach (var position in group)
-            {
-                var security = securities[position.Symbol];
-                initialMarginRequirement += security.QuoteCurrency.ConversionRate
-                    * security.SymbolProperties.ContractMultiplier
-                    * security.Price
-                    * position.Quantity
-                    * InitialMarginRequirement;
-            }
-
-            return initialMarginRequirement;
-        }
-
-        /// <summary>
-        /// Gets the maintenance margin required for for holding the provided <paramref name="group"/>
-        /// </summary>
-        /// <remarks>
-        /// Each unique classification of position groups (option strategies/future strategies) and even each brokerage
-        /// defines their own methodology for computing initial and maintenance margin requirements.
-        /// </remarks>
-        protected override decimal GetMaintenanceMarginRequirement(SecurityManager securities, IPositionGroup group)
+        public override decimal GetMaintenanceMargin(PositionGroupMaintenanceMarginParameters parameters)
         {
             // SecurityPositionGroupBuyingPowerModel models buying power the same as non-grouped, so we can simply sum up
             // the reserved buying power via the security's model. We should really only ever get a single position here,
             // but it's not incorrect to ask the model for what the reserved buying power would be using default modeling
             var buyingPower = 0m;
-            foreach (var position in group)
+            foreach (var position in parameters.PositionGroup)
             {
-                var security = securities[position.Symbol];
+                var security = Securities[position.Symbol];
                 var result = security.BuyingPowerModel.GetReservedBuyingPowerForPosition(
                     new ReservedBuyingPowerForPositionParameters(security)
                 );
@@ -82,6 +59,41 @@ namespace QuantConnect.Securities.Positions
             }
 
             return new ReservedBuyingPowerForPositionGroup(buyingPower);
+        }
+
+        /// <summary>
+        /// The margin that must be held in order to increase the position by the provided quantity
+        /// </summary>
+        public override decimal GetInitialMarginRequirement(PositionGroupInitialMarginParameters parameters)
+        {
+            var initialMarginRequirement = 0m;
+            foreach (var position in parameters.PositionGroup)
+            {
+                var security = Securities[position.Symbol];
+                initialMarginRequirement += security.BuyingPowerModel.GetInitialMarginRequirement(
+                    security, position.Quantity
+                );
+            }
+
+            return initialMarginRequirement;
+        }
+
+        /// <summary>
+        /// Gets the total margin required to execute the specified order in units of the account currency including fees
+        /// </summary>
+        public override decimal GetInitialMarginRequiredForOrder(PositionGroupInitialMarginRequiredForOrderParameters parameters)
+        {
+            var initialMarginRequirement = 0m;
+            foreach (var position in parameters.PositionGroup)
+            {
+                // TODO : Support combo order by pull symbol-specific order
+                var security = Securities[position.Symbol];
+                initialMarginRequirement += security.BuyingPowerModel.GetInitialMarginRequiredForOrder(
+                    new InitialMarginRequiredForOrderParameters(Portfolio.CashBook, security, parameters.Order)
+                );
+            }
+
+            return initialMarginRequirement;
         }
     }
 }

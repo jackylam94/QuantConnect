@@ -13,24 +13,36 @@
  * limitations under the License.
 */
 
+using QuantConnect.Orders;
+
 namespace QuantConnect.Securities.Positions
 {
     /// <summary>
-    /// Defines the parameters for <see cref="IBuyingPowerModel.GetReservedBuyingPowerForPosition"/>
+    /// Parameters for the <see cref="IPositionGroupBuyingPowerModel.GetInitialMarginRequiredForOrder"/>
     /// </summary>
-    public class ReservedBuyingPowerForPositionGroupParameters
+    public class PositionGroupInitialMarginRequiredForOrderParameters
     {
         /// <summary>
-        /// Gets the <see cref="IPositionGroup"/>
+        /// Gets the order whose initial margin requirement is to be computed
+        /// </summary>
+        public Order Order { get; }
+
+        /// <summary>
+        /// Gets the position group that represents the changes resulting from executing the <see cref="Order"/>
         /// </summary>
         public IPositionGroup PositionGroup { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReservedBuyingPowerForPositionGroupParameters"/> class
+        /// Initializes a new instance of the <see cref="PositionGroupInitialMarginRequiredForOrderParameters"/> class
         /// </summary>
         /// <param name="positionGroup">The position group</param>
-        public ReservedBuyingPowerForPositionGroupParameters(IPositionGroup positionGroup)
+        /// <param name="order">The order</param>
+        public PositionGroupInitialMarginRequiredForOrderParameters(
+            IPositionGroup positionGroup,
+            Order order
+            )
         {
+            Order = order;
             PositionGroup = positionGroup;
         }
     }
