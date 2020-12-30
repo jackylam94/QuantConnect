@@ -141,7 +141,7 @@ namespace QuantConnect.Securities
                 return parameters.Sufficient();
             }
 
-            return parameters.Insufficient(Invariant($"Your portfolio holds {totalQuantity.Normalize()} {parameters.Security.QuoteCurrency.Symbol}, {openOrdersReservedQuantity.Normalize()} {parameters.Security.QuoteCurrency.Symbol} of which are reserved for open orders, but your Buy order is for {parameters.Order.AbsoluteQuantity.Normalize()} {baseCurrency.BaseCurrencySymbol}. Your order requires a total value of {orderQuantity.Normalize()} {parameters.Security.QuoteCurrency.Symbol}, but only a total value of {(totalQuantity - openOrdersReservedQuantity - orderFee).Normalize()} {parameters.Security.QuoteCurrency.Symbol} is available."));0
+            return parameters.Insufficient(Invariant($"Your portfolio holds {totalQuantity.Normalize()} {parameters.Security.QuoteCurrency.Symbol}, {openOrdersReservedQuantity.Normalize()} {parameters.Security.QuoteCurrency.Symbol} of which are reserved for open orders, but your Buy order is for {parameters.Order.AbsoluteQuantity.Normalize()} {baseCurrency.BaseCurrencySymbol}. Your order requires a total value of {orderQuantity.Normalize()} {parameters.Security.QuoteCurrency.Symbol}, but only a total value of {(totalQuantity - openOrdersReservedQuantity - orderFee).Normalize()} {parameters.Security.QuoteCurrency.Symbol} is available."));
         }
 
         /// <summary>
