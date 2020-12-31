@@ -47,11 +47,6 @@ namespace QuantConnect.Securities.Positions
         }
     }
 
-    public class SymbolPositions
-    {
-        private readonly Dictionary<PositionGroupKey, IPosition> _positions;
-    }
-
     /// <summary>
     /// Provides a collection for <see cref="IPosition"/>, keyed by <see cref="SecurityPosition"/>,
     /// supporting multiple positions per symbol. The common usage is to initialize this collection with

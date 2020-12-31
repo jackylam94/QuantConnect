@@ -87,9 +87,19 @@ namespace QuantConnect.Securities.Positions
         /// <param name="descriptor">The position group descriptor for the default group</param>
         public SecurityPosition(Security security, SecurityPositionGroupDescriptor descriptor)
         {
+            if (security == null)
+            {
+                throw new ArgumentNullException(nameof(security));
+            }
+            if (descriptor == null)
+            {
+                throw new ArgumentNullException(nameof(descriptor));
+            }
+
             Security = security;
             Descriptor = descriptor;
             _quantity = security.Holdings.Quantity;
+            Key = PositionGroupKey.Create(descriptor, this);
             _groups = new Dictionary<PositionGroupKey, IPositionGroup>();
 
             // each time this security's holdings change we'll need to recompute the quantity allocated to this group

@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MathNet.Numerics;
+using QuantConnect.Orders;
 using QuantConnect.Util;
 
 namespace QuantConnect.Securities.Positions
@@ -118,6 +119,7 @@ namespace QuantConnect.Securities.Positions
             return group.WithQuantity(1m);
         }
 
+        // TODO : Update IPositionGroup.Quantity to be an integer as it's the whole number of lots
         /// <summary>
         /// Creates a new <see cref="IPositionGroup"/> with the specified <paramref name="groupQuantity"/>.
         /// If the quantity provided equals the template's quantity then the template is returned.
@@ -166,6 +168,26 @@ namespace QuantConnect.Securities.Positions
                 PositionGroupKey.Create(descriptor, positions),
                 positions
             );
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IPositionGroup"/> to represent the position changes defined by the <paramref name="order"/>
+        /// </summary>
+        public static IPositionGroup ForOrder(SecurityManager securities, Order order)
+        {
+            switch (order.Type)
+            {
+                // TODO : Case statement for Combo order types
+
+                default:
+                    var security = securities[order.Symbol];
+
+                    // TODO : Pull RequiredFreeBuyingPercent from portfolio after #5102
+                    var descriptor = new SecurityPositionGroupDescriptor(securities,
+                        new SecurityPositionGroupBuyingPowerModel()
+                    );
+                    return Create(descriptor, new Position(security.Symbol, order.Quantity, security.SymbolProperties.LotSize));
+            }
         }
 
         private sealed class ExplicitPositionGroup : IPositionGroup

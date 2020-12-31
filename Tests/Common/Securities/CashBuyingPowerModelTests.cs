@@ -49,6 +49,7 @@ namespace QuantConnect.Tests.Common.Securities
         private QCAlgorithm _algorithm;
         private LocalTimeKeeper _timeKeeper;
         private IResultHandler _resultHandler;
+        private static readonly DateTime UtcDateTime = new DateTime(2019, 4, 22);
 
         [SetUp]
         public void Initialize()
@@ -68,6 +69,7 @@ namespace QuantConnect.Tests.Common.Securities
             _transactionHandler.Initialize(_algorithm, _brokerage, _resultHandler);
 
             _algorithm.Transactions.SetOrderProcessor(_transactionHandler);
+            _algorithm.SetDateTime(UtcDateTime);
 
             var tz = TimeZones.NewYork;
             _btcusd = new Crypto(
@@ -112,7 +114,7 @@ namespace QuantConnect.Tests.Common.Securities
                 _algorithm
             );
 
-            _timeKeeper = new LocalTimeKeeper(new DateTime(2019, 4, 22), DateTimeZone.Utc);
+            _timeKeeper = new LocalTimeKeeper(UtcDateTime, DateTimeZone.Utc);
             _btcusd.SetLocalTimeKeeper(_timeKeeper);
             _ethusd.SetLocalTimeKeeper(_timeKeeper);
             _btceur.SetLocalTimeKeeper(_timeKeeper);

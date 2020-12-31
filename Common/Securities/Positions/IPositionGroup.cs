@@ -28,7 +28,7 @@ namespace QuantConnect.Securities.Positions
         PositionGroupKey Key { get; }
 
         /// <summary>
-        /// Gets the signed quantity of this group
+        /// Gets the signed quantity of this group.
         /// </summary>
         /// <remarks>
         /// This value represents the number of 'units' contained within this position group. Dividing all position

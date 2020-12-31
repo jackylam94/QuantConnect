@@ -63,6 +63,15 @@ namespace QuantConnect.Securities.Positions
             ImmutableDictionary<PositionGroupKey, IPositionGroup> groups
             )
         {
+            if (groups == null)
+            {
+                throw new ArgumentNullException(nameof(groups));
+            }
+            if (identityGroups == null)
+            {
+                throw new ArgumentNullException(nameof(identityGroups));
+            }
+
             _groups = groups;
             _identityGroups = identityGroups;
         }

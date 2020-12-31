@@ -16,6 +16,8 @@
 using System;
 using NUnit.Framework;
 using QuantConnect.Interfaces;
+using QuantConnect.Orders;
+using QuantConnect.Orders.Fees;
 using QuantConnect.Securities;
 using QuantConnect.Securities.Positions;
 
@@ -101,7 +103,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var actual = PositionGroupModel.HasSufficientBuyingPowerForOrder(
                 new HasSufficientPositionGroupBuyingPowerForOrderParameters(
                     Algorithm.Portfolio, Algorithm.Portfolio.Positions,
-                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
+                    PositionGroup.ForOrder(Algorithm.Securities, parameters.Order),
                     parameters.Order
                 )
             );
@@ -123,11 +125,14 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             GetMaximumOrderQuantityForTargetBuyingPowerParameters parameters
             )
         {
+            var security = parameters.Security;
+            var securities = parameters.Portfolio.Securities;
+            var positionGroup = Algorithm.Portfolio.Positions.GetDefaultPositionGroup(security.Symbol);
             var expected = SecurityModel.GetMaximumOrderQuantityForTargetBuyingPower(parameters);
             var actual = PositionGroupModel.GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
                 new GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
                     Algorithm.Portfolio,
-                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
+                    positionGroup,
                     parameters.TargetBuyingPower,
                     parameters.SilenceNonErrorReasons
                 )
@@ -140,7 +145,24 @@ namespace QuantConnect.Tests.Common.Securities.Positions
                 $"ActualReason: {actual.Reason}"
             );
 
-            Assert.AreEqual(expected.Quantity, actual.Quantity,
+            // we're not comparing group quantities, which is the number of position lots, but rather the implied
+            // position quantities resulting from having that many lots.
+            var resizedPositionGroup = positionGroup.WithQuantity(actual.Quantity);
+            var position = resizedPositionGroup.GetPosition(security.Symbol);
+
+            var bpmOrder = new MarketOrder(security.Symbol, expected.Quantity, securities.UtcTime);
+            var pgbpmOrder = new MarketOrder(security.Symbol, position.Quantity, securities.UtcTime);
+
+            var bpmOrderValue = bpmOrder.GetValue(security);
+            var pgbpmOrderValue = pgbpmOrder.GetValue(security);
+
+            var bpmOrderFees = security.FeeModel.GetOrderFee(new OrderFeeParameters(security, bpmOrder)).Value.Amount;
+            var pgbpmOrderFees = security.FeeModel.GetOrderFee(new OrderFeeParameters(security, pgbpmOrder)).Value.Amount;
+
+            var bpmMarginRequired = bpmOrderValue + bpmOrderFees;
+            var pgbpmMarginRequired = pgbpmOrderValue + pgbpmOrderFees;
+
+            Assert.AreEqual(expected.Quantity, position.Quantity,
                 $"{PositionGroupModel.GetType().Name}:{nameof(GetMaximumOrderQuantityForTargetBuyingPower)}: " +
                 $"ExpectedReason: {expected.Reason}{Environment.NewLine}" +
                 $"ActualReason: {actual.Reason}"

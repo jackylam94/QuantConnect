@@ -45,6 +45,15 @@ namespace QuantConnect.Securities.Positions
         /// <param name="unitQuantities">The unit quantities of each position</param>
         public PositionGroupKey(IPositionGroupDescriptor descriptor, ImmutableArray<UnitQuantity> unitQuantities)
         {
+            if (descriptor == null)
+            {
+                throw new ArgumentNullException(nameof(descriptor));
+            }
+
+            if (unitQuantities.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(unitQuantities));
+            }
             Descriptor = descriptor;
             UnitQuantities = unitQuantities;
         }

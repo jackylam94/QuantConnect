@@ -45,6 +45,17 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
+        /// Gets the number of lots contained within the position. For ungrouped equities this equals the
+        /// quantity. For equities in an option group, this is typically the quantity divided by 100 [contract multiple]
+        /// </summary>
+        /// <param name="position">The position</param>
+        /// <returns>The whole number of lots contained within the position</returns>
+        public static int GetLotQuantity(this IPosition position)
+        {
+            return (int) (position.Quantity / position.UnitQuantity);
+        }
+
+        /// <summary>
         /// Creates a new <see cref="IPosition"/> instance with opposite quantity, such that adding <paramref name="position"/>
         /// and the result of this function together would yield an empty position.
         /// </summary>

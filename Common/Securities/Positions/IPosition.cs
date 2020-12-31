@@ -31,6 +31,7 @@ namespace QuantConnect.Securities.Positions
 
         /// <summary>
         /// Gets the quantity in this position. This value MUST be a integer increment of the <see cref="UnitQuantity"/>.
+        /// This is NOT the integer multiple of <see cref="UnitQuantity"/>.
         /// </summary>
         decimal Quantity { get; }
 
