@@ -1,4 +1,4 @@
-﻿/*
+/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
  *
@@ -1468,6 +1468,22 @@ namespace QuantConnect.Algorithm
         }
 
         /// <summary>
+        /// Set a required SecurityType-symbol using default settings
+        /// </summary>
+        /// <remarks>
+        /// The addition of AddSecurity&lt;T&gt; caused the compiler's overload resolution to completely fail.
+        /// Despite having where T : Security, calling AddSecurity(Symbol) was for some reason binding to the
+        /// generic method. It seems this version of C# has looser ordering guarantees w.r.t optional arguments
+        /// and generic type constraints on methods -- latest dontnet core it would bind to method w/ optionals.
+        /// </remarks>
+        /// <param name="symbol">The security Symbol</param>
+        /// <returns>The new Security that was added to the algorithm</returns>
+        public Security AddSecurity(Symbol symbol)
+        {
+            return AddSecurity(symbol, null);
+        }
+
+        /// <summary>
         /// Set a required SecurityType-symbol and resolution for algorithm
         /// </summary>
         /// <param name="symbol">The security Symbol</param>
@@ -1490,11 +1506,23 @@ namespace QuantConnect.Algorithm
                 resolution,
                 fillDataForward,
                 extendedMarketHours,
-                isFilteredSubscription: !isCanonical);
+                isFilteredSubscription: !isCanonical
+            );
 
-            var security = Securities.CreateSecurity(symbol, configs, leverage);
+            return AddSecurity(Securities.CreateSecurity(symbol, configs, leverage));
+        }
 
-            if (isCanonical)
+        /// <summary>
+        /// Adds the <paramref name="security"/> object to the algorithm. The security object is returned to maintain consistency
+        /// with the other AddSecurity methods.
+        /// </summary>
+        /// <param name="security">The security to be added</param>
+        /// <returns>The same security object reference that was provided.</returns>
+        public T AddSecurity<T>(T security)
+            where T : Security
+        {
+            var symbol = security.Symbol;
+            if (symbol.IsCanonical())
             {
                 security.IsTradable = false;
                 Securities.Add(security);
@@ -1503,22 +1531,31 @@ namespace QuantConnect.Algorithm
                 Universe universe;
                 if (!UniverseManager.TryGetValue(symbol, out universe) && _pendingUniverseAdditions.All(u => u.Configuration.Symbol != symbol))
                 {
-                    var settings = new UniverseSettings(configs.First().Resolution, leverage, true, false, TimeSpan.Zero);
-                    if (symbol.SecurityType == SecurityType.Option || symbol.SecurityType == SecurityType.FutureOption)
+                    var option = security as Option;
+                    var config = security.Subscriptions.First();
+                    var settings = new UniverseSettings(config.Resolution, security.Leverage, true, false, TimeSpan.Zero);
+                    if (option != null)
                     {
-                        universe = new OptionChainUniverse((Option)security, settings, LiveMode);
+                        universe = new OptionChainUniverse(option, settings, LiveMode);
                     }
                     else
                     {
-                        universe = new FuturesChainUniverse((Future)security, settings);
+                        var future = security as Future;
+                        if (future == null)
+                        {
+                            throw new NotImplementedException($"Canonical {security.Type} securities are not implemented.");
+                        }
+
+                        universe = new FuturesChainUniverse(future, settings);
                     }
 
                     AddUniverse(universe);
                 }
+
                 return security;
             }
 
-            AddToUserDefinedUniverse(security, configs);
+            AddToUserDefinedUniverse(security, security.Subscriptions.ToList());
             return security;
         }
 
