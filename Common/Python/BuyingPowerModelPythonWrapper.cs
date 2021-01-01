@@ -16,6 +16,8 @@
 using Python.Runtime;
 using QuantConnect.Securities;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace QuantConnect.Python
 {
@@ -27,14 +29,14 @@ namespace QuantConnect.Python
         private readonly dynamic _model;
 
         /// <summary>
-        /// Constructor for initialising the <see cref="BuyingPowerModelPythonWrapper"/> class with wrapped <see cref="PyObject"/> object
+        /// Constructor for initializing the <see cref="BuyingPowerModelPythonWrapper"/> class with wrapped <see cref="PyObject"/> object
         /// </summary>
         /// <param name="model">Represents a security's model of buying power</param>
         public BuyingPowerModelPythonWrapper(PyObject model)
         {
             using (Py.GIL())
             {
-                foreach (var attributeName in new[] { "GetBuyingPower", "GetMaximumOrderQuantityForDeltaBuyingPower", "GetLeverage", "GetMaximumOrderQuantityForTargetBuyingPower", "GetReservedBuyingPowerForPosition", "HasSufficientBuyingPowerForOrder", "SetLeverage" })
+                foreach (var attributeName in typeof(IBuyingPowerModel).GetMethods().Select(method => method.Name))
                 {
                     if (!model.HasAttr(attributeName))
                     {
@@ -42,6 +44,7 @@ namespace QuantConnect.Python
                     }
                 }
             }
+
             _model = model;
         }
 
