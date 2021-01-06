@@ -96,5 +96,28 @@ namespace QuantConnect.Securities
             // existing implementations assume certain non-account currency units, so return raw value
             return buyingPower.Value;
         }
+
+        /// <summary>
+        /// Gets the margin currently allocated to the specified holding
+        /// </summary>
+        /// <param name="model">The buying power model</param>
+        /// <param name="security">The security</param>
+        /// <returns>The maintenance margin required for the </returns>
+        public static decimal GetMaintenanceMargin(this IBuyingPowerModel model, Security security)
+        {
+            return model.GetMaintenanceMargin(new MaintenanceMarginParameters(security)).Value;
+        }
+
+        /// <summary>
+        /// Gets the margin currently allocated to the specified holding
+        /// </summary>
+        /// <param name="model">The buying power model</param>
+        /// <param name="security">The security</param>
+        /// <param name="quantity">The quantity of shares</param>
+        /// <returns>The maintenance margin required for the </returns>
+        public static decimal GetInitialMarginRequirement(this IBuyingPowerModel model, Security security, decimal quantity)
+        {
+            return model.GetInitialMarginRequirement(new InitialMarginParameters(security, quantity)).Value;
+        }
     }
 }
