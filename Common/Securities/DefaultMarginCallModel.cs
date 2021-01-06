@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QuantConnect.Interfaces;
 using QuantConnect.Orders;
+using QuantConnect.Securities.Positions;
 
 namespace QuantConnect.Securities
 {
@@ -148,8 +149,10 @@ namespace QuantConnect.Securities
             // compute the amount of quote currency we need to liquidate in order to get within margin requirements
             var deltaAccountCurrency = totalUsedMargin - totalPortfolioValue;
 
-            var currentlyUsedBuyingPower = security.BuyingPowerModel.GetReservedBuyingPowerForPosition(
-                new ReservedBuyingPowerForPositionParameters(security)).AbsoluteUsedBuyingPower;
+            var positionGroup = Portfolio.Positions.GetDefaultPositionGroup(security.Symbol);
+            var currentlyUsedBuyingPower = positionGroup.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(
+                Portfolio, positionGroup
+            ).AbsoluteUsedBuyingPower;
 
             // if currentlyUsedBuyingPower > deltaAccountCurrency, means we can keep using the diff in buying power
             var buyingPowerToKeep = Math.Max(0, currentlyUsedBuyingPower - deltaAccountCurrency);
@@ -157,10 +160,9 @@ namespace QuantConnect.Securities
             // we want a reduction so we send the inverse side of our position
             var deltaBuyingPower = (currentlyUsedBuyingPower - buyingPowerToKeep) * (security.Holdings.IsLong ? -1 : 1);
 
-            var quantity = security.BuyingPowerModel.GetMaximumOrderQuantityForDeltaBuyingPower(
-                new GetMaximumOrderQuantityForDeltaBuyingPowerParameters(Portfolio,
-                    security,
-                    deltaBuyingPower)).Quantity;
+            var quantity = positionGroup.BuyingPowerModel.GetMaximumPositionGroupOrderQuantityForDeltaBuyingPower(
+                Portfolio, positionGroup, deltaBuyingPower
+            ).Quantity;
 
             return new SubmitOrderRequest(OrderType.Market, security.Type, security.Symbol, quantity, 0, 0, security.LocalTime.ConvertToUtc(security.Exchange.TimeZone), "Margin Call", DefaultOrderProperties?.Clone());
         }

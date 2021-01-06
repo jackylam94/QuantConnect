@@ -34,9 +34,20 @@ namespace QuantConnect.Securities.Positions
             Value = buyingPower;
         }
 
-        public static implicit operator PositionGroupBuyingPower(BuyingPower result)
+        /// <summary>
+        /// Implicit operator from decimal
+        /// </summary>
+        public static implicit operator PositionGroupBuyingPower(decimal result)
         {
-            return new PositionGroupBuyingPower(result.Value);
+            return new PositionGroupBuyingPower(result);
+        }
+
+        /// <summary>
+        /// Implicit operator to decimal
+        /// </summary>
+        public static implicit operator decimal(PositionGroupBuyingPower result)
+        {
+            return result.Value;
         }
     }
 }

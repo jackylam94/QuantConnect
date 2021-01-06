@@ -23,22 +23,22 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the margin currently allocated to the specified position group
         /// </summary>
-        decimal GetMaintenanceMargin(
+        MaintenanceMargin GetMaintenanceMargin(
             PositionGroupMaintenanceMarginParameters parameters
             );
 
         /// <summary>
         /// The margin that must be held in order to change positions by the changes defined by the provided position group
         /// </summary>
-        decimal GetInitialMarginRequirement(
+        InitialMargin GetInitialMarginRequirement(
             PositionGroupInitialMarginParameters parameters
             );
 
         /// <summary>
         /// Gets the total margin required to execute the specified order in units of the account currency including fees
         /// </summary>
-        decimal GetInitialMarginRequiredForOrder(
-            PositionGroupInitialMarginRequiredForOrderParameters parameters
+        InitialMargin GetInitialMarginRequiredForOrder(
+            PositionGroupInitialMarginForOrderParameters parameters
             );
 
         /// <summary>

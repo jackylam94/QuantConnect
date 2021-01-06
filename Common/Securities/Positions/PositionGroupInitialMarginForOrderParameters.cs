@@ -20,7 +20,7 @@ namespace QuantConnect.Securities.Positions
     /// <summary>
     /// Parameters for the <see cref="IPositionGroupBuyingPowerModel.GetInitialMarginRequiredForOrder"/>
     /// </summary>
-    public class PositionGroupInitialMarginRequiredForOrderParameters
+    public class PositionGroupInitialMarginForOrderParameters
     {
         /// <summary>
         /// Gets the order whose initial margin requirement is to be computed
@@ -38,12 +38,12 @@ namespace QuantConnect.Securities.Positions
         public SecurityPortfolioManager Portfolio { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PositionGroupInitialMarginRequiredForOrderParameters"/> class
+        /// Initializes a new instance of the <see cref="PositionGroupInitialMarginForOrderParameters"/> class
         /// </summary>
         /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroup">The position group</param>
         /// <param name="order">The order</param>
-        public PositionGroupInitialMarginRequiredForOrderParameters(
+        public PositionGroupInitialMarginForOrderParameters(
             SecurityPortfolioManager portfolio,
             IPositionGroup positionGroup,
             Order order

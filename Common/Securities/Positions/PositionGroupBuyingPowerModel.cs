@@ -48,17 +48,19 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the margin currently allocated to the specified holding
         /// </summary>
-        public abstract decimal GetMaintenanceMargin(PositionGroupMaintenanceMarginParameters parameters);
+        public abstract MaintenanceMargin GetMaintenanceMargin(PositionGroupMaintenanceMarginParameters parameters);
 
         /// <summary>
         /// The margin that must be held in order to increase the position by the provided quantity
         /// </summary>
-        public abstract decimal GetInitialMarginRequirement(PositionGroupInitialMarginParameters parameters);
+        public abstract InitialMargin GetInitialMarginRequirement(PositionGroupInitialMarginParameters parameters);
 
         /// <summary>
         /// Gets the total margin required to execute the specified order in units of the account currency including fees
         /// </summary>
-        public abstract decimal GetInitialMarginRequiredForOrder(PositionGroupInitialMarginRequiredForOrderParameters parameters);
+        public abstract InitialMargin GetInitialMarginRequiredForOrder(
+            PositionGroupInitialMarginForOrderParameters parameters
+            );
 
         /// <summary>
         /// Computes the impact on the portfolio's buying power from adding the position group to the portfolio. This is
@@ -346,9 +348,7 @@ namespace QuantConnect.Securities.Positions
             ReservedBuyingPowerForPositionGroupParameters parameters
             )
         {
-            return new ReservedBuyingPowerForPositionGroup(
-                this.GetMaintenanceMargin(parameters.Portfolio, parameters.PositionGroup)
-            );
+            return this.GetMaintenanceMargin(parameters.Portfolio, parameters.PositionGroup);
         }
 
         /// <summary>
@@ -383,7 +383,7 @@ namespace QuantConnect.Securities.Positions
                 buyingPower += this.GetInitialMarginRequirement(parameters.Portfolio, parameters.PositionGroup);
             }
 
-            return new PositionGroupBuyingPower(buyingPower);
+            return buyingPower;
         }
 
         /// <summary>

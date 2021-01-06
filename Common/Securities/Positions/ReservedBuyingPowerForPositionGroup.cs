@@ -41,5 +41,13 @@ namespace QuantConnect.Securities.Positions
         {
             return reservedBuyingPower.AbsoluteUsedBuyingPower;
         }
+
+        /// <summary>
+        /// Implicit operator to <see cref="decimal"/> to remove noise
+        /// </summary>
+        public static implicit operator ReservedBuyingPowerForPositionGroup(decimal reservedBuyingPower)
+        {
+            return new ReservedBuyingPowerForPositionGroup(reservedBuyingPower);
+        }
     }
 }

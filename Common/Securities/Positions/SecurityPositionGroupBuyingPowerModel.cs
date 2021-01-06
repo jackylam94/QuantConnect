@@ -34,7 +34,7 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the margin currently allocated to the specified holding
         /// </summary>
-        public override decimal GetMaintenanceMargin(PositionGroupMaintenanceMarginParameters parameters)
+        public override MaintenanceMargin GetMaintenanceMargin(PositionGroupMaintenanceMarginParameters parameters)
         {
             // SecurityPositionGroupBuyingPowerModel models buying power the same as non-grouped, so we can simply sum up
             // the reserved buying power via the security's model. We should really only ever get a single position here,
@@ -50,13 +50,13 @@ namespace QuantConnect.Securities.Positions
                 buyingPower += result.AbsoluteUsedBuyingPower;
             }
 
-            return new ReservedBuyingPowerForPositionGroup(buyingPower);
+            return buyingPower;
         }
 
         /// <summary>
         /// The margin that must be held in order to increase the position by the provided quantity
         /// </summary>
-        public override decimal GetInitialMarginRequirement(PositionGroupInitialMarginParameters parameters)
+        public override InitialMargin GetInitialMarginRequirement(PositionGroupInitialMarginParameters parameters)
         {
             var initialMarginRequirement = 0m;
             foreach (var position in parameters.PositionGroup)
@@ -73,7 +73,9 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the total margin required to execute the specified order in units of the account currency including fees
         /// </summary>
-        public override decimal GetInitialMarginRequiredForOrder(PositionGroupInitialMarginRequiredForOrderParameters parameters)
+        public override InitialMargin GetInitialMarginRequiredForOrder(
+            PositionGroupInitialMarginForOrderParameters parameters
+            )
         {
             var initialMarginRequirement = 0m;
             foreach (var position in parameters.PositionGroup)

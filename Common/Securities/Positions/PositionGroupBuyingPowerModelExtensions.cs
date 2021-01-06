@@ -63,8 +63,23 @@ namespace QuantConnect.Securities.Positions
             )
         {
             return model.GetInitialMarginRequiredForOrder(
-                new PositionGroupInitialMarginRequiredForOrderParameters(portfolio, positionGroup, order)
+                new PositionGroupInitialMarginForOrderParameters(portfolio, positionGroup, order)
             );
+        }
+
+        /// <summary>
+        /// Check if there is sufficient buying power for the position group to execute this order.
+        /// </summary>\
+        public static HasSufficientPositionGroupBuyingPowerForOrderResult HasSufficientBuyingPowerForOrder(
+            this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
+            IPositionGroup positionGroup,
+            Order order
+            )
+        {
+            return model.HasSufficientBuyingPowerForOrder(new HasSufficientPositionGroupBuyingPowerForOrderParameters(
+                portfolio, positionGroup, order
+            ));
         }
 
         /// <summary>
@@ -97,6 +112,59 @@ namespace QuantConnect.Securities.Positions
             return model.GetReservedBuyingPowerForPositionGroup(
                 new ReservedBuyingPowerForPositionGroupParameters(portfolio, positionGroup)
             );
+        }
+
+        /// <summary>
+        /// Get the maximum market position group order quantity to obtain a position with a given buying power
+        /// percentage. Will not take into account free buying power.
+        /// </summary>
+        public static GetMaximumPositionGroupOrderQuantityResult GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
+            this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
+            IPositionGroup positionGroup,
+            decimal targetBuyingPower,
+            bool silenceNonErrorReasons = false
+            )
+        {
+            return model.GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
+                new GetMaximumPositionGroupOrderQuantityForTargetBuyingPowerParameters(
+                    portfolio, positionGroup, targetBuyingPower, silenceNonErrorReasons
+                )
+            );
+        }
+
+        /// <summary>
+        /// Get the maximum market position group order quantity to obtain a position with a given buying power
+        /// percentage. Will not take into account free buying power.
+        /// </summary>
+        public static GetMaximumPositionGroupOrderQuantityResult GetMaximumPositionGroupOrderQuantityForDeltaBuyingPower(
+            this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
+            IPositionGroup positionGroup,
+            decimal targetBuyingPower,
+            bool silenceNonErrorReasons = false
+            )
+        {
+            return model.GetMaximumPositionGroupOrderQuantityForDeltaBuyingPower(
+                new GetMaximumPositionGroupOrderQuantityForDeltaBuyingPowerParameters(
+                  portfolio, positionGroup, targetBuyingPower, silenceNonErrorReasons
+                )
+            );
+        }
+
+        /// <summary>
+        /// Gets the buying power available for a position group trade
+        /// </summary>
+        public static decimal GetPositionGroupBuyingPower(
+            this IPositionGroupBuyingPowerModel model,
+            SecurityPortfolioManager portfolio,
+            IPositionGroup positionGroup,
+            OrderDirection direction
+            )
+        {
+            return model.GetPositionGroupBuyingPower(new PositionGroupBuyingPowerParameters(
+                portfolio, positionGroup, direction
+            )).Value;
         }
     }
 }

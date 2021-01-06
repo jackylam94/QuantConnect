@@ -621,9 +621,8 @@ namespace QuantConnect.Securities
         /// <returns>The maximum order size that is currently executable in the specified direction</returns>
         public decimal GetMarginRemaining(Symbol symbol, OrderDirection direction = OrderDirection.Buy)
         {
-            var security = Securities[symbol];
-            var context = new BuyingPowerParameters(this, security, direction);
-            return security.BuyingPowerModel.GetBuyingPower(context).Value;
+            var positionGroup = Positions.GetDefaultPositionGroup(symbol);
+            return positionGroup.BuyingPowerModel.GetPositionGroupBuyingPower(this, positionGroup, direction);
         }
 
         /// <summary>

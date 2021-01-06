@@ -56,35 +56,31 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             SecurityModel.SetLeverage(security, leverage);
         }
 
-        public decimal GetMaintenanceMargin(Security security)
+        public MaintenanceMargin GetMaintenanceMargin(MaintenanceMarginParameters parameters)
         {
-            var expected = SecurityModel.GetMaintenanceMargin(security);
-            var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
-                new ReservedBuyingPowerForPositionGroupParameters(
-                    Algorithm.Portfolio,
-                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(security.Symbol)
-                )
-            );
+            var expected = SecurityModel.GetMaintenanceMargin(parameters);
+            var actual = PositionGroupModel.GetMaintenanceMargin(new PositionGroupMaintenanceMarginParameters(
+                Algorithm.Portfolio,
+                Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol)
+            ));
 
-            Assert.AreEqual(expected, actual,
+            Assert.AreEqual(expected.Value, actual.Value,
                 $"{PositionGroupModel.GetType().Name}:{nameof(GetMaintenanceMargin)}"
             );
 
             return expected;
         }
 
-        public decimal GetInitialMarginRequirement(Security security, decimal quantity)
+        public InitialMargin GetInitialMarginRequirement(InitialMarginParameters parameters)
         {
-            var expected = SecurityModel.GetInitialMarginRequirement(security, quantity);
-            var actual = PositionGroupModel.GetReservedBuyingPowerForPositionGroup(
-                new ReservedBuyingPowerForPositionGroupParameters(
-                    Algorithm.Portfolio,
-                    Algorithm.Portfolio.Positions.GetDefaultPositionGroup(security.Symbol)
-                )
-            );
+            var expected = SecurityModel.GetInitialMarginRequirement(parameters);
+            var actual = PositionGroupModel.GetInitialMarginRequirement(new PositionGroupInitialMarginParameters(
+                Algorithm.Portfolio,
+                Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol)
+            ));
 
-            Assert.AreEqual(expected, actual,
-                $"{PositionGroupModel.GetType().Name}:{nameof(GetMaintenanceMargin)}"
+            Assert.AreEqual(expected.Value, actual.Value,
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetInitialMarginRequirement)}"
             );
 
             return expected;
@@ -92,7 +88,23 @@ namespace QuantConnect.Tests.Common.Securities.Positions
 
         public decimal GetInitialMarginRequiredForOrder(InitialMarginRequiredForOrderParameters parameters)
         {
-            throw new NotImplementedException();
+            var expected = SecurityModel.GetInitialMarginRequiredForOrder(parameters);
+            var actual = PositionGroupModel.GetInitialMarginRequiredForOrder(new PositionGroupInitialMarginForOrderParameters(
+                Algorithm.Portfolio,
+                Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
+                parameters.Order
+            ));
+
+            Assert.AreEqual(expected.Value, actual.Value,
+                $"{PositionGroupModel.GetType().Name}:{nameof(GetInitialMarginRequiredForOrder)}"
+            );
+
+            return expected;
+        }
+
+        InitialMargin IBuyingPowerModel.GetInitialMarginRequiredForOrder(InitialMarginRequiredForOrderParameters parameters)
+        {
+            return GetInitialMarginRequiredForOrder(parameters);
         }
 
         public HasSufficientBuyingPowerForOrderResult HasSufficientBuyingPowerForOrder(
@@ -102,7 +114,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.HasSufficientBuyingPowerForOrder(parameters);
             var actual = PositionGroupModel.HasSufficientBuyingPowerForOrder(
                 new HasSufficientPositionGroupBuyingPowerForOrderParameters(
-                    Algorithm.Portfolio, Algorithm.Portfolio.Positions,
+                    Algorithm.Portfolio,
                     PositionGroup.ForOrder(Algorithm.Securities, parameters.Order),
                     parameters.Order
                 )

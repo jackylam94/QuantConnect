@@ -1,4 +1,4 @@
-﻿/*
+/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
  *
@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using QuantConnect.Interfaces;
 using QuantConnect.Securities;
+using QuantConnect.Securities.Positions;
 using static QuantConnect.StringExtensions;
 
 namespace QuantConnect.Algorithm.Framework.Portfolio
@@ -107,8 +108,9 @@ namespace QuantConnect.Algorithm.Framework.Portfolio
             // we normalize the target buying power by the leverage so we work in the land of margin
             var targetFinalMarginPercentage = adjustedPercent / security.BuyingPowerModel.GetLeverage(security);
 
-            var result = security.BuyingPowerModel.GetMaximumOrderQuantityForTargetBuyingPower(
-                new GetMaximumOrderQuantityForTargetBuyingPowerParameters(algorithm.Portfolio, security, targetFinalMarginPercentage, silenceNonErrorReasons:true)
+            var positionGroup = algorithm.Portfolio.Positions.GetDefaultPositionGroup(symbol);
+            var result = positionGroup.BuyingPowerModel.GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
+                algorithm.Portfolio, positionGroup, targetFinalMarginPercentage, true
             );
 
             if (result.IsError)
