@@ -40,21 +40,5 @@ namespace QuantConnect.Securities
             IsSufficient = isSufficient;
             Reason = reason ?? string.Empty;
         }
-
-        /// <summary>
-        /// Creates a new result indicating that there is sufficient capital for the contemplated order
-        /// </summary>
-        public static HasSufficientBuyingPowerForOrderResult Sufficient()
-        {
-            return new HasSufficientBuyingPowerForOrderResult(true);
-        }
-
-        /// <summary>
-        /// Creates a new result indicating that there is insufficient capital for the contemplated order
-        /// </summary>
-        public static HasSufficientBuyingPowerForOrderResult Insufficient(string reason)
-        {
-            return new HasSufficientBuyingPowerForOrderResult(false, reason);
-        }
     }
 }
