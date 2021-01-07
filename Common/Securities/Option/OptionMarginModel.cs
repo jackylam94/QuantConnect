@@ -76,15 +76,15 @@ namespace QuantConnect.Securities.Option
             //Market order is approximated from the current security price and set in the MarketOrder Method in QCAlgorithm.
 
             var fees = parameters.Security.FeeModel.GetOrderFee(
-                new OrderFeeParameters(parameters.Security,
-                    parameters.Order)).Value;
-            var feesInAccountCurrency = parameters.CurrencyConverter.
-                ConvertToAccountCurrency(fees).Amount;
+                new OrderFeeParameters(parameters.Security, parameters.Order)
+            );
+
+            var feesInAccountCurrency = parameters.CurrencyConverter.ConvertToAccountCurrency(fees.Value);
 
             var value = parameters.Order.GetValue(parameters.Security);
             var orderMargin = value * GetMarginRequirement(parameters.Security, value);
 
-            return new InitialMargin(orderMargin + Math.Sign(orderMargin) * feesInAccountCurrency);
+            return new InitialMargin(orderMargin + Math.Sign(orderMargin) * feesInAccountCurrency.Amount);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace QuantConnect.Securities.Option
         public override MaintenanceMargin GetMaintenanceMargin(MaintenanceMarginParameters parameters)
         {
             var security = parameters.Security;
-            return security.Holdings.AbsoluteHoldingsCost * GetMaintenanceMarginRequirement(security, security.Holdings.HoldingsCost);
+            return Math.Abs(parameters.HoldingsCost) * GetMaintenanceMarginRequirement(security, security.Holdings.HoldingsCost);
         }
 
         /// <summary>

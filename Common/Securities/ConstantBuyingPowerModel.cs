@@ -13,6 +13,8 @@
  * limitations under the License.
 */
 
+using System;
+
 namespace QuantConnect.Securities
 {
     /// <summary>
@@ -65,7 +67,7 @@ namespace QuantConnect.Securities
         /// <returns>The maintenance margin required for the </returns>
         public override MaintenanceMargin GetMaintenanceMargin(MaintenanceMarginParameters parameters)
         {
-            return parameters.Security.Holdings.AbsoluteQuantity * _marginRequiredPerUnitInAccountCurrency;
+            return Math.Abs(parameters.Quantity) * _marginRequiredPerUnitInAccountCurrency;
         }
     }
 }

@@ -147,19 +147,22 @@ namespace QuantConnect.Securities.Future
         {
             var security = parameters.Security;
             if (security?.GetLastData() == null || security.Holdings.HoldingsCost == 0m)
+            {
                 return 0m;
+            }
 
+            var absoluteQuantity = Math.Abs(parameters.Quantity);
             var marginReq = GetCurrentMarginRequirements(security);
 
             if (EnableIntradayMargins
                 && security.Exchange.ExchangeOpen
                 && !security.Exchange.ClosingSoon)
             {
-                return marginReq.MaintenanceIntraday * security.Holdings.AbsoluteQuantity;
+                return marginReq.MaintenanceIntraday * absoluteQuantity;
             }
 
             // margin is per contract
-            return marginReq.MaintenanceOvernight * security.Holdings.AbsoluteQuantity;
+            return marginReq.MaintenanceOvernight * absoluteQuantity;
         }
 
         /// <summary>
