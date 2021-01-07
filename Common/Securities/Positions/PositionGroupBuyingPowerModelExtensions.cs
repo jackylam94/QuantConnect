@@ -30,11 +30,12 @@ namespace QuantConnect.Securities.Positions
         public static decimal GetMaintenanceMargin(
             this IPositionGroupBuyingPowerModel model,
             SecurityPortfolioManager portfolio,
-            IPositionGroup positionGroup
+            IPositionGroup positionGroup,
+            bool isCurrentHoldings
             )
         {
             return model.GetMaintenanceMargin(
-                new PositionGroupMaintenanceMarginParameters(portfolio, positionGroup)
+                new PositionGroupMaintenanceMarginParameters(portfolio, positionGroup, isCurrentHoldings)
             );
         }
 
@@ -49,7 +50,7 @@ namespace QuantConnect.Securities.Positions
         {
             return model.GetInitialMarginRequirement(
                 new PositionGroupInitialMarginParameters(portfolio, positionGroup)
-            );
+            ).Value;
         }
 
         /// <summary>
@@ -64,7 +65,7 @@ namespace QuantConnect.Securities.Positions
         {
             return model.GetInitialMarginRequiredForOrder(
                 new PositionGroupInitialMarginForOrderParameters(portfolio, positionGroup, order)
-            );
+            ).Value;
         }
 
         /// <summary>

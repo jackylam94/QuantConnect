@@ -40,7 +40,7 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the instance of <see cref="SecurityPositionGroupResolver"/>
         /// </summary>
-        public IPositionGroupResolver Resolver { get; } = SecurityPositionGroupResolver.Instance;
+        public IPositionGroupResolver Resolver { get; }
 
         /// <summary>
         /// Gets the instance of <see cref="SecurityPositionGroupBuyingPowerModel"/>
@@ -56,6 +56,7 @@ namespace QuantConnect.Securities.Positions
         {
             _securities = securities;
             BuyingPowerModel = buyingPowerModel;
+            Resolver = new SecurityPositionGroupResolver(securities, this);
         }
 
         /// <summary>

@@ -13,72 +13,40 @@
  * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace QuantConnect.Securities.Positions
 {
-    public class PositionCollection : IEnumerable<IPosition>
+    /// <summary>
+    /// Provides a collection implementation of <see cref="IPosition"/>
+    /// </summary>
+    public class PositionCollection : IReadOnlyCollection<IPosition>
     {
+        /// <summary>Gets the number of elements in the collection.</summary>
+        /// <returns>The number of elements in the collection. </returns>
+        public int Count => _count;
+
+        private int _count;
         private readonly Dictionary<Symbol, Entry> _positions;
-        private readonly SecurityPositionGroupDescriptor _defaultDescriptor;
 
-        private PositionCollection(
-            Dictionary<Symbol, Entry> positions,
-            SecurityPositionGroupDescriptor defaultDescriptor
-            )
+        private PositionCollection(Dictionary<Symbol, Entry> positions, int count)
         {
+            _count = count;
             _positions = positions;
-            _defaultDescriptor = defaultDescriptor;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PositionCollection"/> class by creating a new
-        /// set of <see cref="SecurityPosition"/> for each security that are completely disconnected from
-        /// the algorithm's current set of positions and position groups.
-        /// </summary>
-        /// <remarks>
-        /// The disconnect from the algorithm supports 'what-if' scenarios where we can contemplate how changing
-        /// security holdings will impact the resolved position groups and the portfolios net margin requirements
-        /// </remarks>
-        public static PositionCollection Create(SecurityManager securities)
-        {
-            return Create(securities.Values,
-                new SecurityPositionGroupDescriptor(securities,
-                new SecurityPositionGroupBuyingPowerModel()
-                )
-            );
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PositionCollection"/> class by creating a new
-        /// set of <see cref="SecurityPosition"/> for each security that are completely disconnected from
-        /// the algorithm's current set of positions and position groups.
-        /// </summary>
-        /// <remarks>
-        /// The disconnect from the algorithm supports 'what-if' scenarios where we can contemplate how changing
-        /// security holdings will impact the resolved position groups and the portfolios net margin requirements
-        /// </remarks>
-        public static PositionCollection Create(IEnumerable<Security> securities, SecurityPositionGroupDescriptor defaultDescriptor)
-        {
-            return new PositionCollection(securities.ToDictionary(
-                security => security.Symbol,
-                security => new Entry(new SecurityPosition(security, defaultDescriptor))),
-                defaultDescriptor
-            );
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PositionCollection"/> from the specified <paramref name="positions"/>.
-        /// This enumerable of positions MUST include an instance of <see cref="SecurityPosition"/> for each symbol
         /// </summary>
-        public static PositionCollection Create(IEnumerable<IPosition> positions, SecurityPositionGroupDescriptor defaultDescriptor)
+        public static PositionCollection Create(IEnumerable<IPosition> positions)
         {
+            var count = 0;
             var dictionary = new Dictionary<Symbol, Entry>();
             foreach (var position in positions)
             {
+                count++;
                 Entry entry;
                 if (!dictionary.TryGetValue(position.Symbol, out entry))
                 {
@@ -89,7 +57,45 @@ namespace QuantConnect.Securities.Positions
                 entry.Add(position);
             }
 
-            return new PositionCollection(dictionary, defaultDescriptor);
+            return new PositionCollection(dictionary, count);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PositionCollection"/> class by creating a new
+        /// set of <see cref="SecurityPosition"/> for each security containing all of the algorithm's
+        /// holdings for each security
+        /// </summary>
+        public static PositionCollection CreateDefault(SecurityManager securities)
+        {
+            var defaultDescriptor = new SecurityPositionGroupDescriptor(securities,
+                new SecurityPositionGroupBuyingPowerModel()
+            );
+
+            return CreateDefault(securities.Values, defaultDescriptor);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PositionCollection"/> class by creating a new
+        /// set of <see cref="SecurityPosition"/> for each security containing all of the algorithm's
+        /// holdings for each security
+        /// </summary>
+        public static PositionCollection CreateDefault(IEnumerable<Security> securities, SecurityPositionGroupDescriptor defaultDescriptor)
+        {
+            return CreateDefault(securities.Select(
+                security => new SecurityPosition(security, defaultDescriptor))
+            );
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PositionCollection"/> class from the specified
+        /// <see cref="SecurityPosition"/> instances.
+        /// </summary>
+        /// <param name="positions">The default security positions</param>
+        /// <returns>A new position collection containing the specified positions</returns>
+        public static PositionCollection CreateDefault(IEnumerable<SecurityPosition> positions)
+        {
+            var dictionary = positions.ToDictionary(p => p.Symbol, p => new Entry(p));
+            return new PositionCollection(dictionary, dictionary.Count);
         }
 
         /// <summary>
@@ -105,6 +111,7 @@ namespace QuantConnect.Securities.Positions
                 _positions[position.Symbol] = entry;
             }
 
+            _count++;
             entry.Add(position);
         }
 
@@ -120,7 +127,35 @@ namespace QuantConnect.Securities.Positions
                 return false;
             }
 
-            return entry.Remove(position);
+            var removed = entry.Remove(position);
+            if (removed)
+            {
+                _count--;
+            }
+
+            return removed;
+        }
+
+        /// <summary>
+        /// Clears this collection of all positions
+        /// </summary>
+        public void Clear()
+        {
+            _count = 0;
+            _positions.Clear();
+        }
+
+        /// <summary>
+        /// Gets an enumerable of all positions in this collection grouped by the position's key
+        /// </summary>
+        public IEnumerable<KeyValuePair<Symbol, IReadOnlyCollection<IPosition>>> GetPositionsBySymbol()
+        {
+            foreach (var entry in _positions)
+            {
+                yield return new KeyValuePair<Symbol, IReadOnlyCollection<IPosition>>(
+                    entry.Key, entry.Value.Positions
+                );
+            }
         }
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>

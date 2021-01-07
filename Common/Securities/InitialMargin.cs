@@ -1,4 +1,4 @@
-﻿/*
+/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
  *
@@ -39,5 +39,21 @@ namespace QuantConnect.Securities
         /// Gets an instance of <see cref="InitialMargin"/> with zero values
         /// </summary>
         public static InitialMargin Zero { get; } = new InitialMargin(0m);
+
+        /// <summary>
+        /// Implicit operator to <see cref="decimal"/>
+        /// </summary>
+        public static implicit operator decimal(InitialMargin margin)
+        {
+            return margin.Value;
+        }
+
+        /// <summary>
+        /// Implicit operator to <see cref="InitialMargin"/>
+        /// </summary>
+        public static implicit operator InitialMargin(decimal margin)
+        {
+            return new InitialMargin(margin);
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
         [SetUp]
         public void Setup()
         {
-            _positions = PositionCollection.Create(_securities);
+            _positions = PositionCollection.CreateDefault(_securities);
         }
 
         //[Test]

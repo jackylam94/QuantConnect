@@ -13,6 +13,8 @@
  * limitations under the License.
 */
 
+using System.Linq;
+
 namespace QuantConnect.Securities.Positions
 {
     /// <summary>
@@ -22,8 +24,19 @@ namespace QuantConnect.Securities.Positions
     /// </summary>
     public class SecurityPositionGroupResolver : IPositionGroupResolver
     {
-        /// <summary>Gets the instance of <see cref="SecurityPositionGroupResolver"/></summary>
-        public static IPositionGroupResolver Instance { get; } = new SecurityPositionGroupResolver();
+        private readonly SecurityManager _securities;
+        private readonly SecurityPositionGroupDescriptor _descriptor;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SecurityPositionGroupResolver"/> class
+        /// </summary>
+        /// <param name="securities">The algorithm's security manager</param>
+        /// <param name="descriptor">The descriptor for security position groups</param>
+        public SecurityPositionGroupResolver(SecurityManager securities, SecurityPositionGroupDescriptor descriptor)
+        {
+            _securities = securities;
+            _descriptor = descriptor;
+        }
 
         /// <summary>
         /// Resolves the optimal set of <see cref="IPositionGroup"/> from the provided <paramref name="positions"/>.
@@ -31,7 +44,26 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection ResolvePositionGroups(PositionCollection positions)
         {
-            return PositionGroupCollection.Empty;
+            var groups = new PositionGroupCollection(positions.GetPositionsBySymbol().Select(kvp =>
+            {
+                if (kvp.Value.Count == 1)
+                {
+                    var securityPosition = kvp.Value.Single() as SecurityPosition;
+                    if (securityPosition != null)
+                    {
+                        return securityPosition;
+                    }
+                }
+
+                return new SecurityPosition(
+                    _securities[kvp.Key], kvp.Value.Sum(p => p.Quantity), _descriptor
+                );
+            }).ToList());
+
+            // this resolver should always run last, but we should still note that we've consumed all available positions
+            positions.Clear();
+
+            return groups;
         }
     }
 }

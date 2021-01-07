@@ -13,6 +13,7 @@
  * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +90,7 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection ResolvePositionGroups(PositionCollection positions)
         {
-            // initialize group collection with all the default SecurityPositionGroups
+            // we start with no groups, each resolver's result will get merged in
             var groups = PositionGroupCollection.Empty;
 
             // each call to ResolvePositionGroups is expected to deduct grouped positions from the PositionCollection
@@ -97,6 +98,11 @@ namespace QuantConnect.Securities.Positions
             {
                 var resolved = resolver.ResolvePositionGroups(positions);
                 groups = groups.CombineWith(resolved);
+            }
+
+            if (positions.Count > 0)
+            {
+                throw new InvalidOperationException("All positions must be resolved into groups.");
             }
 
             return groups;

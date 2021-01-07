@@ -702,7 +702,7 @@ namespace QuantConnect.Lean.Engine.TransactionHandlers
             HasSufficientPositionGroupBuyingPowerForOrderResult hasSufficientBuyingPowerResult;
             try
             {
-                var orderPositionGroup = PositionGroup.ForOrder(_algorithm.Securities, order);
+                var orderPositionGroup = _algorithm.Portfolio.Positions.CreatePositionGroup(order);
                 hasSufficientBuyingPowerResult = orderPositionGroup.BuyingPowerModel.HasSufficientBuyingPowerForOrder(
                     _algorithm.Portfolio, orderPositionGroup, order
                 );

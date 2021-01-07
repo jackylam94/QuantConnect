@@ -88,15 +88,6 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PositionGroupCollection"/> class by
-        /// pulling out all of the groups defined in <see cref="SecurityPosition.Groups"/>
-        /// </summary>
-        public static PositionGroupCollection Create(IReadOnlyCollection<SecurityPosition> groups)
-        {
-            return new PositionGroupCollection(groups);
-        }
-
-        /// <summary>
         /// Gets the <see cref="IPositionGroup"/> with the specified <paramref name="key"/>
         /// </summary>
         public IPositionGroup this[PositionGroupKey id] => _groups[id];
@@ -243,7 +234,10 @@ namespace QuantConnect.Securities.Positions
 
                 foreach (var group in groups.Where(preventDuplicates.Add))
                 {
-                    yield return group;
+                    if (group.Quantity > 0)
+                    {
+                        yield return group;
+                    }
                 }
             }
         }

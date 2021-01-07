@@ -26,7 +26,7 @@ namespace QuantConnect.Securities.Positions
     /// associated <see cref="SecurityPosition"/> and this position is also used to track all other groups for which
     /// the security belongs.
     /// </summary>
-    public class SecurityPosition : IPosition, IPositionGroup, IEnumerable<IPositionGroup>, IEquatable<SecurityPosition>, IDisposable
+    public class SecurityPosition : IPosition, IPositionGroup
     {
         /// <summary>
         /// Gets the number one, which is the count of positions in the default group.
@@ -51,7 +51,7 @@ namespace QuantConnect.Securities.Positions
         /// <summary>
         /// Gets the quantity in this position
         /// </summary>
-        public decimal Quantity => GetQuantity();
+        public decimal Quantity { get; private set; }
 
         /// <summary>
         /// Gets the type of the position group
@@ -64,21 +64,10 @@ namespace QuantConnect.Securities.Positions
         public IPositionGroupBuyingPowerModel BuyingPowerModel => Descriptor.BuyingPowerModel;
 
         /// <summary>
-        /// Gets the groups this security is a member of, excluding its default <see cref="SecurityPosition"/>
-        /// </summary>
-        public IEnumerable<IPositionGroup> Groups => _groups.Values;
-
-        /// <summary>
         /// Gets the size of a single lot for the security. For equities in option strategy groups, this would match
         /// the contract's multiplier (normally 100) and that position wouldn't be represented w/ this type.
         /// </summary>
         public decimal UnitQuantity => Security.SymbolProperties.LotSize;
-
-        private bool disposed;
-        private decimal _quantity;
-        private bool _quantityInvalidated;
-
-        private readonly Dictionary<PositionGroupKey, IPositionGroup> _groups;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityPosition"/> class
@@ -86,6 +75,17 @@ namespace QuantConnect.Securities.Positions
         /// <param name="security">The security</param>
         /// <param name="descriptor">The position group descriptor for the default group</param>
         public SecurityPosition(Security security, SecurityPositionGroupDescriptor descriptor)
+            : this(security, security.Holdings.Quantity, descriptor)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SecurityPosition"/> class
+        /// </summary>
+        /// <param name="security">The security</param>
+        /// <param name="quantity">The quantity to allocate to this position instance</param>
+        /// <param name="descriptor">The position group descriptor for the default group</param>
+        public SecurityPosition(Security security, decimal quantity, IPositionGroupDescriptor descriptor)
         {
             if (security == null)
             {
@@ -97,13 +97,9 @@ namespace QuantConnect.Securities.Positions
             }
 
             Security = security;
+            Quantity = quantity;
             Descriptor = descriptor;
-            _quantity = security.Holdings.Quantity;
             Key = PositionGroupKey.Create(descriptor, this);
-            _groups = new Dictionary<PositionGroupKey, IPositionGroup>();
-
-            // each time this security's holdings change we'll need to recompute the quantity allocated to this group
-            security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
         }
 
         /// <summary>
@@ -142,50 +138,10 @@ namespace QuantConnect.Securities.Positions
                 );
             }
 
-            // the quantity associated w/ this position will be deducted from this SecurityPosition
-            // when it is placed into a group and added via to this position via the AddGroup method
+            // deduct from the default position
+            Quantity -= quantity;
 
             return new Position(Symbol, quantity, UnitQuantity);
-        }
-
-        /// <summary>
-        /// Removes the position group with the specified key, returning <code>true</code> if a matching group existed and was removed
-        /// </summary>
-        public bool RemoveGroup(PositionGroupKey key)
-        {
-            _quantityInvalidated = true;
-            return _groups.Remove(key);
-        }
-
-        /// <summary>
-        /// Adds the specified <paramref name="group"/>, throwing an <see cref="ArgumentException"/> if a group with the
-        /// same <see cref="IPositionGroup.Key"/> is already present in the collection.
-        /// </summary>
-        public void AddGroup(IPositionGroup group)
-        {
-            _quantityInvalidated = true;
-            _groups.Add(group.Key, group);
-        }
-
-        /// <summary>
-        /// Adds the <see cref="IPositionGroup"/> to the collection and overwrites the group with a matching
-        /// <see cref="IPositionGroup.Key"/>, returning <code>true</code> if an entry was overwritten and
-        /// <code>false</code> if not such matching entry existed.
-        /// </summary>
-        public bool SetGroup(IPositionGroup group)
-        {
-            _quantityInvalidated = true;
-            var exists = _groups.ContainsKey(group.Key);
-            _groups[group.Key] = group;
-            return exists;
-        }
-
-        /// <summary>
-        /// Attempts to retrieve the <see cref="IPositionGroup"/> with the specified <paramref name="key"/>
-        /// </summary>
-        public bool TryGetGroup(PositionGroupKey key, out IPositionGroup group)
-        {
-            return _groups.TryGetValue(key, out group);
         }
 
         /// <summary>Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object. </summary>
@@ -196,61 +152,6 @@ namespace QuantConnect.Securities.Positions
             return Position.RelationalComparer.Compare(this, other);
         }
 
-        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
-        public bool Equals(SecurityPosition other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Symbol.Equals(other.Symbol);
-        }
-
-        /// <summary>Determines whether the specified object is equal to the current object.</summary>
-        /// <param name="obj">The object to compare with the current object. </param>
-        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-
-            return Equals((SecurityPosition) obj);
-        }
-
-        /// <summary>Serves as the default hash function. </summary>
-        /// <returns>A hash code for the current object.</returns>
-        public override int GetHashCode()
-        {
-            return Security.Symbol.GetHashCode();
-        }
-
-        /// <summary>Returns an enumerator that iterates through the collection.</summary>
-        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-        IEnumerator<IPosition> IEnumerable<IPosition>.GetEnumerator()
-        {
-            yield return this;
-        }
-
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
@@ -258,79 +159,15 @@ namespace QuantConnect.Securities.Positions
             return Invariant($"Position: {Symbol.Value}: {Quantity}");
         }
 
-        /// <summary>
-        /// Event handler for <see cref="SecurityHolding.QuantityChanged"/>
-        /// </summary>
-        protected virtual void HoldingsOnQuantityChanged(object sender, SecurityHoldingQuantityChangedEventArgs e)
-        {
-            _quantityInvalidated = true;
-        }
-
-        /// <summary>
-        /// Fetches the quantity of ungrouped security holdings. This function recomputes the quantity
-        /// after <see cref="SecurityHolding.QuantityChanged"/> and after changes to the <see cref="_groups"/>
-        /// </summary>
-        private decimal GetQuantity()
-        {
-            var remaining = Security.Holdings.Quantity;
-            if (_quantityInvalidated)
-            {
-                foreach (var kvp in _groups)
-                {
-                    var position = kvp.Value.GetPosition(Security.Symbol);
-                    remaining -= position.Quantity;
-                }
-
-                _quantity = remaining;
-                _quantityInvalidated = false;
-            }
-
-            return _quantity;
-        }
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        public void Dispose()
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
-            Security.Holdings.QuantityChanged -= HoldingsOnQuantityChanged;
-        }
-
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-        public IEnumerator<IPositionGroup> GetEnumerator() => _groups.Values.GetEnumerator();
+        public IEnumerator<IPosition> GetEnumerator()
+        {
+            yield return this;
+        }
 
         /// <summary>Returns an enumerator that iterates through a collection.</summary>
         /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        /// <summary>
-        /// Defines a finalizer to ensure <see cref="Dispose"/> is called even if we forget to.
-        /// NOTE: We should still endeavor to call dispose because finalizers aren't guaranteed to run
-        /// </summary>
-        ~SecurityPosition()
-        {
-            Dispose();
-        }
-
-        /// <summary>
-        /// Equals operator
-        /// </summary>
-        public static bool operator ==(SecurityPosition left, SecurityPosition right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <summary>
-        /// Not equals operator.
-        /// </summary>
-        public static bool operator !=(SecurityPosition left, SecurityPosition right)
-        {
-            return !Equals(left, right);
-        }
     }
 }

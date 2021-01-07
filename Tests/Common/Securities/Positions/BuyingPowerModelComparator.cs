@@ -61,7 +61,8 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var expected = SecurityModel.GetMaintenanceMargin(parameters);
             var actual = PositionGroupModel.GetMaintenanceMargin(new PositionGroupMaintenanceMarginParameters(
                 Algorithm.Portfolio,
-                Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol)
+                Algorithm.Portfolio.Positions.GetDefaultPositionGroup(parameters.Security.Symbol),
+                true
             ));
 
             Assert.AreEqual(expected.Value, actual.Value,
@@ -115,7 +116,7 @@ namespace QuantConnect.Tests.Common.Securities.Positions
             var actual = PositionGroupModel.HasSufficientBuyingPowerForOrder(
                 new HasSufficientPositionGroupBuyingPowerForOrderParameters(
                     Algorithm.Portfolio,
-                    PositionGroup.ForOrder(Algorithm.Securities, parameters.Order),
+                    Algorithm.Portfolio.Positions.CreatePositionGroup(parameters.Order),
                     parameters.Order
                 )
             );

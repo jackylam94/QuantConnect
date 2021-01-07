@@ -67,7 +67,6 @@ namespace QuantConnect.Securities.Positions
         public PositionGroupManager(SecurityManager securities, SecurityPositionGroupDescriptor defaultDescriptor)
         {
             _securities = securities;
-            _requiresGroupResolution = true;
             DefaultDescriptor = defaultDescriptor;
             Groups = PositionGroupCollection.Empty;
             _descriptors = new List<IPositionGroupDescriptor> {defaultDescriptor};
@@ -148,11 +147,33 @@ namespace QuantConnect.Securities.Positions
         {
             if (_requiresGroupResolution)
             {
-                Groups = Resolver.ResolvePositionGroups(
-                    PositionCollection.Create(_securities)
+                var positions = PositionCollection.CreateDefault(
+                    _securities.Values, DefaultDescriptor
                 );
 
+                Groups = Resolver.ResolvePositionGroups(positions);
                 _requiresGroupResolution = false;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new position group the defines the changes in algorithm holdings expected to result from
+        /// executing the specified order
+        /// </summary>
+        /// <param name="order">The order being contemplated</param>
+        /// <returns>A new position group containing the order's changes</returns>
+        public IPositionGroup CreatePositionGroup(Order order)
+        {
+            var securities = _securities;
+
+            switch (order.Type)
+            {
+                // TODO : Case statement for Combo order types
+
+                default:
+                    var security = securities[order.Symbol];
+                    var position = new Position(security.Symbol, order.Quantity, security.SymbolProperties.LotSize);
+                    return PositionGroup.Create(DefaultDescriptor, position);
             }
         }
 
@@ -165,7 +186,7 @@ namespace QuantConnect.Securities.Positions
         public PositionGroupCollection ResolvePositionGroups(IEnumerable<IPosition> positions)
         {
             return Resolver.ResolvePositionGroups(positions as PositionCollection
-                ?? PositionCollection.Create(positions, DefaultDescriptor)
+                ?? PositionCollection.Create(positions)
             );
         }
 

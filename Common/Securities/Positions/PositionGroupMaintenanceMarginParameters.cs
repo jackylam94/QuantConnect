@@ -31,17 +31,25 @@ namespace QuantConnect.Securities.Positions
         public SecurityPortfolioManager Portfolio { get; }
 
         /// <summary>
+        /// True if the position group is currently held and the security's holdings cost/value
+        /// should be used in margin calculations. Specify false to use current market prices.
+        /// </summary>
+        public bool IsCurrentHoldings { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupMaintenanceMarginParameters"/> class
         /// </summary>
         /// <param name="portfolio">The algorithm's portfolio manager</param>
         /// <param name="positionGroup">The position group to calculate maintenance margin for</param>
         public PositionGroupMaintenanceMarginParameters(
             SecurityPortfolioManager portfolio,
-            IPositionGroup positionGroup
+            IPositionGroup positionGroup,
+            bool isCurrentHoldings
             )
         {
             Portfolio = portfolio;
             PositionGroup = positionGroup;
+            IsCurrentHoldings = isCurrentHoldings;
         }
     }
 }

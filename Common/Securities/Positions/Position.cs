@@ -15,6 +15,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using static QuantConnect.StringExtensions;
 
 namespace QuantConnect.Securities.Positions
 {
@@ -76,7 +77,12 @@ namespace QuantConnect.Securities.Positions
             return RelationalComparer.Compare(this, other);
         }
 
-
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return Invariant($"Position: {Symbol.Value}: {Quantity}");
+        }
 
         /// <summary>
         /// Provides an implementation of <see cref="IPosition"/> that is by definition empty, with zero quantity,

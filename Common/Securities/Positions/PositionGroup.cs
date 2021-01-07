@@ -171,26 +171,6 @@ namespace QuantConnect.Securities.Positions
         }
 
         /// <summary>
-        /// Creates a new <see cref="IPositionGroup"/> to represent the position changes defined by the <paramref name="order"/>
-        /// </summary>
-        public static IPositionGroup ForOrder(SecurityManager securities, Order order)
-        {
-            switch (order.Type)
-            {
-                // TODO : Case statement for Combo order types
-
-                default:
-                    var security = securities[order.Symbol];
-
-                    // TODO : Pull RequiredFreeBuyingPercent from portfolio after #5102
-                    var descriptor = new SecurityPositionGroupDescriptor(securities,
-                        new SecurityPositionGroupBuyingPowerModel()
-                    );
-                    return Create(descriptor, new Position(security.Symbol, order.Quantity, security.SymbolProperties.LotSize));
-            }
-        }
-
-        /// <summary>
         /// Groups the provided enumerable of position groups by symbol. The resulting enumerable of
         /// key value pairs is keyed by symbols with values of each group that symbol is a member of
         /// </summary>

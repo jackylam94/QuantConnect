@@ -90,12 +90,14 @@ namespace QuantConnect.Securities.Positions
             var current = 0m;
             foreach (var impactedGroup in impactedGroups)
             {
-                current += impactedGroup.BuyingPowerModel
-                    .GetReservedBuyingPowerForPositionGroup(parameters.Portfolio, impactedGroup);
+                current += impactedGroup.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(
+                    parameters.Portfolio, impactedGroup
+                );
             }
 
             // 3. Determine set of impacted positions to be grouped
-            var impactedPositions = impactedGroups.SelectMany(group => group.Select(position => position))
+            var impactedPositions = impactedGroups
+                .SelectMany(group => group.Select(position => position))
                 .Concat(parameters.ContemplatedChanges);
 
             // 4. Resolve new position groups
@@ -105,8 +107,9 @@ namespace QuantConnect.Securities.Positions
             var contemplated = 0m;
             foreach (var contemplatedGroup in contemplatedGroups)
             {
-                contemplated += contemplatedGroup.BuyingPowerModel
-                    .GetReservedBuyingPowerForPositionGroup(parameters.Portfolio, contemplatedGroup);
+                contemplated += contemplatedGroup.BuyingPowerModel.GetReservedBuyingPowerForPositionGroup(
+                    parameters.Portfolio, contemplatedGroup
+                );
             }
 
             return new ReservedBuyingPowerImpact(
@@ -237,7 +240,7 @@ namespace QuantConnect.Securities.Positions
             var groupUnit = parameters.PositionGroup.WithUnitQuantities();
 
             // 7. Compute initial margin requirement for a single unit
-            var absUnitMargin = GetInitialMarginRequirement(new PositionGroupInitialMarginParameters(portfolio, groupUnit));
+            var absUnitMargin = this.GetInitialMarginRequirement(portfolio, groupUnit);
             if (absUnitMargin == 0m)
             {
                 // likely due to missing price data
@@ -344,7 +347,7 @@ namespace QuantConnect.Securities.Positions
             ReservedBuyingPowerForPositionGroupParameters parameters
             )
         {
-            return this.GetMaintenanceMargin(parameters.Portfolio, parameters.PositionGroup);
+            return this.GetMaintenanceMargin(parameters.Portfolio, parameters.PositionGroup, true);
         }
 
         /// <summary>
