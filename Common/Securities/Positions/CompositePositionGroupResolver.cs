@@ -91,7 +91,6 @@ namespace QuantConnect.Securities.Positions
         {
             // initialize group collection with all the default SecurityPositionGroups
             var groups = PositionGroupCollection.Empty;
-                //positions.CreateDefaultPositionGroupCollection();
 
             // each call to ResolvePositionGroups is expected to deduct grouped positions from the PositionCollection
             foreach (var resolver in _resolvers)

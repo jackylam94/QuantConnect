@@ -108,7 +108,7 @@ namespace QuantConnect.Algorithm.Framework.Portfolio
             // we normalize the target buying power by the leverage so we work in the land of margin
             var targetFinalMarginPercentage = adjustedPercent / security.BuyingPowerModel.GetLeverage(security);
 
-            var positionGroup = algorithm.Portfolio.Positions.GetDefaultPositionGroup(symbol);
+            var positionGroup = algorithm.Portfolio.Positions.GetDefaultPositionGroup(security);
             var result = positionGroup.BuyingPowerModel.GetMaximumPositionGroupOrderQuantityForTargetBuyingPower(
                 algorithm.Portfolio, positionGroup, targetFinalMarginPercentage, true
             );

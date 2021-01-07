@@ -31,8 +31,7 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection ResolvePositionGroups(PositionCollection positions)
         {
-            return null;
-            //return positions.CreateDefaultPositionGroupCollection();
+            return PositionGroupCollection.Empty;
         }
     }
 }

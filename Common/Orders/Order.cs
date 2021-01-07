@@ -1,4 +1,4 @@
-﻿/*
+/*
  * QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
  * Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
  *
@@ -155,6 +155,20 @@ namespace QuantConnect.Orders
                     return OrderDirection.Sell;
                 }
                 return OrderDirection.Hold;
+            }
+        }
+
+        /// <summary>
+        /// Gets all symbols referenced by this order.
+        /// </summary>
+        /// <remarks>
+        /// TODO : Override in ComboOrder to include each order's symbol
+        /// </remarks>
+        public virtual IEnumerable<Symbol> Symbols
+        {
+            get
+            {
+                yield return Symbol;
             }
         }
 

@@ -94,16 +94,12 @@ namespace QuantConnect.Securities.Positions
                     .GetReservedBuyingPowerForPositionGroup(parameters.Portfolio, impactedGroup);
             }
 
-            // 3. Apply contemplated changes
-            var impactedSymbols = impactedGroups.SelectMany(group => group.Select(position => position.Symbol)).Distinct();
-            var positions = PositionCollection.CreateWithSecurityPositions(parameters.Portfolio.Securities, impactedSymbols);
-            foreach (var position in parameters.ContemplatedChanges)
-            {
-                positions.Add(position);
-            }
+            // 3. Determine set of impacted positions to be grouped
+            var impactedPositions = impactedGroups.SelectMany(group => group.Select(position => position))
+                .Concat(parameters.ContemplatedChanges);
 
             // 4. Resolve new position groups
-            var contemplatedGroups = parameters.Portfolio.Positions.Resolver.ResolvePositionGroups(positions);
+            var contemplatedGroups = parameters.Portfolio.Positions.ResolvePositionGroups(impactedPositions);
 
             // 5. Compute contemplated reserved buying power
             var contemplated = 0m;

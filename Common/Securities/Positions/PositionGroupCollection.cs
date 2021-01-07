@@ -40,7 +40,7 @@ namespace QuantConnect.Securities.Positions
         public int Count => _groups.Count;
 
         private readonly ImmutableDictionary<PositionGroupKey, IPositionGroup> _groups;
-        private readonly ImmutableDictionary<Symbol, SecurityPosition> _identityGroups;
+        private readonly ImmutableDictionary<Symbol, HashSet<IPositionGroup>> _groupsBySymbol;
 
         /// <summary>
         /// Initializes a new empty instance of the <see cref="PositionGroupCollection"/> class
@@ -48,18 +48,18 @@ namespace QuantConnect.Securities.Positions
         private PositionGroupCollection()
         {
             _groups = ImmutableDictionary<PositionGroupKey, IPositionGroup>.Empty;
-            _identityGroups = ImmutableDictionary<Symbol, SecurityPosition>.Empty;
+            _groupsBySymbol = ImmutableDictionary<Symbol, HashSet<IPositionGroup>>.Empty;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupCollection"/> class
         /// </summary>
         /// <remarks>
-        /// This constructor is private to ensure the dictionary references aren't leaked. Please use
-        /// the <see cref="Create"/> method to initialize new instances of this collection type.
+        /// This constructor assumes relationships between the two collections. Please use the other
+        /// constructor or one of the <see cref="Create"/> methods.
         /// </remarks>
         private PositionGroupCollection(
-            ImmutableDictionary<Symbol, SecurityPosition> identityGroups,
+            ImmutableDictionary<Symbol, HashSet<IPositionGroup>> groupsBySymbol,
             ImmutableDictionary<PositionGroupKey, IPositionGroup> groups
             )
         {
@@ -67,28 +67,33 @@ namespace QuantConnect.Securities.Positions
             {
                 throw new ArgumentNullException(nameof(groups));
             }
-            if (identityGroups == null)
+            if (groupsBySymbol == null)
             {
-                throw new ArgumentNullException(nameof(identityGroups));
+                throw new ArgumentNullException(nameof(groupsBySymbol));
             }
 
             _groups = groups;
-            _identityGroups = identityGroups;
+            _groupsBySymbol = groupsBySymbol;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PositionGroupCollection"/> class
+        /// </summary>
+        public PositionGroupCollection(IReadOnlyCollection<IPositionGroup> groups)
+            : this(
+                groups.GroupBySymbol().ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                groups.ToImmutableDictionary(grp => grp.Key)
+            )
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupCollection"/> class by
         /// pulling out all of the groups defined in <see cref="SecurityPosition.Groups"/>
         /// </summary>
-        public static PositionGroupCollection Create(IEnumerable<SecurityPosition> groups)
+        public static PositionGroupCollection Create(IReadOnlyCollection<SecurityPosition> groups)
         {
-            var identityGroups = groups.ToImmutableDictionary(group => group.Security.Symbol);
-
-            return new PositionGroupCollection(identityGroups, identityGroups
-                .SelectMany(group => group.Value.Groups)
-                .DistinctBy(group => group.Key)
-                .ToImmutableDictionary(group => group.Key)
-            );
+            return new PositionGroupCollection(groups);
         }
 
         /// <summary>
@@ -97,47 +102,26 @@ namespace QuantConnect.Securities.Positions
         public IPositionGroup this[PositionGroupKey id] => _groups[id];
 
         /// <summary>
-        /// Gets the <see cref="SecurityPosition"/> with the specified <paramref name="symbol"/>
+        /// Gets the position groups with the specified <paramref name="symbol"/>
         /// </summary>
-        public SecurityPosition this[Symbol symbol] => _identityGroups[symbol];
-
-        /// <summary>
-        /// Updates this collection with all the groups referenced by this provided <see cref="SecurityPosition"/>
-        /// </summary>
-        public PositionGroupCollection SetItem(SecurityPosition group)
-        {
-            var identityGroups = _identityGroups.SetItem(group.Symbol, group);
-
-            return new PositionGroupCollection(identityGroups, _groups.SetItems(group.Groups.Select(
-                grp => new KeyValuePair<PositionGroupKey, IPositionGroup>(grp.Key, grp)
-            )));
-        }
-
-        /// <summary>
-        /// Updates this collection with all the groups referenced by this provided <see cref="SecurityPosition"/>
-        /// </summary>
-        public PositionGroupCollection SetItems(IEnumerable<SecurityPosition> groups)
-        {
-            var collection = groups as IReadOnlyCollection<SecurityPosition> ?? groups.ToList();
-            var identityGroups = _identityGroups.SetItems(collection
-                .Select(grp => new KeyValuePair<Symbol, SecurityPosition>(grp.Symbol, grp))
-            );
-
-            return new PositionGroupCollection(identityGroups, _groups.SetItems(collection
-                .SelectMany(grp => grp.Groups)
-                .DistinctBy(grp => grp.Key)
-                .Select(grp => new KeyValuePair<PositionGroupKey, IPositionGroup>(grp.Key, grp))
-            ));
-        }
+        public IEnumerable<IPositionGroup> this[Symbol symbol] => _groupsBySymbol[symbol];
 
         /// <summary>
         /// Updates this collection with the specified <paramref name="group"/>
         /// </summary>
         public PositionGroupCollection SetItem(IPositionGroup group)
         {
+            var bySymbol = _groupsBySymbol;
             var groups = _groups.SetItem(group.Key, group);
+            foreach (var position in group)
+            {
+                var existing = bySymbol.GetValueOrDefault(position.Symbol)
+                    ?? new HashSet<IPositionGroup>();
+                existing.Add(group);
+                bySymbol = bySymbol.SetItem(position.Symbol, existing);
+            }
 
-            return new PositionGroupCollection(_identityGroups, groups);
+            return new PositionGroupCollection(bySymbol, groups);
         }
 
         /// <summary>
@@ -145,9 +129,21 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection SetItems(IEnumerable<IPositionGroup> groups)
         {
-            return new PositionGroupCollection(_identityGroups, _groups.SetItems(groups
-                .Select(grp => new KeyValuePair<PositionGroupKey, IPositionGroup>(grp.Key, grp))
-            ));
+            var newGroups = _groups;
+            var bySymbol = _groupsBySymbol;
+            foreach (var group in groups)
+            {
+                newGroups = newGroups.SetItem(group.Key, group);
+                foreach (var position in group)
+                {
+                    var existing = bySymbol.GetValueOrDefault(position.Symbol)
+                        ?? new HashSet<IPositionGroup>();
+                    existing.Add(group);
+                    bySymbol = bySymbol.SetItem(position.Symbol, existing);
+                }
+            }
+
+            return new PositionGroupCollection(bySymbol, newGroups);
         }
 
         /// <summary>
@@ -155,7 +151,21 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection Remove(PositionGroupKey id)
         {
-            return new PositionGroupCollection(_identityGroups, _groups.Remove(id));
+            IPositionGroup group;
+            var bySymbol = _groupsBySymbol;
+            if (_groups.TryGetValue(id, out group))
+            {
+                foreach (var position in group)
+                {
+                    HashSet<IPositionGroup> forSymbol;
+                    if (bySymbol.TryGetValue(position.Symbol, out forSymbol))
+                    {
+                        forSymbol.Remove(group);
+                        bySymbol = bySymbol.SetItem(position.Symbol, forSymbol);
+                    }
+                }
+            }
+            return new PositionGroupCollection(bySymbol, _groups.Remove(id));
         }
 
         /// <summary>
@@ -163,7 +173,26 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection RemoveRange(IEnumerable<PositionGroupKey> keys)
         {
-            return new PositionGroupCollection(_identityGroups, _groups.RemoveRange(keys));
+            var groups = _groups;
+            var bySymbol = _groupsBySymbol;
+            foreach (var key in keys)
+            {
+                IPositionGroup group;
+                if (_groups.TryGetValue(key, out group))
+                {
+                    groups = groups.Remove(key);
+                    foreach (var position in group)
+                    {
+                        HashSet<IPositionGroup> forSymbol;
+                        if (bySymbol.TryGetValue(position.Symbol, out forSymbol))
+                        {
+                            forSymbol.Remove(group);
+                            bySymbol = bySymbol.SetItem(position.Symbol, forSymbol);
+                        }
+                    }
+                }
+            }
+            return new PositionGroupCollection(bySymbol, groups);
         }
 
         /// <summary>
@@ -173,39 +202,28 @@ namespace QuantConnect.Securities.Positions
         /// </summary>
         public PositionGroupCollection CombineWith(PositionGroupCollection other)
         {
-            var groupUpdates = new List<KeyValuePair<PositionGroupKey, IPositionGroup>>();
-            var identityGroupAdditions = new List<KeyValuePair<Symbol, SecurityPosition>>();
-            foreach (var kvp in other._identityGroups)
+            if (other == Empty)
             {
-                SecurityPosition existing;
-                if (_identityGroups.TryGetValue(kvp.Key, out existing))
-                {
-                    if (!ReferenceEquals(existing, kvp.Value))
-                    {
-                        throw new InvalidOperationException(
-                            $"Duplicate SecurityPosition for symbol provided: {kvp.Key}"
-                        );
-                    }
-                }
-                else
-                {
-                    identityGroupAdditions.Add(
-                        new KeyValuePair<Symbol, SecurityPosition>(kvp.Key, kvp.Value)
-                    );
-                }
-
-                foreach (var group in kvp.Value.Groups)
-                {
-                    groupUpdates.Add(
-                        new KeyValuePair<PositionGroupKey, IPositionGroup>(group.Key, group)
-                    );
-                }
+                return this;
             }
 
-            return new PositionGroupCollection(
-                _identityGroups.SetItems(identityGroupAdditions),
-                _groups.SetItems(groupUpdates)
-            );
+            return SetItems(other);
+        }
+
+        /// <summary>
+        /// Gets the position groups the specified <paramref name="symbol"/> is currently a member of
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        /// <returns>An enumerable of position groups containing this symbol</returns>
+        public IEnumerable<IPositionGroup> GetPositionGroups(Symbol symbol)
+        {
+            HashSet<IPositionGroup> groups;
+            if (_groupsBySymbol.TryGetValue(symbol, out groups))
+            {
+                return groups;
+            }
+
+            return Enumerable.Empty<IPositionGroup>();
         }
 
         /// <summary>
@@ -217,34 +235,17 @@ namespace QuantConnect.Securities.Positions
 
             foreach (var position in contemplatedChanges)
             {
-                // for each symbol we need to check impacted groups for each unique group type the symbol is a member of
-                // this is so we can detect overlapping groups, for example, GOOG equity can be in default group and options groups
-                // so even if the contemplated change is in the default GOOG group, we still need to look for options groups
-                SecurityPosition defaultGroup;
-                if (!TryGetSecurityGroup(position.Symbol, out defaultGroup))
+                HashSet<IPositionGroup> groups;
+                if (!_groupsBySymbol.TryGetValue(position.Symbol, out groups))
                 {
                     continue;
                 }
 
-                foreach (var type in defaultGroup.Groups.Select(grp => grp.Descriptor).Distinct())
+                foreach (var group in groups.Where(preventDuplicates.Add))
                 {
-                    foreach (var group in type.GetImpactedGroups(this, position.Symbol))
-                    {
-                        if (preventDuplicates.Add(group))
-                        {
-                            yield return group;
-                        }
-                    }
+                    yield return group;
                 }
             }
-        }
-
-        /// <summary>
-        /// Attempts to retrieve the <see cref="SecurityPosition"/> for the specified <paramref name="symbol"/>
-        /// </summary>
-        public bool TryGetSecurityGroup(Symbol symbol, out SecurityPosition group)
-        {
-            return _identityGroups.TryGetValue(symbol, out group);
         }
 
         /// <summary>
@@ -259,13 +260,6 @@ namespace QuantConnect.Securities.Positions
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         public IEnumerator<IPositionGroup> GetEnumerator()
         {
-            // yield SecurityPosition instances
-            foreach (var kvp in _identityGroups)
-            {
-                yield return kvp.Value;
-            }
-
-            // yield any groups resolved by matchers
             foreach (var kvp in _groups)
             {
                 yield return kvp.Value;

@@ -34,7 +34,6 @@ namespace QuantConnect.Securities.Positions
         public int Count => Groups?.Count ?? 0;
 
         private bool _requiresGroupResolution;
-        private SecurityPositionGroupDescriptor _defaultDescriptor;
 
         private readonly SecurityManager _securities;
         private readonly CompositePositionGroupResolver _resolver;
@@ -57,22 +56,29 @@ namespace QuantConnect.Securities.Positions
         public IReadOnlyCollection<IPositionGroupDescriptor> Descriptors => _descriptors;
 
         /// <summary>
+        /// Gets the default position group descriptor used for security identity groups
+        /// </summary>
+        public SecurityPositionGroupDescriptor DefaultDescriptor { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PositionGroupManager"/> class
         /// </summary>
         /// <param name="securities">The algorithm's security manager</param>
-        public PositionGroupManager(SecurityManager securities)
+        public PositionGroupManager(SecurityManager securities, SecurityPositionGroupDescriptor defaultDescriptor)
         {
             _securities = securities;
+            _requiresGroupResolution = true;
+            DefaultDescriptor = defaultDescriptor;
             Groups = PositionGroupCollection.Empty;
-            _resolver = new CompositePositionGroupResolver();
-            _descriptors = new List<IPositionGroupDescriptor>();
+            _descriptors = new List<IPositionGroupDescriptor> {defaultDescriptor};
+            _resolver = new CompositePositionGroupResolver{defaultDescriptor.Resolver};
 
             // we must be notified each time our holdings change, so each time a security is added, we
             // want to bind to its SecurityHolding.QuantityChanged event so we can trigger the resolver
 
             securities.CollectionChanged += (sender, args) =>
             {
-                if (_defaultDescriptor == null)
+                if (DefaultDescriptor == null)
                 {
                     throw new InvalidOperationException(
                         "The default SecurityPositionGroupDescriptor must be registered before adding securities to the algorithm."
@@ -81,16 +87,15 @@ namespace QuantConnect.Securities.Positions
 
                 foreach (Security security in args.NewItems)
                 {
-                    SecurityPosition group;
+                    IPositionGroup group;
+                    var key = PositionGroupKey.Create(DefaultDescriptor, security);
                     if (args.Action == NotifyCollectionChangedAction.Add)
                     {
-                        if (!Groups.TryGetSecurityGroup(security.Symbol, out group))
+                        if (!Groups.TryGetPositionGroup(key, out group))
                         {
                             // simply adding a security doesn't require group resolution until it has holdings
                             // all we need to do is make sure we add the default SecurityPosition
-                            //var position = _defaultDescriptor.CreatePosition(security.Symbol, 0, security.SymbolProperties.LotSize);
-                            //group = _defaultDescriptor.CreatePositionGroup(new[] {position});
-                            group = new SecurityPosition(security, _defaultDescriptor);
+                            group = new SecurityPosition(security, DefaultDescriptor);
                             Groups = Groups.SetItem(group);
                             security.Holdings.QuantityChanged += HoldingsOnQuantityChanged;
                             if (security.Invested)
@@ -102,7 +107,7 @@ namespace QuantConnect.Securities.Positions
                     }
                     else if (args.Action == NotifyCollectionChangedAction.Remove)
                     {
-                        if (Groups.TryGetSecurityGroup(security.Symbol, out group))
+                        if (Groups.TryGetPositionGroup(key, out group))
                         {
                             security.Holdings.QuantityChanged -= HoldingsOnQuantityChanged;
                             if (security.Invested)
@@ -132,12 +137,6 @@ namespace QuantConnect.Securities.Positions
                 );
             }
 
-            var defaultDescriptor = descriptor as SecurityPositionGroupDescriptor;
-            if (defaultDescriptor != null)
-            {
-                _defaultDescriptor = defaultDescriptor;
-            }
-
             _descriptors.Add(descriptor);
             _resolver.Add(descriptor.Resolver, index);
         }
@@ -150,9 +149,24 @@ namespace QuantConnect.Securities.Positions
             if (_requiresGroupResolution)
             {
                 Groups = Resolver.ResolvePositionGroups(
-                    PositionCollection.Create(_securities.Values)
+                    PositionCollection.Create(_securities)
                 );
+
+                _requiresGroupResolution = false;
             }
+        }
+
+        /// <summary>
+        /// Resolves the groups resulting from the specified <paramref name="positions"/>. This is useful for
+        /// what-if analysis of contemplated position changes
+        /// </summary>
+        /// <param name="positions">The positions</param>
+        /// <returns>The positions resolved into groups using the registered resolvers</returns>
+        public PositionGroupCollection ResolvePositionGroups(IEnumerable<IPosition> positions)
+        {
+            return Resolver.ResolvePositionGroups(positions as PositionCollection
+                ?? PositionCollection.Create(positions, DefaultDescriptor)
+            );
         }
 
         /// <summary>
@@ -162,13 +176,23 @@ namespace QuantConnect.Securities.Positions
         /// <returns>The default position group for the specified symbol</returns>
         public SecurityPosition GetDefaultPositionGroup(Symbol symbol)
         {
-            SecurityPosition group;
-            if (!Groups.TryGetSecurityGroup(symbol, out group))
+            return GetDefaultPositionGroup(_securities[symbol]);
+        }
+
+        /// <summary>
+        /// Gets the default <see cref="SecurityPosition"/> for the specified <paramref name="security"/>
+        /// </summary>
+        /// <param name="security">The security whose default group we seek</param>
+        /// <returns>The default position group for the specified security</returns>
+        public SecurityPosition GetDefaultPositionGroup(Security security)
+        {
+            IPositionGroup group;
+            if (!Groups.TryGetPositionGroup(PositionGroupKey.Create(DefaultDescriptor, security), out group))
             {
-                throw new KeyNotFoundException($"Default position group for {symbol} was not found.");
+                throw new KeyNotFoundException($"Default position group for {security.Symbol} was not found.");
             }
 
-            return group;
+            return (SecurityPosition) group;
         }
 
         /// <summary>

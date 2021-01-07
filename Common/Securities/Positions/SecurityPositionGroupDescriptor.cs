@@ -120,19 +120,8 @@ namespace QuantConnect.Securities.Positions
         /// <returns>An enumerable of groups that can be impacted by changes in the <paramref name="symbol"/>'s holdings</returns>
         public IEnumerable<IPositionGroup> GetImpactedGroups(PositionGroupCollection groups, Symbol symbol)
         {
-            SecurityPosition defaultGroup;
-            if (!groups.TryGetSecurityGroup(symbol, out defaultGroup))
-            {
-                // if no default group exists then we're guaranteed no other groups exist for this symbol
-                yield break;
-            }
-
-            yield return defaultGroup;
-
-            foreach (var group in defaultGroup.Groups)
-            {
-                yield return group;
-            }
+            // default group impacts any groups containing this security
+            return groups.GetPositionGroups(symbol);
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>

@@ -112,6 +112,24 @@ namespace QuantConnect.Securities.Positions
             );
         }
 
+        /// <summary>
+        /// Creates the group key for the specified security's default group
+        /// </summary>
+        public static PositionGroupKey Create(IPositionGroupDescriptor descriptor, Security security)
+        {
+            return Create(descriptor, security.Symbol, security.SymbolProperties.LotSize);
+        }
+
+        /// <summary>
+        /// Creates the group key for the specified symbol's default group
+        /// </summary>
+        public static PositionGroupKey Create(IPositionGroupDescriptor descriptor, Symbol symbol, decimal lotSize)
+        {
+            return new PositionGroupKey(descriptor, ImmutableArray<UnitQuantity>.Empty
+                .Add(new UnitQuantity(symbol, lotSize))
+            );
+        }
+
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>

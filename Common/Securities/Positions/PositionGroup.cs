@@ -190,6 +190,22 @@ namespace QuantConnect.Securities.Positions
             }
         }
 
+        /// <summary>
+        /// Groups the provided enumerable of position groups by symbol. The resulting enumerable of
+        /// key value pairs is keyed by symbols with values of each group that symbol is a member of
+        /// </summary>
+        public static IEnumerable<KeyValuePair<Symbol, HashSet<IPositionGroup>>> GroupBySymbol(
+            this IEnumerable<IPositionGroup> groups
+            )
+        {
+            return groups.Select(group => new {group, positions = group.AsEnumerable()})
+                .SelectMany(item => item.positions.Select(position => new {position.Symbol, item.group}))
+                .GroupBy(item => item.Symbol)
+                .Select(grp => new KeyValuePair<Symbol, HashSet<IPositionGroup>>(
+                    grp.Key, grp.ToHashSet(x => x.group)
+                ));
+        }
+
         private sealed class ExplicitPositionGroup : IPositionGroup
         {
             private readonly IPosition[] _positions;
