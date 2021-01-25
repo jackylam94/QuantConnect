@@ -1841,6 +1841,17 @@ namespace QuantConnect.Algorithm
         /// <returns>The Arms Index indicator for the requested symbol over the specified period</returns>
         public ArmsIndex TRIN(IEnumerable<Symbol> symbols, Resolution? resolution = null)
         {
+            return TRIN(symbols.ToArray(), resolution);
+        }
+
+        /// <summary>
+        /// Creates a new Arms Index indicator
+        /// </summary>
+        /// <param name="symbols">The symbols whose Arms Index we want</param>
+        /// <param name="resolution">The resolution</param>
+        /// <returns>The Arms Index indicator for the requested symbol over the specified period</returns>
+        public ArmsIndex TRIN(Symbol[] symbols, Resolution? resolution = null)
+        {
             var name = CreateIndicatorName(QuantConnect.Symbol.None, "TRIN", resolution ?? GetSubscription(symbols.First()).Resolution);
             var trin = new ArmsIndex(name);
             foreach (var symbol in symbols)
@@ -1858,12 +1869,12 @@ namespace QuantConnect.Algorithm
         }
 
         /// <summary>
-        /// Creates a new Advance/Decline Ratio indicator
-        /// </summary>
-        /// <param name="symbols">The symbols whose A/D Ratio we want</param>
-        /// <param name="resolution">The resolution</param>
-        /// <returns>The Advance/Decline Ratio indicator for the requested symbol over the specified period</returns>
-        public AdvanceDeclineRatio ADR(IEnumerable<Symbol> symbols, Resolution? resolution = null)
+            /// Creates a new Advance/Decline Ratio indicator
+            /// </summary>
+            /// <param name="symbols">The symbols whose A/D Ratio we want</param>
+            /// <param name="resolution">The resolution</param>
+            /// <returns>The Advance/Decline Ratio indicator for the requested symbol over the specified period</returns>
+            public AdvanceDeclineRatio ADR(IEnumerable<Symbol> symbols, Resolution? resolution = null)
         {
             var name = CreateIndicatorName(QuantConnect.Symbol.None, "A/D Ratio", resolution ?? GetSubscription(symbols.First()).Resolution);
             var adr = new AdvanceDeclineRatio(name);
