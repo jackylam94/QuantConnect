@@ -7,11 +7,12 @@ using NUnit.Framework;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
 using QuantConnect.Lean.Engine.DataFeeds.Enumerators;
-using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Orders.Fees;
 using QuantConnect.Packets;
+using QuantConnect.Securities.Equity;
 using QuantConnect.ToolBox;
+using QuantConnect.Util;
 
 namespace QuantConnect.Tests.Common.Capacity
 {
@@ -39,7 +40,7 @@ namespace QuantConnect.Tests.Common.Capacity
                 Symbol.Create("ACRS", SecurityType.Equity, Market.USA),
                 Symbol.Create("ACSI", SecurityType.Equity, Market.USA),
                 Symbol.Create("ACT", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACT", SecurityType.Equity, Market.USA),
+                Symbol.Create("BSD", SecurityType.Equity, Market.USA),
                 Symbol.Create("ACTG", SecurityType.Equity, Market.USA)
             }},
             { VolumeCap.Small, new List<Symbol> {
@@ -145,7 +146,7 @@ namespace QuantConnect.Tests.Common.Capacity
         public void TestCapacity()
         {
             var strategyCapacity = new StrategyCapacity();
-            var resolutions = new[] { /*Resolution.Minute, Resolution.Hour, */Resolution.Daily };
+            var resolutions = new[] { Resolution.Minute, Resolution.Hour, Resolution.Daily };
             var timeZone = TimeZones.NewYork;
             var orders = JsonConvert.DeserializeObject<BacktestResult>(File.ReadAllText(Path.Combine("Common", "Capacity", "example_strategy.json")), new OrderJsonConverter())
                 .Orders
@@ -157,12 +158,25 @@ namespace QuantConnect.Tests.Common.Capacity
             var end = new DateTime(2020, 1, 30);
 
             var readers = new List<IEnumerator<BaseData>>();
-            foreach (var symbol in _symbolsByCapacity.Values.SelectMany(s => s))
+            foreach (var symbol in JsonConvert.DeserializeObject<List<Symbol>>(File.ReadAllText(Path.Combine("Common", "Capacity", "symbols.json"))))//_symbolsByCapacity.Values.SelectMany(s => s))
             {
                 foreach (var resolution in resolutions)
                 {
                     var config = new SubscriptionDataConfig(typeof(TradeBar), symbol, resolution, timeZone, timeZone, true, false, false);
-                    readers.Add(new LeanDataReader(config, symbol, resolution, end, Globals.DataFolder).Parse().GetEnumerator());
+                    if (resolution < Resolution.Hour)
+                    {
+                        foreach (var date in Time.EachDay(start, end))
+                        {
+                            if (File.Exists(LeanData.GenerateZipFilePath(Globals.DataFolder, symbol, date, resolution, config.TickType)))
+                            {
+                                readers.Add(new LeanDataReader(config, symbol, resolution, date, Globals.DataFolder).Parse().GetEnumerator());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        readers.Add(new LeanDataReader(config, symbol, resolution, end, Globals.DataFolder).Parse().GetEnumerator());
+                    }
                 }
             }
 
@@ -232,6 +246,44 @@ namespace QuantConnect.Tests.Common.Capacity
             }
 
             Assert.AreEqual(new List<KeyValuePair<DateTime, decimal>>(), strategyCapacity.Capacity);
+        }
+
+        [Test]
+        public void CopyStuffOver()
+        {
+            var start = new DateTime(2020, 1, 1);
+            var end = new DateTime(2020, 1, 31);
+
+            var resolutions = new[] { Resolution.Minute, Resolution.Hour, Resolution.Daily };
+            foreach (var symbol in JsonConvert.DeserializeObject<List<Symbol>>(File.ReadAllText(Path.Combine("Common", "Capacity", "symbols.json"))))
+            {
+                foreach (var resolution in resolutions)
+                {
+                    if (resolution < Resolution.Hour)
+                    {
+                        foreach (var date in Time.EachDay(start, end))
+                        {
+                            var filePath = LeanData.GenerateZipFilePath(Globals.DataFolder, symbol, date, resolution, TickType.Trade);
+                            var filePathOutput = LeanData.GenerateZipFilePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "Data")), symbol, date, resolution, TickType.Trade);
+                            if (File.Exists(filePath) && !File.Exists(filePathOutput))
+                            {
+                                Directory.GetParent(filePathOutput).Create();
+                                File.Copy(filePath, filePathOutput);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var filePath = LeanData.GenerateZipFilePath(Globals.DataFolder, symbol, end, resolution, TickType.Trade);
+                        var filePathOutput = LeanData.GenerateZipFilePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "Data")), symbol, end, resolution, TickType.Trade);
+                        if (File.Exists(filePath) && !File.Exists(filePathOutput))
+                        {
+                            Directory.GetParent(filePathOutput).Create();
+                            File.Copy(filePath, filePathOutput);
+                        }
+                    }
+                }
+            }
         }
     }
 }
