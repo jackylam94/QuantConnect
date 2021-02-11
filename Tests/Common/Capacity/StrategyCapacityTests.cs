@@ -6,11 +6,12 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
+using QuantConnect.Lean.Engine;
 using QuantConnect.Lean.Engine.DataFeeds.Enumerators;
 using QuantConnect.Orders;
 using QuantConnect.Orders.Fees;
 using QuantConnect.Packets;
-using QuantConnect.Securities.Equity;
+using QuantConnect.Tests.Common.Capacity.Strategies;
 using QuantConnect.ToolBox;
 using QuantConnect.Util;
 
@@ -19,143 +20,22 @@ namespace QuantConnect.Tests.Common.Capacity
     [TestFixture]
     public class StrategyCapacityTests
     {
-        public static readonly Dictionary<VolumeCap, List<Symbol>> _symbolsByCapacity = new Dictionary<VolumeCap, List<Symbol>>
+        [TestCase(nameof(SpyBondPortfolioRebalance), 1918404307)]
+        [TestCase(nameof(BeastVsPenny), 2000000)]
+        public void TestCapacity(string strategy, int expectedCapacity)
         {
-            { VolumeCap.Micro, new List<Symbol> {
-                Symbol.Create("AADR", SecurityType.Equity, Market.USA),
-                Symbol.Create("AAMC", SecurityType.Equity, Market.USA),
-                Symbol.Create("AAU", SecurityType.Equity, Market.USA),
-                Symbol.Create("ABDC", SecurityType.Equity, Market.USA),
-                Symbol.Create("ABIO", SecurityType.Equity, Market.USA),
-                Symbol.Create("ABUS", SecurityType.Equity, Market.USA),
-                Symbol.Create("AC", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACER", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACES", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACGLO", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACH", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACHV", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACIO", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACIU", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACNB", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACRS", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACSI", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACT", SecurityType.Equity, Market.USA),
-                Symbol.Create("BSD", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACTG", SecurityType.Equity, Market.USA)
-            }},
-            { VolumeCap.Small, new List<Symbol> {
-                Symbol.Create("ZYNE", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZYME", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZUO", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZUMZ", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZTR", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZSL", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZSAN", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZROZ", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZLAB", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZIXI", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZIV", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZIOP", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZGNX", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZG", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZEUS", SecurityType.Equity, Market.USA),
-                Symbol.Create("ZAGG", SecurityType.Equity, Market.USA),
-                Symbol.Create("YYY", SecurityType.Equity, Market.USA),
-                Symbol.Create("YRD", SecurityType.Equity, Market.USA),
-                Symbol.Create("YRCW", SecurityType.Equity, Market.USA),
-                Symbol.Create("YPF", SecurityType.Equity, Market.USA)
-            }},
-            { VolumeCap.Medium, new List<Symbol> {
-                Symbol.Create("AA", SecurityType.Equity, Market.USA),
-                Symbol.Create("AAN", SecurityType.Equity, Market.USA),
-                Symbol.Create("AAP", SecurityType.Equity, Market.USA),
-                Symbol.Create("AAXN", SecurityType.Equity, Market.USA),
-                Symbol.Create("ABB", SecurityType.Equity, Market.USA),
-                Symbol.Create("ABC", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACAD", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACC", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACGL", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACIW", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACM", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACWV", SecurityType.Equity, Market.USA),
-                Symbol.Create("ACWX", SecurityType.Equity, Market.USA),
-                Symbol.Create("ADM", SecurityType.Equity, Market.USA),
-                Symbol.Create("ADPT", SecurityType.Equity, Market.USA),
-                Symbol.Create("ADS", SecurityType.Equity, Market.USA),
-                Symbol.Create("ADUS", SecurityType.Equity, Market.USA),
-                Symbol.Create("AEM", SecurityType.Equity, Market.USA),
-                Symbol.Create("AEO", SecurityType.Equity, Market.USA),
-                Symbol.Create("AEP", SecurityType.Equity, Market.USA)
-            }},
-            { VolumeCap.Large, new List<Symbol> {
-                Symbol.Create("ZTS", SecurityType.Equity, Market.USA),
-                Symbol.Create("YUM", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLY", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLV", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLRE", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLP", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLNX", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLF", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLC", SecurityType.Equity, Market.USA),
-                Symbol.Create("XLB", SecurityType.Equity, Market.USA),
-                Symbol.Create("XEL", SecurityType.Equity, Market.USA),
-                Symbol.Create("XBI", SecurityType.Equity, Market.USA),
-                Symbol.Create("X", SecurityType.Equity, Market.USA),
-                Symbol.Create("WYNN", SecurityType.Equity, Market.USA),
-                Symbol.Create("WW", SecurityType.Equity, Market.USA),
-                Symbol.Create("WORK", SecurityType.Equity, Market.USA),
-                Symbol.Create("WMB", SecurityType.Equity, Market.USA),
-                Symbol.Create("WM", SecurityType.Equity, Market.USA),
-                Symbol.Create("WELL", SecurityType.Equity, Market.USA),
-                Symbol.Create("WEC", SecurityType.Equity, Market.USA)
-            }},
-            { VolumeCap.Mega, new List<Symbol> {
-                Symbol.Create("AAPL", SecurityType.Equity, Market.USA),
-                Symbol.Create("ADBE", SecurityType.Equity, Market.USA),
-                Symbol.Create("AGG", SecurityType.Equity, Market.USA),
-                Symbol.Create("AMD", SecurityType.Equity, Market.USA),
-                Symbol.Create("AMZN", SecurityType.Equity, Market.USA),
-                Symbol.Create("BA", SecurityType.Equity, Market.USA),
-                Symbol.Create("BABA", SecurityType.Equity, Market.USA),
-                Symbol.Create("BAC", SecurityType.Equity, Market.USA),
-                Symbol.Create("BMY", SecurityType.Equity, Market.USA),
-                Symbol.Create("C", SecurityType.Equity, Market.USA),
-                Symbol.Create("CMCSA", SecurityType.Equity, Market.USA),
-                Symbol.Create("CRM", SecurityType.Equity, Market.USA),
-                Symbol.Create("CSCO", SecurityType.Equity, Market.USA),
-                Symbol.Create("DIS", SecurityType.Equity, Market.USA),
-                Symbol.Create("EEM", SecurityType.Equity, Market.USA),
-                Symbol.Create("EFA", SecurityType.Equity, Market.USA),
-                Symbol.Create("FB", SecurityType.Equity, Market.USA),
-                Symbol.Create("FXI", SecurityType.Equity, Market.USA),
-                Symbol.Create("GDX", SecurityType.Equity, Market.USA),
-                Symbol.Create("GE", SecurityType.Equity, Market.USA)
-            }}
-        };
+            var start = new DateTime(2020, 1, 1);
+            var end = new DateTime(2020, 2, 29);
 
-        public enum VolumeCap
-        {
-            Micro,
-            Small,
-            Medium,
-            Large,
-            Mega
-        }
+            var strategyCapacity = new StrategyCapacity(start);
 
-        [Test]
-        public void TestCapacity()
-        {
-            var strategyCapacity = new StrategyCapacity();
-            var resolutions = new[] { Resolution.Minute, Resolution.Hour, Resolution.Daily };
+            var resolutions = new[] { /*Resolution.Minute, Resolution.Hour,*/ Resolution.Daily };
             var timeZone = TimeZones.NewYork;
-            var orders = JsonConvert.DeserializeObject<BacktestResult>(File.ReadAllText(Path.Combine("Common", "Capacity", "example_strategy.json")), new OrderJsonConverter())
+            var orders = JsonConvert.DeserializeObject<BacktestResult>(File.ReadAllText(Path.Combine("Common", "Capacity", "Strategies", $"{strategy}.json")), new OrderJsonConverter())
                 .Orders
                 .Values
                 .OrderBy(o => o.Time)
                 .ToList();
-
-            var start = new DateTime(2020, 1, 1);
-            var end = new DateTime(2020, 1, 30);
 
             var readers = new List<IEnumerator<BaseData>>();
             foreach (var symbol in JsonConvert.DeserializeObject<List<Symbol>>(File.ReadAllText(Path.Combine("Common", "Capacity", "symbols.json"))))//_symbolsByCapacity.Values.SelectMany(s => s))
@@ -242,10 +122,13 @@ namespace QuantConnect.Tests.Common.Capacity
                 }
 
                 strategyCapacity.OnData(slice);
-                strategyCapacity.OnOrderEvent(orderEvents);
+                foreach (var orderEvent in orderEvents)
+                {
+                    strategyCapacity.OnOrderEvent(orderEvent);
+                }
             }
 
-            Assert.AreEqual(new List<KeyValuePair<DateTime, decimal>>(), strategyCapacity.Capacity);
+            Assert.AreEqual(expectedCapacity, (double)strategyCapacity.Capacity.First().y, 1.0);
         }
 
         [Test]
