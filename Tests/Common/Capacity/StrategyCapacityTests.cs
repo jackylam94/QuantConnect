@@ -20,8 +20,8 @@ namespace QuantConnect.Tests.Common.Capacity
     [TestFixture]
     public class StrategyCapacityTests
     {
-        [TestCase(nameof(SpyBondPortfolioRebalance), 1918404307)]
-        [TestCase(nameof(BeastVsPenny), 2000000)]
+        [TestCase(nameof(SpyBondPortfolioRebalance), 41327651)]
+        [TestCase(nameof(BeastVsPenny), 105335)]
         public void TestCapacity(string strategy, int expectedCapacity)
         {
             var start = new DateTime(2020, 1, 1);
