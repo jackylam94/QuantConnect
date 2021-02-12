@@ -8,6 +8,7 @@ using QuantConnect.Data;
 using QuantConnect.Data.Market;
 using QuantConnect.Lean.Engine;
 using QuantConnect.Lean.Engine.DataFeeds.Enumerators;
+using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Orders.Fees;
 using QuantConnect.Packets;
@@ -20,16 +21,15 @@ namespace QuantConnect.Tests.Common.Capacity
     [TestFixture]
     public class StrategyCapacityTests
     {
-        [TestCase(nameof(SpyBondPortfolioRebalance), 41327651)]
-        [TestCase(nameof(BeastVsPenny), 105335)]
+        [TestCase(nameof(SpyBondPortfolioRebalance), 57106809)]
+        [TestCase(nameof(BeastVsPenny), 206303)]
+        [TestCase(nameof(MonthlyRebalanceHourly), 43261380)]
+        [TestCase(nameof(MonthlyRebalanceDaily), 470738228)]
+        [TestCase(nameof(IntradayMinuteScalping), 6117862)]
+        [TestCase(nameof(EmaPortfolioRebalance100), 2893)]
         public void TestCapacity(string strategy, int expectedCapacity)
         {
-            var start = new DateTime(2020, 1, 1);
-            var end = new DateTime(2020, 2, 29);
-
-            var strategyCapacity = new StrategyCapacity(start);
-
-            var resolutions = new[] { /*Resolution.Minute, Resolution.Hour,*/ Resolution.Daily };
+            var resolution = Resolution.Minute;
             var timeZone = TimeZones.NewYork;
             var orders = JsonConvert.DeserializeObject<BacktestResult>(File.ReadAllText(Path.Combine("Common", "Capacity", "Strategies", $"{strategy}.json")), new OrderJsonConverter())
                 .Orders
@@ -37,25 +37,31 @@ namespace QuantConnect.Tests.Common.Capacity
                 .OrderBy(o => o.Time)
                 .ToList();
 
-            var readers = new List<IEnumerator<BaseData>>();
-            foreach (var symbol in JsonConvert.DeserializeObject<List<Symbol>>(File.ReadAllText(Path.Combine("Common", "Capacity", "symbols.json"))))//_symbolsByCapacity.Values.SelectMany(s => s))
+            if (orders.Count == 0)
             {
-                foreach (var resolution in resolutions)
+                throw new Exception("Expected non-zero amount of orders");
+            }
+
+            var start = orders[0].Time;
+            // Add a buffer of 1 day so that orders placed in the trading day
+            // are snapshotted. In the case of MonthlyRebalanceDaily, the last data point we get
+            // is at 2020-04-01 00:00:00 Eastern Time, but our last order came in on 12:00:00 Eastern time of the same day.
+            // We need a buffer of at least 10 minutes, which afterwards the data will stop updating the statistics and no
+            // new snapshots will be generated
+            var end = orders[orders.Count - 1].Time.AddDays(1);
+
+            var strategyCapacity = new StrategyCapacity();
+
+            var readers = new List<IEnumerator<BaseData>>();
+            var symbols = orders.Select(x => x.Symbol).ToHashSet();
+            foreach (var symbol in symbols)
+            {
+                var config = new SubscriptionDataConfig(typeof(TradeBar), symbol, resolution, timeZone, timeZone, true, false, false);
+                foreach (var date in Time.EachDay(start, end))
                 {
-                    var config = new SubscriptionDataConfig(typeof(TradeBar), symbol, resolution, timeZone, timeZone, true, false, false);
-                    if (resolution < Resolution.Hour)
+                    if (File.Exists(LeanData.GenerateZipFilePath(Globals.DataFolder, symbol, date, resolution, config.TickType)))
                     {
-                        foreach (var date in Time.EachDay(start, end))
-                        {
-                            if (File.Exists(LeanData.GenerateZipFilePath(Globals.DataFolder, symbol, date, resolution, config.TickType)))
-                            {
-                                readers.Add(new LeanDataReader(config, symbol, resolution, date, Globals.DataFolder).Parse().GetEnumerator());
-                            }
-                        }
-                    }
-                    else
-                    {
-                        readers.Add(new LeanDataReader(config, symbol, resolution, end, Globals.DataFolder).Parse().GetEnumerator());
+                        readers.Add(new LeanDataReader(config, symbol, resolution, date, Globals.DataFolder).Parse().GetEnumerator());
                     }
                 }
             }
@@ -97,6 +103,11 @@ namespace QuantConnect.Tests.Common.Capacity
                 currentData.Add(synchronizer.Current);
             }
 
+            if (currentData.Count != 0)
+            {
+                dataBinnedByTime.Add(currentData);
+            }
+
             var cursor = 0;
 
             foreach (var dataBin in dataBinnedByTime)
@@ -128,11 +139,16 @@ namespace QuantConnect.Tests.Common.Capacity
                 }
             }
 
-            Assert.AreEqual(expectedCapacity, (double)strategyCapacity.Capacity.First().y, 1.0);
+            foreach (var capacity in strategyCapacity.Capacity)
+            {
+                Log.Trace($"Capacity {Time.UnixTimeStampToDateTime(capacity.x)} {capacity.y}");
+            }
+
+            Assert.AreEqual(expectedCapacity, (double)strategyCapacity.Capacity.Last().y, 1.0);
         }
 
         [Test]
-        public void CopyStuffOver()
+        public void CopyFilesFromRemoteSource()
         {
             var start = new DateTime(2020, 1, 1);
             var end = new DateTime(2020, 1, 31);

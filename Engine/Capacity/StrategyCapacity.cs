@@ -5,6 +5,7 @@ using QuantConnect.Data;
 using QuantConnect.Data.Market;
 using QuantConnect.Orders;
 using QuantConnect.Indicators;
+using QuantConnect.Logging;
 
 namespace QuantConnect.Lean.Engine
 {
@@ -13,21 +14,13 @@ namespace QuantConnect.Lean.Engine
     /// </summary>
     public class StrategyCapacity
     {
+        private int _previousDay;
+        private readonly Dictionary<Symbol, SymbolData> _portfolio = new Dictionary<Symbol, SymbolData>();
+
         /// <summary>
         /// Capacity of the strategy at different points in time
         /// </summary>
         public List<ChartPoint> Capacity { get; } = new List<ChartPoint>();
-
-        private readonly Dictionary<Symbol, SymbolData> _portfolio = new Dictionary<Symbol, SymbolData>();
-        private DateTime _previousEvent;
-        private Slice _data;
-        private readonly Dictionary<Symbol, TradeBar> _dataCache;
-
-        public StrategyCapacity(DateTime startDate)
-        {
-            _previousEvent = startDate;
-            _dataCache = new Dictionary<Symbol, TradeBar>();
-        }
 
         /// <summary>
         /// Triggered on a new order event
@@ -44,72 +37,106 @@ namespace QuantConnect.Lean.Engine
         /// <param name="data"></param>
         public virtual void OnData(Slice data)
         {
-            _data = data;
+            if (data.Time.Day != _previousDay)
+            {
+                TakeCapacitySnapshot(data.Time);
+                _previousDay = data.Time.Day;
+            }
+
             foreach (var kvp in data.Bars)
             {
-                _dataCache[kvp.Key] = kvp.Value;
+                SymbolData symbolData;
+                if (!_portfolio.TryGetValue(kvp.Key, out symbolData))
+                {
+                    continue;
+                }
+
+                if (data.Time < symbolData.Timeout)
+                {
+                    symbolData.Update(kvp.Value);
+                }
             }
         }
 
         protected virtual void Update(OrderEvent orderEvent)
         {
-            var lastTime = orderEvent.UtcTime;
+            var orderEventTime = orderEvent.UtcTime.ConvertFromUtc(TimeZones.NewYork);
+            if (orderEventTime.Day != _previousDay)
+            {
+                TakeCapacitySnapshot(orderEventTime);
+                _previousDay = orderEventTime.Day;
+            }
+
             var symbol = orderEvent.Symbol;
-
-            if (_previousEvent.Month != lastTime.Month)
-            {
-                TakeCapacitySnapshot(lastTime);
-            }
-
-            _previousEvent = lastTime;
-
-            TradeBar bar;
-            if (!_dataCache.TryGetValue(symbol, out bar) || orderEvent.Status != OrderStatus.Filled)
-            {
-                return;
-            }
 
             SymbolData symbolData;
             if (!_portfolio.TryGetValue(symbol, out symbolData))
             {
-                symbolData = new SymbolData(bar);
+                symbolData = new SymbolData(orderEvent);
                 _portfolio[symbol] = symbolData;
             }
 
-            symbolData.Update(bar, orderEvent);
+            symbolData.SetTimeout(orderEvent);
+            symbolData.Update(orderEvent);
         }
 
         private void TakeCapacitySnapshot(DateTime time)
         {
+            var totalAbsoluteDollarVolume = _portfolio.Values.Sum(x => x.AbsoluteDollarVolume);
             var totalDollarVolume = _portfolio.Values.Sum(x => x.DollarVolume);
+
+            var symbolByAbsoluteDollarVolume = _portfolio
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AbsoluteDollarVolume / totalAbsoluteDollarVolume);
             var symbolByDollarVolume = _portfolio
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DollarVolume / totalDollarVolume);
 
-            var minEma = _portfolio
-                .OrderBy(kvp => kvp.Value.Ema.Current.Value)
-                .First();
+            Log.Trace($"Total Absolute Dollar Vol. {totalAbsoluteDollarVolume} -- Total Dollar Vol. {totalDollarVolume}");
+            Log.Trace($"Total Absolute Dollar Vol. By Symbol: {string.Join("", symbolByAbsoluteDollarVolume.Select(kvp => "\n    " + kvp.Key + ":: " + kvp.Value.ToStringInvariant()))}\n");
+            Log.Trace($"Total Volume By Symbol: {string.Join("", _portfolio.Select(kvp => "\n    " + kvp.Key + ":: " + kvp.Value.Volume.ToStringInvariant()))}\n");
 
-            Capacity.Add(new ChartPoint(time, minEma.Value.Ema.Current.Value / symbolByDollarVolume[minEma.Key]));
+            //Capacity.Add(new ChartPoint(time, minEma.Value.Ema.Current.Value / symbolByDollarVolume[minEma.Key]));
+            foreach (var symbolData in _portfolio.Values)
+            {
+                symbolData.Reset();
+            }
         }
 
         private class SymbolData
         {
-            public ExponentialMovingAverage Ema { get; }
-            public decimal Price { get; private set; }
+            private const int _timeoutMinutes = 10;
+            private const decimal _volumePercentage = 0.30m;
 
+            public decimal AbsoluteDollarVolume { get; private set; }
+            public decimal Volume { get; private set; }
             public decimal DollarVolume { get; private set; }
+            public DateTime Timeout { get; private set; }
 
-            public SymbolData(TradeBar bar, int period = 10)
+            public SymbolData(OrderEvent orderEvent)
             {
-                Ema = new ExponentialMovingAverage(period);
+                SetTimeout(orderEvent);
             }
 
-            public void Update(TradeBar bar, OrderEvent orderEvent)
+            public void Update(OrderEvent orderEvent)
             {
-                Ema.Update(bar.EndTime, bar.Close * bar.Volume * 0.05m);
+                AbsoluteDollarVolume += orderEvent.FillPrice * orderEvent.AbsoluteFillQuantity * 0.30m;
+                DollarVolume += orderEvent.FillPrice * orderEvent.FillQuantity * 0.30m;
+            }
 
-                Price = bar.Close;
-                DollarVolume += orderEvent.FillPrice * orderEvent.AbsoluteFillQuantity;
+            public void Update(TradeBar bar)
+            {
+                Volume += bar.Volume * _volumePercentage;
+            }
+
+            public void SetTimeout(OrderEvent orderEvent)
+            {
+                Timeout = orderEvent.UtcTime.ConvertFromUtc(TimeZones.NewYork).AddMinutes(_timeoutMinutes);
+            }
+
+            public void Reset()
+            {
+                Volume = 0;
+                DollarVolume = 0;
+                AbsoluteDollarVolume = 0;
             }
         }
     }

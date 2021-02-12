@@ -1,504 +1,504 @@
 [
-  //{
-  //  "Value": "AADR",
-  //  "ID": "AADR UOFRJAZTL0TH",
-  //  "Permtick": "AADR"
-  //},
-  //{
-  //  "Value": "AAMC",
-  //  "ID": "AAMC VJV46QARHW85",
-  //  "Permtick": "AAMC"
-  //},
-  //{
-  //  "Value": "AAU",
-  //  "ID": "AAU TEMHQPA3FAZP",
-  //  "Permtick": "AAU"
-  //},
-  //{
-  //  "Value": "ABDC",
-  //  "ID": "ABDC VQEG12Q3S7L1",
-  //  "Permtick": "ABDC"
-  //},
-  //{
-  //  "Value": "ABIO",
-  //  "ID": "HYSQ R735QTJ8XC9X",
-  //  "Permtick": "ABIO"
-  //},
+  {
+    "Value": "AADR",
+    "ID": "AADR UOFRJAZTL0TH",
+    "Permtick": "AADR"
+  },
+  {
+    "Value": "AAMC",
+    "ID": "AAMC VJV46QARHW85",
+    "Permtick": "AAMC"
+  },
+  {
+    "Value": "AAU",
+    "ID": "AAU TEMHQPA3FAZP",
+    "Permtick": "AAU"
+  },
+  {
+    "Value": "ABDC",
+    "ID": "ABDC VQEG12Q3S7L1",
+    "Permtick": "ABDC"
+  },
+  {
+    "Value": "ABIO",
+    "ID": "HYSQ R735QTJ8XC9X",
+    "Permtick": "ABIO"
+  },
   {
     "Value": "ABUS",
     "ID": "TKMR URMYU8SKJALH",
     "Permtick": "ABUS"
   },
-  //{
-  //  "Value": "AC",
-  //  "ID": "AC W60OAGLHH085",
-  //  "Permtick": "AC"
-  //},
-  //{
-  //  "Value": "ACER",
-  //  "ID": "OPXA TLMK6MXB0G2T",
-  //  "Permtick": "ACER"
-  //},
-  //{
-  //  "Value": "ACES",
-  //  "ID": "ACES WVR7YFTBGY91",
-  //  "Permtick": "ACES"
-  //},
-  //{
-  //  "Value": "ACGLO",
-  //  "ID": "ACGLO WN80H9ONLK6D",
-  //  "Permtick": "ACGLO"
-  //},
-  //{
-  //  "Value": "ACH",
-  //  "ID": "ACH SAG21CX51085",
-  //  "Permtick": "ACH"
-  //},
-  //{
-  //  "Value": "ACHV",
-  //  "ID": "SNUS R735QTJ8XC9X",
-  //  "Permtick": "ACHV"
-  //},
-  //{
-  //  "Value": "ACIO",
-  //  "ID": "ACIO X60GLHZM5VFP",
-  //  "Permtick": "ACIO"
-  //},
-  //{
-  //  "Value": "ACIU",
-  //  "ID": "ACIU WE54288M72W5",
-  //  "Permtick": "ACIU"
-  //},
-  //{
-  //  "Value": "ACNB",
-  //  "ID": "ACNB USLFHILH7P7P",
-  //  "Permtick": "ACNB"
-  //},
-  //{
-  //  "Value": "ACRS",
-  //  "ID": "ACRS W4IIPBH79IED",
-  //  "Permtick": "ACRS"
-  //},
-  //{
-  //  "Value": "ACSI",
-  //  "ID": "ACSI WF7IHVI76I5H",
-  //  "Permtick": "ACSI"
-  //},
-  //{
-  //  "Value": "ACT",
-  //  "ID": "ACT WQB9ZU0Q8TB9",
-  //  "Permtick": "ACT"
-  //},
-  //{
-  //  "Value": "ACT",
-  //  "ID": "ACT WQC9FXDWBKH1",
-  //  "Permtick": "ACT"
-  //},
-  //{
-  //  "Value": "ACTG",
-  //  "ID": "ACTG SKKDFY9LC5LX",
-  //  "Permtick": "ACTG"
-  //},
-  //{
-  //  "Value": "ZYNE",
-  //  "ID": "ZYNE W2SHJFFKFZAD",
-  //  "Permtick": "ZYNE"
-  //},
-  //{
-  //  "Value": "ZYME",
-  //  "ID": "ZYME WK2S2IM8SSPX",
-  //  "Permtick": "ZYME"
-  //},
-  //{
-  //  "Value": "ZUO",
-  //  "ID": "ZUO WTMF35A5I3QD",
-  //  "Permtick": "ZUO"
-  //},
-  //{
-  //  "Value": "ZUMZ",
-  //  "ID": "ZUMZ T8EZ9H8S21K5",
-  //  "Permtick": "ZUMZ"
-  //},
-  //{
-  //  "Value": "ZTR",
-  //  "ID": "ZTR R735QTJ8XC9X",
-  //  "Permtick": "ZTR"
-  //},
-  //{
-  //  "Value": "ZSL",
-  //  "ID": "ZSL U85WJOCE24BP",
-  //  "Permtick": "ZSL"
-  //},
-  //{
-  //  "Value": "ZSAN",
-  //  "ID": "ZSAN VXLELNXHWMSL",
-  //  "Permtick": "ZSAN"
-  //},
-  //{
-  //  "Value": "ZROZ",
-  //  "ID": "ZROZ UHARUWIRM3XH",
-  //  "Permtick": "ZROZ"
-  //},
-  //{
-  //  "Value": "ZLAB",
-  //  "ID": "ZLAB WO1JW2NPW6ZP",
-  //  "Permtick": "ZLAB"
-  //},
-  //{
-  //  "Value": "ZIXI",
-  //  "ID": "AMTC R735QTJ8XC9X",
-  //  "Permtick": "ZIXI"
-  //},
-  //{
-  //  "Value": "ZIV",
-  //  "ID": "ZIV US1QJNA3OM05",
-  //  "Permtick": "ZIV"
-  //},
-  //{
-  //  "Value": "ZIOP",
-  //  "ID": "ZIOP TM78KLLUMAG5",
-  //  "Permtick": "ZIOP"
-  //},
-  //{
-  //  "Value": "ZGNX",
-  //  "ID": "ZGNX URUUEZPX5BVP",
-  //  "Permtick": "ZGNX"
-  //},
-  //{
-  //  "Value": "ZG",
-  //  "ID": "ZG W31CK9Q34RQD",
-  //  "Permtick": "ZG"
-  //},
-  //{
-  //  "Value": "ZEUS",
-  //  "ID": "ZEUS R735QTJ8XC9X",
-  //  "Permtick": "ZEUS"
-  //},
-  //{
-  //  "Value": "ZAGG",
-  //  "ID": "ZAGG UHINFNG4857P",
-  //  "Permtick": "ZAGG"
-  //},
-  //{
-  //  "Value": "YYY",
-  //  "ID": "SNDS V7D4W04MJ3VP",
-  //  "Permtick": "YYY"
-  //},
-  //{
-  //  "Value": "YRD",
-  //  "ID": "YRD W6HEW1TCRTYD",
-  //  "Permtick": "YRD"
-  //},
-  //{
-  //  "Value": "YRCW",
-  //  "ID": "YELL R735QTJ8XC9X",
-  //  "Permtick": "YRCW"
-  //},
-  //{
-  //  "Value": "YPF",
-  //  "ID": "YPF R735QTJ8XC9X",
-  //  "Permtick": "YPF"
-  //},
-  //{
-  //  "Value": "AA",
-  //  "ID": "AA WF7IHVI76I5H",
-  //  "Permtick": "AA"
-  //},
-  //{
-  //  "Value": "AAN",
-  //  "ID": "RNTA SB2PBIC0SCX1",
-  //  "Permtick": "AAN"
-  //},
-  //{
-  //  "Value": "AAP",
-  //  "ID": "AAP SA48O8J43YAT",
-  //  "Permtick": "AAP"
-  //},
-  //{
-  //  "Value": "AAXN",
-  //  "ID": "TASR S5BXFVIKPX7P",
-  //  "Permtick": "AAXN"
-  //},
-  //{
-  //  "Value": "ABB",
-  //  "ID": "ABB S3MVQ2U3Z59H",
-  //  "Permtick": "ABB"
-  //},
-  //{
-  //  "Value": "ABC",
-  //  "ID": "AAS R735QTJ8XC9X",
-  //  "Permtick": "ABC"
-  //},
-  //{
-  //  "Value": "ACAD",
-  //  "ID": "ACAD SZ09HBEPQICL",
-  //  "Permtick": "ACAD"
-  //},
-  //{
-  //  "Value": "ACC",
-  //  "ID": "ACC T142WIKPMLPH",
-  //  "Permtick": "ACC"
-  //},
-  //{
-  //  "Value": "ACGL",
-  //  "ID": "RCHI R735QTJ8XC9X",
-  //  "Permtick": "ACGL"
-  //},
-  //{
-  //  "Value": "ACIW",
-  //  "ID": "TSAI R735QTJ8XC9X",
-  //  "Permtick": "ACIW"
-  //},
-  //{
-  //  "Value": "ACM",
-  //  "ID": "ACM TSHPE3QO7TD1",
-  //  "Permtick": "ACM"
-  //},
-  //{
-  //  "Value": "ACWV",
-  //  "ID": "ACWV V0WRDXSSH205",
-  //  "Permtick": "ACWV"
-  //},
-  //{
-  //  "Value": "ACWX",
-  //  "ID": "ACWX U1BQSAW6XI79",
-  //  "Permtick": "ACWX"
-  //},
-  //{
-  //  "Value": "ADM",
-  //  "ID": "ADM R735QTJ8XC9X",
-  //  "Permtick": "ADM"
-  //},
-  //{
-  //  "Value": "ADPT",
-  //  "ID": "ADPT X5ON8DLL8TID",
-  //  "Permtick": "ADPT"
-  //},
-  //{
-  //  "Value": "ADS",
-  //  "ID": "ADS S5CWVYVQSODH",
-  //  "Permtick": "ADS"
-  //},
-  //{
-  //  "Value": "ADUS",
-  //  "ID": "ADUS UH5UMFOX8C4L",
-  //  "Permtick": "ADUS"
-  //},
-  //{
-  //  "Value": "AEM",
-  //  "ID": "AEM R735QTJ8XC9X",
-  //  "Permtick": "AEM"
-  //},
-  //{
-  //  "Value": "AEO",
-  //  "ID": "AEOS R735QTJ8XC9X",
-  //  "Permtick": "AEO"
-  //},
-  //{
-  //  "Value": "AEP",
-  //  "ID": "AEP R735QTJ8XC9X",
-  //  "Permtick": "AEP"
-  //},
-  //{
-  //  "Value": "ZTS",
-  //  "ID": "ZTS VDRJHVQ4FNFP",
-  //  "Permtick": "ZTS"
-  //},
-  //{
-  //  "Value": "YUM",
-  //  "ID": "YUM R735QTJ8XC9X",
-  //  "Permtick": "YUM"
-  //},
-  //{
-  //  "Value": "XLY",
-  //  "ID": "XLY RGRPZX100F39",
-  //  "Permtick": "XLY"
-  //},
-  //{
-  //  "Value": "XLV",
-  //  "ID": "XLV RGRPZX100F39",
-  //  "Permtick": "XLV"
-  //},
-  //{
-  //  "Value": "XLRE",
-  //  "ID": "XLRE W4JI5EUDC9K5",
-  //  "Permtick": "XLRE"
-  //},
-  //{
-  //  "Value": "XLP",
-  //  "ID": "XLP RGRPZX100F39",
-  //  "Permtick": "XLP"
-  //},
-  //{
-  //  "Value": "XLNX",
-  //  "ID": "XLNX R735QTJ8XC9X",
-  //  "Permtick": "XLNX"
-  //},
-  //{
-  //  "Value": "XLF",
-  //  "ID": "XLF RGRPZX100F39",
-  //  "Permtick": "XLF"
-  //},
-  //{
-  //  "Value": "XLC",
-  //  "ID": "XLC WVHDHI5MPEN9",
-  //  "Permtick": "XLC"
-  //},
-  //{
-  //  "Value": "XLB",
-  //  "ID": "XLB RGRPZX100F39",
-  //  "Permtick": "XLB"
-  //},
-  //{
-  //  "Value": "XEL",
-  //  "ID": "NSP R735QTJ8XC9X",
-  //  "Permtick": "XEL"
-  //},
-  //{
-  //  "Value": "XBI",
-  //  "ID": "XBI TFYQNA7D69UT",
-  //  "Permtick": "XBI"
-  //},
-  //{
-  //  "Value": "X",
-  //  "ID": "X R735QTJ8XC9X",
-  //  "Permtick": "X"
-  //},
-  //{
-  //  "Value": "WYNN",
-  //  "ID": "WYNN SJ56738TCX9H",
-  //  "Permtick": "WYNN"
-  //},
-  //{
-  //  "Value": "WW",
-  //  "ID": "WTW S9QGEXER1E1X",
-  //  "Permtick": "WW"
-  //},
-  //{
-  //  "Value": "WORK",
-  //  "ID": "WORK X5HR3Q1EPJDX",
-  //  "Permtick": "WORK"
-  //},
-  //{
-  //  "Value": "WMB",
-  //  "ID": "WMB R735QTJ8XC9X",
-  //  "Permtick": "WMB"
-  //},
-  //{
-  //  "Value": "WM",
-  //  "ID": "UW R735QTJ8XC9X",
-  //  "Permtick": "WM"
-  //},
-  //{
-  //  "Value": "WELL",
-  //  "ID": "HCN R735QTJ8XC9X",
-  //  "Permtick": "WELL"
-  //},
-  //{
-  //  "Value": "WEC",
-  //  "ID": "WEC R735QTJ8XC9X",
-  //  "Permtick": "WEC"
-  //},
-  //{
-  //  "Value": "AAPL",
-  //  "ID": "AAPL R735QTJ8XC9X",
-  //  "Permtick": "AAPL"
-  //},
-  //{
-  //  "Value": "ADBE",
-  //  "ID": "ADBE R735QTJ8XC9X",
-  //  "Permtick": "ADBE"
-  //},
-  //{
-  //  "Value": "AGG",
-  //  "ID": "AGG SSC0EI5J2F6T",
-  //  "Permtick": "AGG"
-  //},
-  //{
-  //  "Value": "AMD",
-  //  "ID": "AMD R735QTJ8XC9X",
-  //  "Permtick": "AMD"
-  //},
-  //{
-  //  "Value": "AMZN",
-  //  "ID": "AMZN R735QTJ8XC9X",
-  //  "Permtick": "AMZN"
-  //},
-  //{
-  //  "Value": "BA",
-  //  "ID": "BA R735QTJ8XC9X",
-  //  "Permtick": "BA"
-  //},
-  //{
-  //  "Value": "BABA",
-  //  "ID": "BABA VU1EHIDJYJXH",
-  //  "Permtick": "BABA"
-  //},
-  //{
-  //  "Value": "BAC",
-  //  "ID": "NB R735QTJ8XC9X",
-  //  "Permtick": "BAC"
-  //},
-  //{
-  //  "Value": "BMY",
-  //  "ID": "BMY R735QTJ8XC9X",
-  //  "Permtick": "BMY"
-  //},
-  //{
-  //  "Value": "C",
-  //  "ID": "TRV R735QTJ8XC9X",
-  //  "Permtick": "C"
-  //},
-  //{
-  //  "Value": "CMCSA",
-  //  "ID": "CMCSA SJTSDFE19S9X",
-  //  "Permtick": "CMCSA"
-  //},
-  //{
-  //  "Value": "CRM",
-  //  "ID": "CRM SZQUJUA9SVOL",
-  //  "Permtick": "CRM"
-  //},
-  //{
-  //  "Value": "CSCO",
-  //  "ID": "CSCO R735QTJ8XC9X",
-  //  "Permtick": "CSCO"
-  //},
-  //{
-  //  "Value": "DIS",
-  //  "ID": "DIS R735QTJ8XC9X",
-  //  "Permtick": "DIS"
-  //},
-  //{
-  //  "Value": "EEM",
-  //  "ID": "EEM SNQLASP67O85",
-  //  "Permtick": "EEM"
-  //},
-  //{
-  //  "Value": "EFA",
-  //  "ID": "EFA S79U6IHK5HLX",
-  //  "Permtick": "EFA"
-  //},
-  //{
-  //  "Value": "FB",
-  //  "ID": "FB V6OIPNZEM8V9",
-  //  "Permtick": "FB"
-  //},
-  //{
-  //  "Value": "FXI",
-  //  "ID": "FXI T2O7DUFBZLUT",
-  //  "Permtick": "FXI"
-  //},
-  //{
-  //  "Value": "GDX",
-  //  "ID": "GDX TIU4L3M37HPH",
-  //  "Permtick": "GDX"
-  //},
-  //{
-  //  "Value": "GE",
-  //  "ID": "GE R735QTJ8XC9X",
-  //  "Permtick": "GE"
-  //},
+  {
+    "Value": "AC",
+    "ID": "AC W60OAGLHH085",
+    "Permtick": "AC"
+  },
+  {
+    "Value": "ACER",
+    "ID": "OPXA TLMK6MXB0G2T",
+    "Permtick": "ACER"
+  },
+  {
+    "Value": "ACES",
+    "ID": "ACES WVR7YFTBGY91",
+    "Permtick": "ACES"
+  },
+  {
+    "Value": "ACGLO",
+    "ID": "ACGLO WN80H9ONLK6D",
+    "Permtick": "ACGLO"
+  },
+  {
+    "Value": "ACH",
+    "ID": "ACH SAG21CX51085",
+    "Permtick": "ACH"
+  },
+  {
+    "Value": "ACHV",
+    "ID": "SNUS R735QTJ8XC9X",
+    "Permtick": "ACHV"
+  },
+  {
+    "Value": "ACIO",
+    "ID": "ACIO X60GLHZM5VFP",
+    "Permtick": "ACIO"
+  },
+  {
+    "Value": "ACIU",
+    "ID": "ACIU WE54288M72W5",
+    "Permtick": "ACIU"
+  },
+  {
+    "Value": "ACNB",
+    "ID": "ACNB USLFHILH7P7P",
+    "Permtick": "ACNB"
+  },
+  {
+    "Value": "ACRS",
+    "ID": "ACRS W4IIPBH79IED",
+    "Permtick": "ACRS"
+  },
+  {
+    "Value": "ACSI",
+    "ID": "ACSI WF7IHVI76I5H",
+    "Permtick": "ACSI"
+  },
+  {
+    "Value": "ACT",
+    "ID": "ACT WQB9ZU0Q8TB9",
+    "Permtick": "ACT"
+  },
+  {
+    "Value": "ACT",
+    "ID": "ACT WQC9FXDWBKH1",
+    "Permtick": "ACT"
+  },
+  {
+    "Value": "ACTG",
+    "ID": "ACTG SKKDFY9LC5LX",
+    "Permtick": "ACTG"
+  },
+  {
+    "Value": "ZYNE",
+    "ID": "ZYNE W2SHJFFKFZAD",
+    "Permtick": "ZYNE"
+  },
+  {
+    "Value": "ZYME",
+    "ID": "ZYME WK2S2IM8SSPX",
+    "Permtick": "ZYME"
+  },
+  {
+    "Value": "ZUO",
+    "ID": "ZUO WTMF35A5I3QD",
+    "Permtick": "ZUO"
+  },
+  {
+    "Value": "ZUMZ",
+    "ID": "ZUMZ T8EZ9H8S21K5",
+    "Permtick": "ZUMZ"
+  },
+  {
+    "Value": "ZTR",
+    "ID": "ZTR R735QTJ8XC9X",
+    "Permtick": "ZTR"
+  },
+  {
+    "Value": "ZSL",
+    "ID": "ZSL U85WJOCE24BP",
+    "Permtick": "ZSL"
+  },
+  {
+    "Value": "ZSAN",
+    "ID": "ZSAN VXLELNXHWMSL",
+    "Permtick": "ZSAN"
+  },
+  {
+    "Value": "ZROZ",
+    "ID": "ZROZ UHARUWIRM3XH",
+    "Permtick": "ZROZ"
+  },
+  {
+    "Value": "ZLAB",
+    "ID": "ZLAB WO1JW2NPW6ZP",
+    "Permtick": "ZLAB"
+  },
+  {
+    "Value": "ZIXI",
+    "ID": "AMTC R735QTJ8XC9X",
+    "Permtick": "ZIXI"
+  },
+  {
+    "Value": "ZIV",
+    "ID": "ZIV US1QJNA3OM05",
+    "Permtick": "ZIV"
+  },
+  {
+    "Value": "ZIOP",
+    "ID": "ZIOP TM78KLLUMAG5",
+    "Permtick": "ZIOP"
+  },
+  {
+    "Value": "ZGNX",
+    "ID": "ZGNX URUUEZPX5BVP",
+    "Permtick": "ZGNX"
+  },
+  {
+    "Value": "ZG",
+    "ID": "ZG W31CK9Q34RQD",
+    "Permtick": "ZG"
+  },
+  {
+    "Value": "ZEUS",
+    "ID": "ZEUS R735QTJ8XC9X",
+    "Permtick": "ZEUS"
+  },
+  {
+    "Value": "ZAGG",
+    "ID": "ZAGG UHINFNG4857P",
+    "Permtick": "ZAGG"
+  },
+  {
+    "Value": "YYY",
+    "ID": "SNDS V7D4W04MJ3VP",
+    "Permtick": "YYY"
+  },
+  {
+    "Value": "YRD",
+    "ID": "YRD W6HEW1TCRTYD",
+    "Permtick": "YRD"
+  },
+  {
+    "Value": "YRCW",
+    "ID": "YELL R735QTJ8XC9X",
+    "Permtick": "YRCW"
+  },
+  {
+    "Value": "YPF",
+    "ID": "YPF R735QTJ8XC9X",
+    "Permtick": "YPF"
+  },
+  {
+    "Value": "AA",
+    "ID": "AA WF7IHVI76I5H",
+    "Permtick": "AA"
+  },
+  {
+    "Value": "AAN",
+    "ID": "RNTA SB2PBIC0SCX1",
+    "Permtick": "AAN"
+  },
+  {
+    "Value": "AAP",
+    "ID": "AAP SA48O8J43YAT",
+    "Permtick": "AAP"
+  },
+  {
+    "Value": "AAXN",
+    "ID": "TASR S5BXFVIKPX7P",
+    "Permtick": "AAXN"
+  },
+  {
+    "Value": "ABB",
+    "ID": "ABB S3MVQ2U3Z59H",
+    "Permtick": "ABB"
+  },
+  {
+    "Value": "ABC",
+    "ID": "AAS R735QTJ8XC9X",
+    "Permtick": "ABC"
+  },
+  {
+    "Value": "ACAD",
+    "ID": "ACAD SZ09HBEPQICL",
+    "Permtick": "ACAD"
+  },
+  {
+    "Value": "ACC",
+    "ID": "ACC T142WIKPMLPH",
+    "Permtick": "ACC"
+  },
+  {
+    "Value": "ACGL",
+    "ID": "RCHI R735QTJ8XC9X",
+    "Permtick": "ACGL"
+  },
+  {
+    "Value": "ACIW",
+    "ID": "TSAI R735QTJ8XC9X",
+    "Permtick": "ACIW"
+  },
+  {
+    "Value": "ACM",
+    "ID": "ACM TSHPE3QO7TD1",
+    "Permtick": "ACM"
+  },
+  {
+    "Value": "ACWV",
+    "ID": "ACWV V0WRDXSSH205",
+    "Permtick": "ACWV"
+  },
+  {
+    "Value": "ACWX",
+    "ID": "ACWX U1BQSAW6XI79",
+    "Permtick": "ACWX"
+  },
+  {
+    "Value": "ADM",
+    "ID": "ADM R735QTJ8XC9X",
+    "Permtick": "ADM"
+  },
+  {
+    "Value": "ADPT",
+    "ID": "ADPT X5ON8DLL8TID",
+    "Permtick": "ADPT"
+  },
+  {
+    "Value": "ADS",
+    "ID": "ADS S5CWVYVQSODH",
+    "Permtick": "ADS"
+  },
+  {
+    "Value": "ADUS",
+    "ID": "ADUS UH5UMFOX8C4L",
+    "Permtick": "ADUS"
+  },
+  {
+    "Value": "AEM",
+    "ID": "AEM R735QTJ8XC9X",
+    "Permtick": "AEM"
+  },
+  {
+    "Value": "AEO",
+    "ID": "AEOS R735QTJ8XC9X",
+    "Permtick": "AEO"
+  },
+  {
+    "Value": "AEP",
+    "ID": "AEP R735QTJ8XC9X",
+    "Permtick": "AEP"
+  },
+  {
+    "Value": "ZTS",
+    "ID": "ZTS VDRJHVQ4FNFP",
+    "Permtick": "ZTS"
+  },
+  {
+    "Value": "YUM",
+    "ID": "YUM R735QTJ8XC9X",
+    "Permtick": "YUM"
+  },
+  {
+    "Value": "XLY",
+    "ID": "XLY RGRPZX100F39",
+    "Permtick": "XLY"
+  },
+  {
+    "Value": "XLV",
+    "ID": "XLV RGRPZX100F39",
+    "Permtick": "XLV"
+  },
+  {
+    "Value": "XLRE",
+    "ID": "XLRE W4JI5EUDC9K5",
+    "Permtick": "XLRE"
+  },
+  {
+    "Value": "XLP",
+    "ID": "XLP RGRPZX100F39",
+    "Permtick": "XLP"
+  },
+  {
+    "Value": "XLNX",
+    "ID": "XLNX R735QTJ8XC9X",
+    "Permtick": "XLNX"
+  },
+  {
+    "Value": "XLF",
+    "ID": "XLF RGRPZX100F39",
+    "Permtick": "XLF"
+  },
+  {
+    "Value": "XLC",
+    "ID": "XLC WVHDHI5MPEN9",
+    "Permtick": "XLC"
+  },
+  {
+    "Value": "XLB",
+    "ID": "XLB RGRPZX100F39",
+    "Permtick": "XLB"
+  },
+  {
+    "Value": "XEL",
+    "ID": "NSP R735QTJ8XC9X",
+    "Permtick": "XEL"
+  },
+  {
+    "Value": "XBI",
+    "ID": "XBI TFYQNA7D69UT",
+    "Permtick": "XBI"
+  },
+  {
+    "Value": "X",
+    "ID": "X R735QTJ8XC9X",
+    "Permtick": "X"
+  },
+  {
+    "Value": "WYNN",
+    "ID": "WYNN SJ56738TCX9H",
+    "Permtick": "WYNN"
+  },
+  {
+    "Value": "WW",
+    "ID": "WTW S9QGEXER1E1X",
+    "Permtick": "WW"
+  },
+  {
+    "Value": "WORK",
+    "ID": "WORK X5HR3Q1EPJDX",
+    "Permtick": "WORK"
+  },
+  {
+    "Value": "WMB",
+    "ID": "WMB R735QTJ8XC9X",
+    "Permtick": "WMB"
+  },
+  {
+    "Value": "WM",
+    "ID": "UW R735QTJ8XC9X",
+    "Permtick": "WM"
+  },
+  {
+    "Value": "WELL",
+    "ID": "HCN R735QTJ8XC9X",
+    "Permtick": "WELL"
+  },
+  {
+    "Value": "WEC",
+    "ID": "WEC R735QTJ8XC9X",
+    "Permtick": "WEC"
+  },
+  {
+    "Value": "AAPL",
+    "ID": "AAPL R735QTJ8XC9X",
+    "Permtick": "AAPL"
+  },
+  {
+    "Value": "ADBE",
+    "ID": "ADBE R735QTJ8XC9X",
+    "Permtick": "ADBE"
+  },
+  {
+    "Value": "AGG",
+    "ID": "AGG SSC0EI5J2F6T",
+    "Permtick": "AGG"
+  },
+  {
+    "Value": "AMD",
+    "ID": "AMD R735QTJ8XC9X",
+    "Permtick": "AMD"
+  },
+  {
+    "Value": "AMZN",
+    "ID": "AMZN R735QTJ8XC9X",
+    "Permtick": "AMZN"
+  },
+  {
+    "Value": "BA",
+    "ID": "BA R735QTJ8XC9X",
+    "Permtick": "BA"
+  },
+  {
+    "Value": "BABA",
+    "ID": "BABA VU1EHIDJYJXH",
+    "Permtick": "BABA"
+  },
+  {
+    "Value": "BAC",
+    "ID": "NB R735QTJ8XC9X",
+    "Permtick": "BAC"
+  },
+  {
+    "Value": "BMY",
+    "ID": "BMY R735QTJ8XC9X",
+    "Permtick": "BMY"
+  },
+  {
+    "Value": "C",
+    "ID": "TRV R735QTJ8XC9X",
+    "Permtick": "C"
+  },
+  {
+    "Value": "CMCSA",
+    "ID": "CMCSA SJTSDFE19S9X",
+    "Permtick": "CMCSA"
+  },
+  {
+    "Value": "CRM",
+    "ID": "CRM SZQUJUA9SVOL",
+    "Permtick": "CRM"
+  },
+  {
+    "Value": "CSCO",
+    "ID": "CSCO R735QTJ8XC9X",
+    "Permtick": "CSCO"
+  },
+  {
+    "Value": "DIS",
+    "ID": "DIS R735QTJ8XC9X",
+    "Permtick": "DIS"
+  },
+  {
+    "Value": "EEM",
+    "ID": "EEM SNQLASP67O85",
+    "Permtick": "EEM"
+  },
+  {
+    "Value": "EFA",
+    "ID": "EFA S79U6IHK5HLX",
+    "Permtick": "EFA"
+  },
+  {
+    "Value": "FB",
+    "ID": "FB V6OIPNZEM8V9",
+    "Permtick": "FB"
+  },
+  {
+    "Value": "FXI",
+    "ID": "FXI T2O7DUFBZLUT",
+    "Permtick": "FXI"
+  },
+  {
+    "Value": "GDX",
+    "ID": "GDX TIU4L3M37HPH",
+    "Permtick": "GDX"
+  },
+  {
+    "Value": "GE",
+    "ID": "GE R735QTJ8XC9X",
+    "Permtick": "GE"
+  },
   {
     "Value": "SPY",
     "ID": "SPY R735QTJ8XC9X",
