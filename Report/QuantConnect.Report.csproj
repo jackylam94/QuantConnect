@@ -13,6 +13,7 @@
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NoWarn>AD0001</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
