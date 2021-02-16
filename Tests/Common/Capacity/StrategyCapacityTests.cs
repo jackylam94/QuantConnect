@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using NodaTime;
 using NUnit.Framework;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
@@ -12,6 +13,7 @@ using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Orders.Fees;
 using QuantConnect.Packets;
+using QuantConnect.Securities;
 using QuantConnect.Tests.Common.Capacity.Strategies;
 using QuantConnect.ToolBox;
 using QuantConnect.Util;
@@ -29,12 +31,13 @@ namespace QuantConnect.Tests.Common.Capacity
         [TestCase(nameof(EmaPortfolioRebalance100), 2893)]
         public void TestCapacity(string strategy, int expectedCapacity)
         {
+            var timeZones = new Dictionary<Symbol, DateTimeZone>();
+            var mhdb = MarketHoursDatabase.FromDataFolder();
             var resolution = Resolution.Minute;
-            var timeZone = TimeZones.NewYork;
             var orders = JsonConvert.DeserializeObject<BacktestResult>(File.ReadAllText(Path.Combine("Common", "Capacity", "Strategies", $"{strategy}.json")), new OrderJsonConverter())
                 .Orders
                 .Values
-                .OrderBy(o => o.Time)
+                .OrderBy(o => o.LastFillTime)
                 .ToList();
 
             if (orders.Count == 0)
@@ -42,21 +45,24 @@ namespace QuantConnect.Tests.Common.Capacity
                 throw new Exception("Expected non-zero amount of orders");
             }
 
-            var start = orders[0].Time;
+            var start = orders[0].LastFillTime.Value;
             // Add a buffer of 1 day so that orders placed in the trading day
             // are snapshotted. In the case of MonthlyRebalanceDaily, the last data point we get
             // is at 2020-04-01 00:00:00 Eastern Time, but our last order came in on 12:00:00 Eastern time of the same day.
             // We need a buffer of at least 10 minutes, which afterwards the data will stop updating the statistics and no
             // new snapshots will be generated
-            var end = orders[orders.Count - 1].Time.AddDays(1);
-
-            var strategyCapacity = new StrategyCapacity();
+            var end = orders[orders.Count - 1].LastFillTime.Value.AddDays(1);
 
             var readers = new List<IEnumerator<BaseData>>();
             var symbols = orders.Select(x => x.Symbol).ToHashSet();
             foreach (var symbol in symbols)
             {
-                var config = new SubscriptionDataConfig(typeof(TradeBar), symbol, resolution, timeZone, timeZone, true, false, false);
+                var dataTimeZone = mhdb.GetDataTimeZone(symbol.ID.Market, symbol, symbol.SecurityType);
+                var exchangeTimeZone = mhdb.GetExchangeHours(symbol.ID.Market, symbol, symbol.SecurityType).TimeZone;
+                timeZones[symbol] = exchangeTimeZone;
+
+                var config = new SubscriptionDataConfig(typeof(TradeBar), symbol, resolution, dataTimeZone, exchangeTimeZone, true, false, false);
+
                 foreach (var date in Time.EachDay(start, end))
                 {
                     if (File.Exists(LeanData.GenerateZipFilePath(Globals.DataFolder, symbol, date, resolution, config.TickType)))
@@ -65,6 +71,8 @@ namespace QuantConnect.Tests.Common.Capacity
                     }
                 }
             }
+
+            var strategyCapacity = new StrategyCapacity(timeZones);
 
             var dataEnumerators = readers.ToArray();
             var synchronizer = new SynchronizingEnumerator(dataEnumerators);
@@ -119,20 +127,27 @@ namespace QuantConnect.Tests.Common.Capacity
                 while (cursor < orders.Count)
                 {
                     var order = orders[cursor];
-                    if (order.Time.ConvertFromUtc(timeZone) > dataTime)
+                    var exchangeHours = mhdb.GetEntry(order.Symbol.ID.Market, order.Symbol, order.Symbol.SecurityType)
+                        .ExchangeHours;
+
+                    var orderEvent = new OrderEvent(order, order.LastFillTime.Value, OrderFee.Zero);
+                    orderEvent.FillPrice = order.Price;
+                    orderEvent.FillQuantity = order.Quantity;
+                    orderEvent.UtcTime = order.Type == OrderType.MarketOnOpen
+                        ? exchangeHours.GetNextMarketOpen(orderEvent.UtcTime.ConvertFromUtc(timeZones[order.Symbol]), false).AddMinutes(1).ConvertToUtc(timeZones[order.Symbol])
+                        : orderEvent.UtcTime;
+
+                    if (orderEvent.UtcTime.ConvertFromUtc(timeZones[order.Symbol]) > dataTime)
                     {
                         break;
                     }
-
-                    var orderEvent = new OrderEvent(order, order.Time, OrderFee.Zero);
-                    orderEvent.FillPrice = order.Price;
-                    orderEvent.FillQuantity = order.Quantity;
 
                     orderEvents.Add(orderEvent);
                     cursor++;
                 }
 
                 strategyCapacity.OnData(slice);
+
                 foreach (var orderEvent in orderEvents)
                 {
                     strategyCapacity.OnOrderEvent(orderEvent);
