@@ -14,7 +14,7 @@ namespace QuantConnect.Tests.Common.Capacity.Strategies
             SetEndDate(2020, 4, 5);
             SetCash(100000);
 
-            AddEquity("SPY", Resolution.Daily);
+            var spy = AddEquity("SPY", Resolution.Daily).Symbol;
             AddEquity("GE", Resolution.Daily);
             AddEquity("FB", Resolution.Daily);
             AddEquity("DIS", Resolution.Daily);
@@ -25,7 +25,7 @@ namespace QuantConnect.Tests.Common.Capacity.Strategies
             AddEquity("BABA", Resolution.Daily);
             AddEquity("AAPL", Resolution.Daily);
 
-            Schedule.On(DateRules.MonthStart(), TimeRules.Noon, () =>
+            Schedule.On(DateRules.MonthStart(spy), TimeRules.Noon, () =>
             {
                 foreach (var symbol in Securities.Keys)
                 {

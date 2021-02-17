@@ -159,7 +159,7 @@ namespace QuantConnect.Tests.Common.Capacity
                 Log.Trace($"Capacity {Time.UnixTimeStampToDateTime(capacity.x)} {capacity.y}");
             }
 
-            Assert.AreEqual(expectedCapacity, (double)strategyCapacity.Capacity.Last().y, 1.0);
+            Assert.AreEqual(expectedCapacity, (double)strategyCapacity.Capacity.Last().y.RoundToSignificantDigits(3), 1.0);
         }
 
         [Test]

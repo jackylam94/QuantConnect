@@ -5,7 +5,6 @@ using NodaTime;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
 using QuantConnect.Orders;
-using QuantConnect.Indicators;
 using QuantConnect.Logging;
 
 namespace QuantConnect.Lean.Engine
@@ -97,8 +96,7 @@ namespace QuantConnect.Lean.Engine
                 .OrderBy(kvp => kvp.Value.AverageCapacity)
                 .FirstOrDefault();
 
-            Log.Trace($"Minimum Symbol Average Capacity: {minimumMarketVolume.Value.AverageCapacity}");
-            Log.Trace("");
+            Log.Trace($"Minimum Symbol Average Capacity: {minimumMarketVolume.Key} :: {minimumMarketVolume.Value.AverageCapacity}");
 
             Capacity.Add(new ChartPoint(time, (minimumMarketVolume.Value.AverageCapacity) / symbolByPercentageOfAbsoluteDollarVolume[minimumMarketVolume.Key]));
 
@@ -116,13 +114,14 @@ namespace QuantConnect.Lean.Engine
         private class SymbolData
         {
             private TradeBar _previousBar;
-            public decimal AverageCapacity => (_marketCapacityDollarVolume / TradeCount) * 0.30m;
+            private OrderEvent _previousTrade;
+            public decimal AverageCapacity => (_marketCapacityDollarVolume / TradeCount) * 0.10m;
 
             private DateTime _timeout;
+            private double _fastTradingVolumeDiscountFactor;
             private decimal _averageVolume;
             private readonly DateTimeZone _timeZone;
 
-            public SimpleMovingAverage AbsoluteMarketDollarVolumeSMA { get; }
             public bool TradedBetweenSnapshots { get; private set; }
 
             public int TradeCount { get; private set; }
@@ -132,6 +131,7 @@ namespace QuantConnect.Lean.Engine
             public SymbolData(DateTimeZone timeZone)
             {
                 _timeZone = timeZone;
+                _fastTradingVolumeDiscountFactor = 1;
             }
 
             public void OnOrderEvent(OrderEvent orderEvent)
@@ -140,10 +140,23 @@ namespace QuantConnect.Lean.Engine
                 AbsoluteTradingDollarVolume += orderEvent.FillPrice * orderEvent.AbsoluteFillQuantity;
                 TradeCount++;
 
-                var k = 6000000 / _averageVolume;
+                // Use 6000000 as the maximum bound for trading volume in a single minute.
+                // Any bars that exceed 6 million total volume will be capped to a timeout of one minute.
+                var k = _averageVolume != 0
+                    ? 6000000 / _averageVolume
+                    : 10;
+
                 var timeoutMinutes = k > 60 ? 60 : (int)Math.Max(1, (double)k);
 
+                // To reduce the capacity of high frequency strategies, we scale down the
+                // volume captured on each bar proportional to the trades per day.
+                _fastTradingVolumeDiscountFactor = 2 * (((orderEvent.UtcTime - (_previousTrade?.UtcTime ?? orderEvent.UtcTime.AddDays(-1))).TotalMinutes) / 390);
+                _fastTradingVolumeDiscountFactor = _fastTradingVolumeDiscountFactor > 1 ? 1 : Math.Max(0.01, _fastTradingVolumeDiscountFactor);
+
+                // When trades occur within 10 minutes the total volume we will capture is implicitly limited
+                // because of the reduced time that we're capturing the volume
                 _timeout = orderEvent.UtcTime.ConvertFromUtc(_timeZone).AddMinutes(timeoutMinutes);
+                _previousTrade = orderEvent;
             }
 
             public void OnData(TradeBar bar)
@@ -157,11 +170,12 @@ namespace QuantConnect.Lean.Engine
                     return;
                 }
 
+                // If we have an illiquid stock, we will get bars that might not be continuous
                 _averageVolume = (bar.Volume + _previousBar.Volume) / (decimal)(bar.EndTime - _previousBar.EndTime).TotalMinutes;
 
                 if (bar.EndTime <= _timeout)
                 {
-                    _marketCapacityDollarVolume += absoluteMarketDollarVolume;
+                    _marketCapacityDollarVolume += absoluteMarketDollarVolume * (decimal)_fastTradingVolumeDiscountFactor;
                 }
 
                 _previousBar = bar;

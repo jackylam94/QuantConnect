@@ -12,25 +12,27 @@ namespace QuantConnect.Tests.Common.Capacity.Strategies
         private ExponentialMovingAverage _fast;
         private ExponentialMovingAverage _slow;
 
+
         public override void Initialize()
         {
             SetStartDate(2020, 1, 1);
             SetStartDate(2020, 1, 30);
-            SetCash(10000);
+            SetCash(100000);
             SetWarmup(100);
 
             _spy = AddEquity("SPY", Resolution.Minute).Symbol;
-            _fast = EMA(_spy, 10);
-            _slow = EMA(_spy, 30);
+            _fast = EMA(_spy, 20);
+            _slow = EMA(_spy, 40);
         }
 
         public override void OnData(Slice data)
         {
-            if (_fast > _slow)
+            if (Portfolio[_spy].Quantity <= 0 && _fast > _slow)
             {
                 SetHoldings(_spy, 1);
             }
-            else {
+            else if (Portfolio[_spy].Quantity >= 0 && _fast < _slow)
+            {
                 SetHoldings(_spy, -1);
             }
         }
