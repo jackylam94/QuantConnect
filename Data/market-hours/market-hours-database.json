@@ -36008,78 +36008,155 @@
       ],
       "holidays": []
     },
-	"Index-usa-[*]": {
-      "dataTimeZone": "UTC",
-      "exchangeTimeZone": "UTC",
-      "sunday": [
-        {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
-          "state": "market"
-        }
-      ],
+	"Index-usa-VIX": {
+      "dataTimeZone": "America/Chicago",
+      "exchangeTimeZone": "America/Chicago",
+      "sunday": [],
       "monday": [
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "02:15:00",
+          "end": "08:15:00",
           "state": "market"
         },
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "08:30:00",
+          "end": "15:15:00",
           "state": "market"
         }
       ],
       "tuesday": [
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "02:15:00",
+          "end": "08:15:00",
           "state": "market"
         },
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "08:30:00",
+          "end": "15:15:00",
           "state": "market"
         }
       ],
       "wednesday": [
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "02:15:00",
+          "end": "08:15:00",
           "state": "market"
         },
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "08:30:00",
+          "end": "15:15:00",
           "state": "market"
         }
       ],
       "thursday": [
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "02:15:00",
+          "end": "08:15:00",
           "state": "market"
         },
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "08:30:00",
+          "end": "15:15:00",
           "state": "market"
         }
       ],
       "friday": [
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "02:15:00",
+          "end": "08:15:00",
           "state": "market"
-        }
-      ],
-      "saturday": [
+        },
         {
-          "start": "00:00:00",
-          "end": "1.00:00:00",
+          "start": "08:30:00",
+          "end": "15:15:00",
           "state": "market"
         }
       ],
+      "saturday": [],
+      "holidays": []
+    },
+	"Index-usa-NDX": {
+      "dataTimeZone": "America/New_York",
+      "exchangeTimeZone": "America/New_York",
+      "sunday": [],
+      "monday": [
+        {
+          "start": "08:30:00",
+          "end": "16:15:00",
+          "state": "market"
+        }
+      ],
+      "tuesday": [
+        {
+          "start": "08:30:00",
+          "end": "16:15:00",
+          "state": "market"
+        }
+      ],
+      "wednesday": [
+        {
+          "start": "08:30:00",
+          "end": "16:15:00",
+          "state": "market"
+        }
+      ],
+      "thursday": [
+        {
+          "start": "08:30:00",
+          "end": "16:15:00",
+          "state": "market"
+        }
+      ],
+      "friday": [
+        {
+          "start": "08:30:00",
+          "end": "16:15:00",
+          "state": "market"
+        }
+      ],
+      "saturday": [],
+      "holidays": []
+    },
+	"Index-usa-SPX": {
+      "dataTimeZone": "America/Chicago",
+      "exchangeTimeZone": "America/Chicago",
+      "sunday": [],
+      "monday": [
+        {
+          "start": "08:30:00",
+          "end": "15:20:00",
+          "state": "market"
+        }
+      ],
+      "tuesday": [
+        {
+          "start": "08:30:00",
+          "end": "15:20:00",
+          "state": "market"
+        }
+      ],
+      "wednesday": [
+        {
+          "start": "08:30:00",
+          "end": "15:20:00",
+          "state": "market"
+        }
+      ],
+      "thursday": [
+        {
+          "start": "08:30:00",
+          "end": "15:20:00",
+          "state": "market"
+        }
+      ],
+      "friday": [
+        {
+          "start": "08:30:00",
+          "end": "15:20:00",
+          "state": "market"
+        }
+      ],
+      "saturday": [],
       "holidays": []
     }
   }
