@@ -157,7 +157,7 @@ namespace QuantConnect.Algorithm.CSharp
         /// <summary>
         /// This is used by the regression test system to indicate which languages this algorithm is written in.
         /// </summary>
-        public Language[] Languages { get; } = { Language.CSharp, Language.Python };
+        public Language[] Languages { get; } = { Language.CSharp };
 
         /// <summary>
         /// This is used by the regression test system to indicate what the expected statistics are from running the algorithm
@@ -176,13 +176,13 @@ namespace QuantConnect.Algorithm.CSharp
             {"Loss Rate", "0%"},
             {"Win Rate", "100%"},
             {"Profit-Loss Ratio", "0"},
-            {"Alpha", "0"},
-            {"Beta", "0"},
+            {"Alpha", "0.046"},
+            {"Beta", "-0.008"},
             {"Annual Standard Deviation", "0.013"},
             {"Annual Variance", "0"},
-            {"Information Ratio", "3.573"},
-            {"Tracking Error", "0.013"},
-            {"Treynor Ratio", "0"},
+            {"Information Ratio", "-0.074"},
+            {"Tracking Error", "0.157"},
+            {"Treynor Ratio", "-5.727"},
             {"Total Fees", "$0.00"},
             {"Estimated Strategy Capacity", "$0"},
             {"Fitness Score", "0"},

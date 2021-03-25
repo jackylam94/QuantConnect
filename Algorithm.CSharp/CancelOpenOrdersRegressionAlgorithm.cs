@@ -60,17 +60,17 @@ namespace QuantConnect.Algorithm.CSharp
             else if (UtcTime.Minute == 6)
             {
                 Transactions.CancelOpenOrders("BTCUSD");
-                LimitOrder("BTCUSD", 0.10576312m, 4727.61m);
+                LimitOrder("BTCUSD", 0.10549897m, 4727.61m);
             }
             else if (UtcTime.Minute == 12)
             {
                 Transactions.CancelOpenOrders("BTCUSD");
-                LimitOrder("BTCUSD", 0.10576267m, 4727.63m);
+                LimitOrder("BTCUSD", 0.10549852m, 4727.63m);
             }
             else if (UtcTime.Minute == 18)
             {
                 Transactions.CancelOpenOrders("BTCUSD");
-                LimitOrder("BTCUSD", 0.10547724m, 4740.42m);
+                LimitOrder("BTCUSD", 0.10521388m, 4740.42m);
             }
             else if (UtcTime.Minute == 24)
             {
@@ -152,8 +152,8 @@ namespace QuantConnect.Algorithm.CSharp
             {"Kelly Criterion Estimate", "0"},
             {"Kelly Criterion Probability Value", "0"},
             {"Sortino Ratio", "79228162514264337593543950335"},
-            {"Return Over Maximum Drawdown", "-30.158"},
-            {"Portfolio Turnover", "1.033"},
+            {"Return Over Maximum Drawdown", "-30.185"},
+            {"Portfolio Turnover", "1.032"},
             {"Total Insights Generated", "0"},
             {"Total Insights Closed", "0"},
             {"Total Insights Analysis Completed", "0"},
@@ -167,7 +167,7 @@ namespace QuantConnect.Algorithm.CSharp
             {"Mean Population Magnitude", "0%"},
             {"Rolling Averaged Population Direction", "0%"},
             {"Rolling Averaged Population Magnitude", "0%"},
-            {"OrderListHash", "aea2e321d17414c1f3c6fa2491f10c88"}
+            {"OrderListHash", "998abab272fe046e1f575a9e8fcef8d1"}
         };
     }
 }

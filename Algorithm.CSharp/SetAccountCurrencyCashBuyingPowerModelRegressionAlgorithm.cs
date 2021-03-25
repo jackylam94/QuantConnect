@@ -180,7 +180,7 @@ namespace QuantConnect.Algorithm.CSharp
                 if (orderEvent.OrderFee.Value.Currency == AccountCurrency
                     // leave 0.00001m as error in expected fee value
                     || Math.Abs(expectedOrderFee - orderFeeInAccountCurrency) > 0.00001m
-                    || Math.Abs(expectedOrderFee - calculatedOrderFee) > 0.00001m)
+                    || Math.Abs(expectedOrderFee - calculatedOrderFee) > 0.0001m)
                 {
                     throw new Exception($"Unexpected order fee: {orderFeeInAccountCurrency}. " +
                         $"Expected {expectedOrderFee}. Calculated Order Fee {calculatedOrderFee}");

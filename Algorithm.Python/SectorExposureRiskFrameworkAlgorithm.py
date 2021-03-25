@@ -24,9 +24,7 @@ from QuantConnect.Algorithm import *
 from QuantConnect.Algorithm.Framework import *
 from QuantConnect.Algorithm.Framework.Alphas import *
 from QuantConnect.Algorithm.Framework.Selection import *
-from Portfolio.EqualWeightingPortfolioConstructionModel import EqualWeightingPortfolioConstructionModel
-from Alphas.ConstantAlphaModel import ConstantAlphaModel
-from Execution.ImmediateExecutionModel import ImmediateExecutionModel
+from QuantConnect.Algorithm.Framework.Portfolio import *
 from Risk.MaximumSectorExposureRiskManagementModel import MaximumSectorExposureRiskManagementModel
 from datetime import date, timedelta
 

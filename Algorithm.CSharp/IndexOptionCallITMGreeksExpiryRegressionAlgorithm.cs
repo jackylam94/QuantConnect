@@ -176,12 +176,12 @@ namespace QuantConnect.Algorithm.CSharp
             {"Treynor Ratio", "18.473"},
             {"Total Fees", "$66.60"},
             {"Estimated Strategy Capacity", "$1200000.00"},
-            {"Fitness Score", "0.162"},
+            {"Fitness Score", "0"},
             {"Kelly Criterion Estimate", "0"},
             {"Kelly Criterion Probability Value", "0"},
-            {"Sortino Ratio", "-0.136"},
-            {"Return Over Maximum Drawdown", "-1.529"},
-            {"Portfolio Turnover", "0.427"},
+            {"Sortino Ratio", "0"},
+            {"Return Over Maximum Drawdown", "0"},
+            {"Portfolio Turnover", "0"},
             {"Total Insights Generated", "0"},
             {"Total Insights Closed", "0"},
             {"Total Insights Analysis Completed", "0"},
@@ -195,7 +195,7 @@ namespace QuantConnect.Algorithm.CSharp
             {"Mean Population Magnitude", "0%"},
             {"Rolling Averaged Population Direction", "0%"},
             {"Rolling Averaged Population Magnitude", "0%"},
-            {"OrderListHash", "a7f76d1e2d6f27651465217c92deea80"}
+            {"OrderListHash", "d41d8cd98f00b204e9800998ecf8427e"}
         };
     }
 }
