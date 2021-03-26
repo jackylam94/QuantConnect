@@ -502,22 +502,36 @@ namespace QuantConnect.Orders.Fills
 
             if (subscribedTypes.Contains(typeof(Tick)))
             {
-                var primaryExchange = (byte) ((Equity) asset).PrimaryExchange;
-                var officialOpen = (uint) (TradeConditionFlags.Regular | TradeConditionFlags.OfficialOpen);
-                var openingPrints = (uint) (TradeConditionFlags.Regular | TradeConditionFlags.OpeningPrints);
+                // Define valid trade ticks as valid (non-zero) tick of trade type from an open market
+                var validTrades = asset.Cache.GetAll<Tick>()
+                    .Where(x=> x.TickType == TickType.Trade && x.Price > 0 && asset.Exchange.DateTimeIsOpen(x.Time))
+                    .ToList();
 
-                // Get the first valid (non-zero) tick of trade type from an open market
-                var trade = asset.Cache.GetAll<Tick>()
+                var primaryExchange = (byte)((Equity)asset).PrimaryExchange;
+                var officialOpen = (uint)TradeConditionFlags.OfficialOpen;
+                var openingPrints = (uint)TradeConditionFlags.OpeningPrints;
+
+                // Get the first tick that meets the official open criteria
+                var trade = validTrades
                     .Where(x => !string.IsNullOrWhiteSpace(x.SaleCondition))
-                    .FirstOrDefault(x =>
-                        x.TickType == TickType.Trade && x.Price > 0 && x.ExchangeCode == primaryExchange &&
-                        (x.ParsedSaleCondition == officialOpen || x.ParsedSaleCondition == openingPrints) &&
-                        asset.Exchange.DateTimeIsOpen(x.Time));
+                    .FirstOrDefault(x => x.ExchangeCode == primaryExchange &&
+                        ((x.ParsedSaleCondition & officialOpen) == officialOpen || (x.ParsedSaleCondition & openingPrints) == openingPrints));
 
                 if (trade != null)
                 {
                     endTime = trade.EndTime;
                     fill.FillPrice = trade.Price;
+                }
+                // If no tick meet the official open criteria, take the first tick 5 seconds the market is open
+                else if (!validTrades.IsNullOrEmpty())
+                {
+                    var time = validTrades.Last().EndTime;
+                    if (time > asset.Exchange.Hours.GetNextMarketOpen(localOrderTime, false).AddSeconds(5))
+                    {
+                        trade = validTrades.First();
+                        endTime = trade.EndTime;
+                        fill.FillPrice = trade.Price;
+                    }
                 }
             }
             else if (subscribedTypes.Contains(typeof(TradeBar)))

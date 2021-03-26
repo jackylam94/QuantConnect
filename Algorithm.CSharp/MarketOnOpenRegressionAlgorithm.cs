@@ -15,59 +15,49 @@
 
 using System;
 using System.Collections.Generic;
-using QuantConnect.Data;
 using QuantConnect.Interfaces;
+using QuantConnect.Orders;
 
 namespace QuantConnect.Algorithm.CSharp
 {
     /// <summary>
-    /// Algorithm used for regression tests purposes
+    /// Regression algorithm for Market On Open orders.
     /// </summary>
-    /// <meta name="tag" content="regression test" />
-    public class RegressionAlgorithm : QCAlgorithm, IRegressionAlgorithmDefinition
+    /// <meta name="tag" content="using data" />
+    /// <meta name="tag" content="using quantconnect" />
+    /// <meta name="tag" content="trading and orders" />
+    public class MarketOnOpenRegressionAlgorithm : QCAlgorithm, IRegressionAlgorithmDefinition
     {
+        private readonly decimal[] _expectedFillPrices = { 167.45m, 165.82m };
+
+        /// <summary>
+        /// Initialise the data and resolution required, as well as the cash and start-end dates for your algorithm. All algorithms must initialized.
+        /// </summary>
         public override void Initialize()
         {
-            SetStartDate(2013, 10, 07);
-            SetEndDate(2013, 10, 11);
+            SetStartDate(2013, 10, 7);
+            SetEndDate(2013, 10, 9);
+            SetCash(100000);
 
-            SetCash(10000000);
+            var resolution = Resolution.Tick;
+            var equity = AddEquity("SPY", resolution);
+            var symbol = equity.Symbol;
+            equity.SetDataNormalizationMode(DataNormalizationMode.Raw);
 
-            // Find more symbols here: http://quantconnect.com/data
-            AddSecurity(SecurityType.Equity, "SPY", Resolution.Tick);
-            AddSecurity(SecurityType.Equity, "BAC", Resolution.Minute);
-            AddSecurity(SecurityType.Equity, "AIG", Resolution.Hour);
-            AddSecurity(SecurityType.Equity, "IBM", Resolution.Daily);
+            Schedule.On(
+                DateRules.EveryDay(symbol),
+                resolution == Resolution.Daily ? TimeRules.Midnight : TimeRules.At(15, 0),
+                () => MarketOnOpenOrder(symbol, 100));
         }
 
-        private DateTime lastTradeTradeBars;
-        private DateTime lastTradeTicks;
-        private TimeSpan tradeEvery = TimeSpan.FromMinutes(1);
-        public void OnData(Slice data)
+        public override void OnOrderEvent(OrderEvent orderEvent)
         {
-            if (Time - lastTradeTradeBars < tradeEvery) return;
-            lastTradeTradeBars = Time;
+            if (!orderEvent.Status.IsFill()) return;
 
-            foreach (var kvp in data.Bars)
+            var expected = _expectedFillPrices[orderEvent.OrderId - 1];
+            if (expected != orderEvent.FillPrice)
             {
-                var symbol = kvp.Key;
-                var bar = kvp.Value;
-
-                if (bar.Time.RoundDown(bar.Period) != bar.Time)
-                {
-                    // only trade on new data
-                    continue;
-                }
-
-                var holdings = Portfolio[symbol];
-                if (!holdings.Invested)
-                {
-                    MarketOrder(symbol, 10);
-                }
-                else
-                {
-                    MarketOrder(symbol, -holdings.Quantity);
-                }
+                throw new Exception($"Unexpected value for Fill Price of {orderEvent.FillPrice}. Expected: {expected}");
             }
         }
 
@@ -86,33 +76,32 @@ namespace QuantConnect.Algorithm.CSharp
         /// </summary>
         public Dictionary<string, string> ExpectedStatistics => new Dictionary<string, string>
         {
-            {"Total Trades", "1589"},
-            {"Average Win", "0.00%"},
-            {"Average Loss", "0.00%"},
-            {"Compounding Annual Return", "-1.158%"},
-            {"Drawdown", "0.000%"},
-            {"Expectancy", "-0.989"},
-            {"Net Profit", "-0.016%"},
-            {"Sharpe Ratio", "-8.353"},
-            {"Probabilistic Sharpe Ratio", "0.025%"},
-            {"Loss Rate", "100%"},
+            {"Total Trades", "2"},
+            {"Average Win", "0%"},
+            {"Average Loss", "0%"},
+            {"Compounding Annual Return", "-25.312%"},
+            {"Drawdown", "0.400%"},
+            {"Expectancy", "0"},
+            {"Net Profit", "-0.213%"},
+            {"Sharpe Ratio", "-11.467"},
+            {"Probabilistic Sharpe Ratio", "0%"},
+            {"Loss Rate", "0%"},
             {"Win Rate", "0%"},
-            {"Profit-Loss Ratio", "1.81"},
-            {"Alpha", "-0.006"},
-            {"Beta", "-0.001"},
-            {"Annual Standard Deviation", "0.001"},
+            {"Profit-Loss Ratio", "0"},
+            {"Alpha", "-0.122"},
+            {"Beta", "0.151"},
+            {"Annual Standard Deviation", "0.021"},
             {"Annual Variance", "0"},
-            {"Information Ratio", "-7.192"},
-            {"Tracking Error", "0.195"},
-            {"Treynor Ratio", "8.322"},
-            {"Total Fees", "$1589.00"},
-            {"Estimated Strategy Capacity", "$57000000.00"},
-            {"Fitness Score", "0"},
+            {"Information Ratio", "4.469"},
+            {"Tracking Error", "0.116"},
+            {"Treynor Ratio", "-1.562"},
+            {"Total Fees", "$2.00"},
+            {"Fitness Score", "0.041"},
             {"Kelly Criterion Estimate", "0"},
             {"Kelly Criterion Probability Value", "0"},
-            {"Sortino Ratio", "-15.241"},
-            {"Return Over Maximum Drawdown", "-72.582"},
-            {"Portfolio Turnover", "0.018"},
+            {"Sortino Ratio", "79228162514264337593543950335"},
+            {"Return Over Maximum Drawdown", "-134.806"},
+            {"Portfolio Turnover", "0.083"},
             {"Total Insights Generated", "0"},
             {"Total Insights Closed", "0"},
             {"Total Insights Analysis Completed", "0"},
@@ -126,7 +115,7 @@ namespace QuantConnect.Algorithm.CSharp
             {"Mean Population Magnitude", "0%"},
             {"Rolling Averaged Population Direction", "0%"},
             {"Rolling Averaged Population Magnitude", "0%"},
-            {"OrderListHash", "121beea4033002e611c01dad24956f88"}
+            {"OrderListHash", "b872c3e4a3f5afa8394b66bb1a8d68fe"}
         };
     }
 }

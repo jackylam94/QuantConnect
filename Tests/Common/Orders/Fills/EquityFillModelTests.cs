@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using QuantConnect.Brokerages;
 using QuantConnect.Data;
@@ -687,6 +689,94 @@ namespace QuantConnect.Tests.Common.Orders.Fills
             Assert.AreEqual(expected, fill.FillPrice);
         }
 
+        [TestCase(-100)]
+        [TestCase(100)]
+        public void PerformsMarketOnOpenUsingOpenPriceWithTickSubscriptionNoOfficialOpen(int quantity)
+        {
+            var reference = new DateTime(2015, 06, 05, 9, 0, 0); // before market open
+            var model = new EquityFillModel();
+            var order = new MarketOnOpenOrder(Symbols.SPY, quantity, reference);
+            var config = CreateTickConfig(Symbols.SPY);
+            var equity = CreateEquity(config);
+            var time = reference;
+            TimeKeeper.SetUtcDateTime(time.ConvertToUtc(TimeZones.NewYork));
+
+            var saleCondition = "80000001";
+
+            equity.Update(new List<Tick>
+            {
+                new Tick(time, Symbols.SPY, saleCondition, "P", 100, 1m),
+                new Tick(time, Symbols.SPY, 1m, 0.9m, 1.1m)
+            }, typeof(Tick));
+
+            var fill = model.Fill(new FillModelParameters(
+                equity,
+                order,
+                new MockSubscriptionDataConfigProvider(config),
+                Time.OneHour)).OrderEvent;
+
+            Assert.AreEqual(0, fill.FillQuantity);
+
+            // market opens after 30min, so this is just before market open
+            time = reference.AddMinutes(29);
+            TimeKeeper.SetUtcDateTime(time.ConvertToUtc(TimeZones.NewYork));
+            equity.Update(new List<Tick>
+            {
+                new Tick(time, Symbols.SPY, saleCondition, "P", 100, 1m),
+                new Tick(time, Symbols.SPY, 1m, 0.9m, 1.1m)
+            }, typeof(Tick));
+
+            fill = model.MarketOnOpenFill(equity, order);
+            Assert.AreEqual(0, fill.FillQuantity);
+
+            const decimal expected = 1m;
+            // market opens after 30min
+            time = reference.AddMinutes(30);
+            TimeKeeper.SetUtcDateTime(time.ConvertToUtc(TimeZones.NewYork));
+
+            // The quote is received after the market is open, but the trade is not
+            equity.Update(new List<Tick>
+            {
+                new Tick(time.AddMinutes(-1), Symbols.SPY, saleCondition, "P", 100, expected),
+                new Tick(time, Symbols.SPY, 1m, 0.9m, 1.1m)
+            }, typeof(Tick));
+
+            fill = model.MarketOnOpenFill(equity, order);
+            Assert.AreEqual(0, fill.FillQuantity);
+
+            // One quote and some trades with different conditions are received after the market is open,
+            // but there is trade prior to that with different price
+            equity.Update(new List<Tick>
+            {
+                new Tick(time.AddMinutes(-1), Symbols.SPY,  saleCondition, "P", 100, 0.9m),
+                new Tick(time, Symbols.SPY, saleCondition, "Q", 100, 0.95m),
+                new Tick(time, Symbols.SPY, saleCondition, "P", 100, 0.94m),
+                new Tick(time, Symbols.SPY, 1m, 0.9m, 1.1m),
+                new Tick(time, Symbols.SPY,  saleCondition, "P", 100, 0.95m),
+            }, typeof(Tick));
+
+            // There is no open tick
+            fill = model.MarketOnOpenFill(equity, order);
+            Assert.AreEqual(0, fill.FillQuantity);
+
+            // Reset to remove ticks from previous Update method call
+            equity.Cache.Reset();
+
+            // Add new trades and quotes for 5 seconds. Since the last one will pass the 5 seconds threshold,
+            // we will use the first of this sequence
+            equity.Update(Enumerable.Range(1, 6).SelectMany(i =>
+                    new[]
+                    {
+                        new Tick(time.AddSeconds(i), Symbols.SPY, saleCondition, "P", 100, 1m + i / 100m),
+                        new Tick(time.AddSeconds(i), Symbols.SPY, 1m, 0.9m, 1.1m),
+                    })
+                .ToList(), typeof(Tick));
+
+            fill = model.MarketOnOpenFill(equity, order);
+            Assert.AreEqual(order.Quantity, fill.FillQuantity);
+            Assert.AreEqual(1.01, fill.FillPrice);
+        }
+
         [TestCase(Resolution.Minute, 3, 17, 0, 9, 29)]
         [TestCase(Resolution.Minute, 4, 0, 0, 9, 29)]
         [TestCase(Resolution.Minute, 4, 8, 0, 9, 29)]
@@ -746,6 +836,37 @@ namespace QuantConnect.Tests.Common.Orders.Fills
 
             Assert.AreEqual(order.Quantity, fill.FillQuantity);
             Assert.AreEqual(expected, fill.FillPrice);
+        }
+
+        [TestCase(Resolution.Minute)]
+        [TestCase(Resolution.Hour)]
+        [TestCase(Resolution.Daily)]
+        public void RunMarketOnOpenRegressionAlgorithm(Resolution resolution)
+        {
+            // NOTE: Second resolution is not included because on 2013-10-09,
+            // the open price occurs after the first second.
+            // QuantConnect Data Team assumes tha if there is no official open price,
+            // we need to use the first available price
+
+            const string algorithm = "MarketOnOpenRegressionAlgorithm";
+            var path = $"../../../Algorithm.Python/{algorithm}.py";
+            var content = File.ReadAllLines(path);
+            content[42] = $"        resolution = Resolution.{resolution}";
+            File.WriteAllLines(path, content);
+
+            var parameter = new RegressionTests.AlgorithmStatisticsTestParameters(algorithm,
+                new Dictionary<string, string> {{"Total Trades", "2"}},
+                Language.Python,
+                AlgorithmStatus.Completed);
+
+            AlgorithmRunner.RunLocalBacktest(parameter.Algorithm,
+                parameter.Statistics,
+                parameter.AlphaStatistics,
+                parameter.Language,
+                parameter.ExpectedFinalStatus);
+
+            content[42] = $"        resolution = Resolution.Tick";
+            File.WriteAllLines(path, content);
         }
 
         [Test]
