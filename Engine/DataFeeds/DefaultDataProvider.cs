@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using QuantConnect.Interfaces;
 
 namespace QuantConnect.Lean.Engine.DataFeeds
@@ -33,7 +34,7 @@ namespace QuantConnect.Lean.Engine.DataFeeds
         {
             try
             {
-                return new FileStream(key, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return MemoryMappedFile.OpenExisting(key, MemoryMappedFileRights.Read).CreateViewStream();
             }
             catch (Exception exception)
             {
