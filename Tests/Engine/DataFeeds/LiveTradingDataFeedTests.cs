@@ -43,6 +43,7 @@ using QuantConnect.Util;
 
 namespace QuantConnect.Tests.Engine.DataFeeds
 {
+    [NonParallelizable]
     [TestFixture]
     public class LiveTradingDataFeedTests
     {
