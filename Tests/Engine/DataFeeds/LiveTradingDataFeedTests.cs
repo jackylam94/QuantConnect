@@ -1349,7 +1349,8 @@ namespace QuantConnect.Tests.Engine.DataFeeds
                 }
                 _algorithm.OnEndOfTimeStep();
                 _manualTimeProvider.AdvanceSeconds(secondsTimeStep);
-                Thread.Sleep(10);
+
+                Thread.Sleep(50);
                 if (endDate != default(DateTime) && _manualTimeProvider.GetUtcNow() > endDate
                     || endTime <= DateTime.UtcNow)
                 {
