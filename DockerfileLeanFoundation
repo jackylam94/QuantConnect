@@ -52,8 +52,10 @@ RUN wget https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-p
 ENV CONDA="Miniconda3-4.5.12-Linux-x86_64.sh"
 ENV PATH="/opt/miniconda3/bin:${PATH}"
 RUN wget https://cdn.quantconnect.com/miniconda/${CONDA} && \
-    bash ${CONDA} -b -p /opt/miniconda3 && rm -rf ${CONDA} && \
-    ln -s /opt/miniconda3/lib/libpython3.6m.so /usr/lib/libpython3.6m.so
+    bash ${CONDA} -b -p /opt/miniconda3 && rm -rf ${CONDA}
+
+# Set PythonDLL variable for PythonNet
+ENV PYTHONNET_PYDLL="/opt/miniconda3/lib/libpython3.6m.so"
 
 # Install supported third party python packages
 # Updates conda and pip
@@ -264,9 +266,6 @@ RUN conda clean -y --all
 
 # Clean up any unused packages installed by apt-get
 RUN apt-get autoremove --purge -y
-
-# Set PythonDLL variable for PythonNet
-ENV PYTHONNET_PYDLL="/opt/miniconda3/lib/libpython3.6m.so"
 
 # List all packages
 RUN conda list
