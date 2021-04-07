@@ -668,7 +668,7 @@ namespace QuantConnect.Tests.Engine.DataFeeds
 
             var receivedDelistedWarning = 0;
             var receivedDelisted = 0;
-            ConsumeBridge(feed, TimeSpan.FromSeconds(10), ts =>
+            ConsumeBridge(feed, TimeSpan.FromSeconds(15), ts =>
             {
                 foreach (var delistingEvent in ts.Slice.Delistings)
                 {
@@ -1349,8 +1349,7 @@ namespace QuantConnect.Tests.Engine.DataFeeds
                 }
                 _algorithm.OnEndOfTimeStep();
                 _manualTimeProvider.AdvanceSeconds(secondsTimeStep);
-
-                Thread.Sleep(50);
+                Thread.Sleep(10);
                 if (endDate != default(DateTime) && _manualTimeProvider.GetUtcNow() > endDate
                     || endTime <= DateTime.UtcNow)
                 {
