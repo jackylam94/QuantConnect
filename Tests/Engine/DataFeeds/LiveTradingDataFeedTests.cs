@@ -668,7 +668,7 @@ namespace QuantConnect.Tests.Engine.DataFeeds
 
             var receivedDelistedWarning = 0;
             var receivedDelisted = 0;
-            ConsumeBridge(feed, TimeSpan.FromSeconds(15), ts =>
+            ConsumeBridge(feed, TimeSpan.FromSeconds(5), ts =>
             {
                 foreach (var delistingEvent in ts.Slice.Delistings)
                 {
@@ -679,10 +679,12 @@ namespace QuantConnect.Tests.Engine.DataFeeds
 
                     if (delistingEvent.Value.Type == DelistingType.Warning)
                     {
+                        Log.Trace("Received Delisted Warning");
                         Interlocked.Increment(ref receivedDelistedWarning);
                     }
                     if (delistingEvent.Value.Type == DelistingType.Delisted)
                     {
+                        Log.Trace("Received Delisted Event");
                         Interlocked.Increment(ref receivedDelisted);
                         // we got what we wanted, end unit test
                         _manualTimeProvider.SetCurrentTimeUtc(DateTime.UtcNow);
@@ -690,7 +692,7 @@ namespace QuantConnect.Tests.Engine.DataFeeds
                 }
             },
             alwaysInvoke: false,
-            secondsTimeStep: 3600 * 8,
+            secondsTimeStep: 3600 * 12,
             endDate: delistingDate.AddDays(2));
 
             Assert.AreEqual(1, receivedDelistedWarning, $"Did not receive {DelistingType.Warning}");
