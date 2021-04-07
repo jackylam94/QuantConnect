@@ -648,7 +648,8 @@ namespace QuantConnect.Tests.Engine.DataFeeds
         [Test]
         public void DelistedEventEmitted_Equity()
         {
-            _startDate = new DateTime(2016, 2, 18);
+            Log.Error($"Starting Test DelistedEventEmitted_Equity at: {DateTime.UtcNow}");
+            _startDate = new DateTime(2016, 2, 18, 6, 0, 0);
             CustomMockedFileBaseData.StartDate = _startDate;
             _manualTimeProvider.SetCurrentTimeUtc(_startDate);
             var delistingDate = _startDate.AddDays(1);
@@ -697,6 +698,7 @@ namespace QuantConnect.Tests.Engine.DataFeeds
 
             Assert.AreEqual(1, receivedDelistedWarning, $"Did not receive {DelistingType.Warning}");
             Assert.AreEqual(1, receivedDelisted, $"Did not receive {DelistingType.Delisted}");
+            Log.Error($"Finished Test DelistedEventEmitted_Equity at: {DateTime.UtcNow}");
         }
 
         [Test]
