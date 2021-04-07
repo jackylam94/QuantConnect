@@ -679,12 +679,12 @@ namespace QuantConnect.Tests.Engine.DataFeeds
 
                     if (delistingEvent.Value.Type == DelistingType.Warning)
                     {
-                        Log.Trace("Received Delisted Warning");
+                        Log.Error("Received Delisted Warning");
                         Interlocked.Increment(ref receivedDelistedWarning);
                     }
                     if (delistingEvent.Value.Type == DelistingType.Delisted)
                     {
-                        Log.Trace("Received Delisted Event");
+                        Log.Error("Received Delisted Event");
                         Interlocked.Increment(ref receivedDelisted);
                         // we got what we wanted, end unit test
                         _manualTimeProvider.SetCurrentTimeUtc(DateTime.UtcNow);
