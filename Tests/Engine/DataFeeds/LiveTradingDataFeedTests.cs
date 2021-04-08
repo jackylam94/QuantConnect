@@ -691,7 +691,8 @@ namespace QuantConnect.Tests.Engine.DataFeeds
             },
             alwaysInvoke: false,
             secondsTimeStep: 3600 * 6,
-            endDate: delistingDate.AddDays(2));
+            endDate: delistingDate.AddDays(2),
+            sleepMilliseconds: 100);
 
             Log.Error($"Finished Test DelistedEventEmitted_Equity at: {DateTime.UtcNow}");
             Assert.AreEqual(1, receivedDelistedWarning, $"Did not receive {DelistingType.Warning}");
@@ -1321,7 +1322,8 @@ namespace QuantConnect.Tests.Engine.DataFeeds
             bool noOutput = true,
             bool sendUniverseData = false,
             int secondsTimeStep = 1,
-            DateTime endDate = default(DateTime))
+            DateTime endDate = default(DateTime),
+            int sleepMilliseconds = 10)
         {
             var endTime = DateTime.UtcNow.Add(timeout);
             bool startedReceivingata = false;
@@ -1350,14 +1352,14 @@ namespace QuantConnect.Tests.Engine.DataFeeds
                 }
                 _algorithm.OnEndOfTimeStep();
                 _manualTimeProvider.AdvanceSeconds(secondsTimeStep);
-                Thread.Sleep(10);
+                Thread.Sleep(sleepMilliseconds);
                 if (endDate != default(DateTime) && _manualTimeProvider.GetUtcNow() > endDate
                     || endTime <= DateTime.UtcNow)
                 {
                     feed.Exit();
                     cancellationTokenSource.Cancel();
                     // allow LTDF tasks to finish
-                    Thread.Sleep(10);
+                    Thread.Sleep(sleepMilliseconds);
                     return;
                 }
             }
