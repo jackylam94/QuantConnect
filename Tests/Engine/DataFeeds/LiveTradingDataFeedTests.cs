@@ -1310,9 +1310,10 @@ namespace QuantConnect.Tests.Engine.DataFeeds
         }
 
         private void ConsumeBridge(IDataFeed feed, TimeSpan timeout, Action<TimeSlice> handler, bool sendUniverseData = false,
-            int secondsTimeStep = 1, bool alwaysInvoke = false, DateTime endDate = default(DateTime))
+            int secondsTimeStep = 1, bool alwaysInvoke = false, DateTime endDate = default(DateTime), int sleepMilliseconds = 10)
         {
-            ConsumeBridge(feed, timeout, alwaysInvoke, handler, sendUniverseData: sendUniverseData, secondsTimeStep: secondsTimeStep, endDate: endDate);
+            ConsumeBridge(feed, timeout, alwaysInvoke, handler, sendUniverseData: sendUniverseData,
+                secondsTimeStep: secondsTimeStep, endDate: endDate, sleepMilliseconds: sleepMilliseconds);
         }
 
         private void ConsumeBridge(IDataFeed feed,
