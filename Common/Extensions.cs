@@ -962,6 +962,18 @@ namespace QuantConnect
         }
 
         /// <summary>
+        /// Casts the specified input value to a decimal while acknowledging the overflow conditions
+        /// </summary>
+        /// <param name="input">The value to be cast</param>
+        /// <returns>The input value as a decimal, if the value is too large or to small to be represented
+        /// as a decimal, then the closest decimal value will be returned</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal SafeDecimalCast(this float input)
+        {
+            return ((double) input).SafeDecimalCast();
+        }
+
+        /// <summary>
         /// Will remove any trailing zeros for the provided decimal input
         /// </summary>
         /// <param name="input">The <see cref="decimal"/> to remove trailing zeros from</param>

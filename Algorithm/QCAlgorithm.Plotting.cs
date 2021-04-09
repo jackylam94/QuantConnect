@@ -119,7 +119,7 @@ namespace QuantConnect.Algorithm
         /// <seealso cref="Plot(string,string,decimal)"/>
         public void Plot(string series, float value)
         {
-            Plot(series, (double)value);
+            Plot(series, value.SafeDecimalCast());
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace QuantConnect.Algorithm
         /// <seealso cref="Plot(string,string,decimal)"/>
         public void Plot(string chart, string series, float value)
         {
-            Plot(chart, series, (double)value);
+            Plot(chart, series, value.SafeDecimalCast());
         }
 
         /// <summary>
