@@ -127,7 +127,7 @@ namespace QuantConnect.Lean.Engine.Setup
             }
 
             // find the correct brokerage factory based on the specified brokerage in the live job packet
-            _factory = Composer.Instance.Single<IBrokerageFactory>(brokerageFactory => brokerageFactory.BrokerageType.MatchesTypeName(liveJob.Brokerage));
+            _factory = Composer.Instance.Single<IBrokerageFactory>(brokerageFactory => brokerageFactory.BrokerageType.MatchesTypeName("AtreyuBrokerage"));
             factory = _factory;
 
             PreloadDataQueueHandler(liveJob, uninitializedAlgorithm, factory);
